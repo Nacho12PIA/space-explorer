@@ -1,48 +1,94 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { OrbitControls, Stars, Html } from "@react-three/drei";
+import * as THREE from "three";
 
 import { planets } from "../data/planets";
 
+const textureFiles = {
+  Mercurio: "/textures/2k_mercury.jpg",
+  Venus: "/textures/2k_venus_atmosphere.jpg",
+  Tierra: "/textures/2k_earth_daymap.jpg",
+  Marte: "/textures/2k_mars.jpg",
+  Júpiter: "/textures/2k_jupiter.jpg",
+  Saturno: "/textures/2k_saturn.jpg",
+  Urano: "/textures/2k_uranus.jpg",
+  Neptuno: "/textures/2k_neptune.jpg",
+};
+
 function Planet({ planet, index, onSelect }) {
   const group = useRef();
+  const planetMesh = useRef();
 
-  useFrame(() => {
+  const texture = useLoader(
+    THREE.TextureLoader,
+    textureFiles[planet.name]
+  );
+
+  const saturnRingTexture = useLoader(
+    THREE.TextureLoader,
+    "/textures/2k_saturn_ring_alpha.png"
+  );
+
+  useFrame((state, delta) => {
     if (group.current) {
-      group.current.rotation.y += planet.speed * 0.01;
+      group.current.rotation.y += planet.speed * delta * 0.35;
+    }
+
+    if (planetMesh.current) {
+      planetMesh.current.rotation.y += delta * 0.08;
     }
   });
 
-  const startingAngle = (index / planets.length) * Math.PI * 2;
+  const startingAngle =
+    (index / planets.length) * Math.PI * 2;
 
   return (
-    <group ref={group} rotation={[0, startingAngle, 0]}>
-      <mesh
-        position={[planet.distance, 0, 0]}
-        onClick={(event) => {
-          event.stopPropagation();
-          onSelect(planet);
-        }}
-      >
-        <sphereGeometry args={[planet.size, 48, 48]} />
-        <meshStandardMaterial
-          color={planet.color}
-          roughness={0.8}
-          metalness={0.05}
-        />
+    <group
+      ref={group}
+      rotation={[0, startingAngle, 0]}
+    >
+      <group position={[planet.distance, 0, 0]}>
+        <mesh
+          ref={planetMesh}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(planet);
+          }}
+        >
+          <sphereGeometry args={[planet.size, 64, 64]} />
+
+          <meshStandardMaterial
+            map={texture}
+            roughness={0.9}
+            metalness={0}
+          />
+        </mesh>
 
         {planet.name === "Saturno" && (
-          <mesh rotation={[Math.PI / 2.3, 0, 0]}>
+          <mesh
+            rotation={[Math.PI / 2.15, 0, 0]}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect(planet);
+            }}
+          >
             <ringGeometry
-              args={[planet.size * 1.35, planet.size * 2.1, 64]}
+              args={[
+                planet.size * 1.25,
+                planet.size * 2.25,
+                128,
+              ]}
             />
+
             <meshBasicMaterial
-              color="#d6c08d"
-              side={2}
+              map={saturnRingTexture}
               transparent
-              opacity={0.75}
+              opacity={0.95}
+              side={THREE.DoubleSide}
+              depthWrite={false}
             />
           </mesh>
         )}
@@ -56,8 +102,9 @@ function Planet({ planet, index, onSelect }) {
             style={{
               padding: "4px 8px",
               borderRadius: 999,
-              background: "rgba(4, 10, 25, 0.75)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "rgba(4, 10, 25, 0.78)",
+              border:
+                "1px solid rgba(255,255,255,0.16)",
               color: "white",
               fontSize: 12,
               whiteSpace: "nowrap",
@@ -67,10 +114,12 @@ function Planet({ planet, index, onSelect }) {
             {planet.name}
           </div>
         </Html>
-      </mesh>
+      </group>
 
       <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[planet.distance, 0.015, 8, 128]} />
+        <torusGeometry
+          args={[planet.distance, 0.015, 8, 128]}
+        />
         <meshBasicMaterial
           color="#475569"
           transparent
@@ -84,7 +133,11 @@ function Planet({ planet, index, onSelect }) {
 function Sun() {
   return (
     <>
-      <pointLight intensity={450} distance={100} decay={2} />
+      <pointLight
+        intensity={500}
+        distance={100}
+        decay={2}
+      />
 
       <mesh>
         <sphereGeometry args={[2.8, 64, 64]} />
@@ -97,7 +150,7 @@ function Sun() {
 function Scene({ onSelect }) {
   return (
     <>
-      <ambientLight intensity={0.2} />
+      <ambientLight intensity={0.18} />
 
       <Stars
         radius={120}
@@ -132,16 +185,25 @@ function Scene({ onSelect }) {
 }
 
 export default function SolarSystem() {
-  const [selectedPlanet, setSelectedPlanet] = useState(null);
+  const [selectedPlanet, setSelectedPlanet] =
+    useState(null);
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        position: "relative",
+      }}
+    >
       <Canvas
         camera={{
           position: [0, 18, 34],
           fov: 45,
         }}
-        onPointerMissed={() => setSelectedPlanet(null)}
+        onPointerMissed={() =>
+          setSelectedPlanet(null)
+        }
       >
         <Scene onSelect={setSelectedPlanet} />
       </Canvas>
@@ -196,15 +258,19 @@ export default function SolarSystem() {
             maxWidth: 420,
             margin: "0 auto",
             background: "rgba(4, 10, 25, 0.96)",
-            border: "1px solid rgba(255,255,255,0.16)",
+            border:
+              "1px solid rgba(255,255,255,0.16)",
             borderRadius: 22,
             padding: 20,
             zIndex: 20,
-            boxShadow: "0 20px 60px rgba(0,0,0,0.45)",
+            boxShadow:
+              "0 20px 60px rgba(0,0,0,0.45)",
           }}
         >
           <button
-            onClick={() => setSelectedPlanet(null)}
+            onClick={() =>
+              setSelectedPlanet(null)
+            }
             style={{
               position: "absolute",
               right: 14,
@@ -283,8 +349,10 @@ export default function SolarSystem() {
               marginTop: 16,
               padding: 14,
               borderRadius: 14,
-              background: "rgba(66, 153, 225, 0.12)",
-              border: "1px solid rgba(66, 153, 225, 0.25)",
+              background:
+                "rgba(66, 153, 225, 0.12)",
+              border:
+                "1px solid rgba(66, 153, 225, 0.25)",
             }}
           >
             <div

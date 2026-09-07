@@ -445,8 +445,8 @@ export default function SolarSystem() {
             />
 
             <InfoBox
-              label="Órbita"
-              value="Alrededor del Sol"
+              label="Duración del año"
+              value={selectedPlanet.year}
             />
           </div>
 

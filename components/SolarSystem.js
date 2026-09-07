@@ -92,7 +92,9 @@ function Planet({ planet, index, onSelect }) {
             />
           </mesh>
         )}
-
+{planet.name === "Tierra" && (
+  <Moon earthSize={planet.size} />
+)}
         <Html
           position={[0, planet.size + 0.7, 0]}
           center
@@ -129,20 +131,73 @@ function Planet({ planet, index, onSelect }) {
     </group>
   );
 }
+function Moon({ earthSize }) {
+  const moonOrbit = useRef();
+  const moonTexture = useLoader(
+    THREE.TextureLoader,
+    "/textures/2k_moon.jpg"
+  );
 
+  useFrame((state, delta) => {
+    if (moonOrbit.current) {
+      moonOrbit.current.rotation.y += delta * 0.35;
+    }
+  });
+
+  return (
+    <group ref={moonOrbit}>
+      <mesh position={[earthSize + 1.4, 0.15, 0]}>
+        <sphereGeometry args={[0.27, 48, 48]} />
+
+        <meshStandardMaterial
+          map={moonTexture}
+          roughness={1}
+          metalness={0}
+        />
+      </mesh>
+
+      <Html
+        position={[earthSize + 1.4, 0.7, 0]}
+        center
+        distanceFactor={12}
+      >
+        <div
+          style={{
+            padding: "3px 7px",
+            borderRadius: 999,
+            background: "rgba(4, 10, 25, 0.78)",
+            border: "1px solid rgba(255,255,255,0.16)",
+            color: "white",
+            fontSize: 10,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+          }}
+        >
+          Luna
+        </div>
+      </Html>
+    </group>
+  );
+}
 function Sun() {
   const sunRef = useRef();
   const glowRef = useRef();
+
+  const sunTexture = useLoader(
+    THREE.TextureLoader,
+    "/textures/2k_sun.jpg"
+  );
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
 
     if (sunRef.current) {
-      sunRef.current.rotation.y = t * 0.03;
+      sunRef.current.rotation.y = t * 0.025;
     }
 
     if (glowRef.current) {
-      const pulse = 1 + Math.sin(t * 1.5) * 0.025;
+      const pulse = 1 + Math.sin(t * 1.5) * 0.02;
+
       glowRef.current.scale.set(
         pulse,
         pulse,
@@ -163,21 +218,19 @@ function Sun() {
       <mesh ref={sunRef}>
         <sphereGeometry args={[2.8, 96, 96]} />
 
-        <meshStandardMaterial
-          color="#ff9d00"
-          emissive="#ff7a00"
-          emissiveIntensity={3}
-          roughness={1}
+        <meshBasicMaterial
+          map={sunTexture}
+          toneMapped={false}
         />
       </mesh>
 
       <mesh ref={glowRef}>
-        <sphereGeometry args={[3.15, 64, 64]} />
+        <sphereGeometry args={[3.08, 64, 64]} />
 
         <meshBasicMaterial
-          color="#ffb347"
+          color="#ff9d32"
           transparent
-          opacity={0.16}
+          opacity={0.12}
           side={THREE.BackSide}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -185,12 +238,12 @@ function Sun() {
       </mesh>
 
       <mesh>
-        <sphereGeometry args={[3.65, 64, 64]} />
+        <sphereGeometry args={[3.45, 64, 64]} />
 
         <meshBasicMaterial
-          color="#ff8c1a"
+          color="#ff7300"
           transparent
-          opacity={0.055}
+          opacity={0.035}
           side={THREE.BackSide}
           blending={THREE.AdditiveBlending}
           depthWrite={false}

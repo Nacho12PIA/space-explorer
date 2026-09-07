@@ -131,17 +131,70 @@ function Planet({ planet, index, onSelect }) {
 }
 
 function Sun() {
+  const sunRef = useRef();
+  const glowRef = useRef();
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+
+    if (sunRef.current) {
+      sunRef.current.rotation.y = t * 0.03;
+    }
+
+    if (glowRef.current) {
+      const pulse = 1 + Math.sin(t * 1.5) * 0.025;
+      glowRef.current.scale.set(
+        pulse,
+        pulse,
+        pulse
+      );
+    }
+  });
+
   return (
     <>
       <pointLight
-        intensity={500}
-        distance={100}
+        color="#ffd27a"
+        intensity={650}
+        distance={110}
         decay={2}
       />
 
+      <mesh ref={sunRef}>
+        <sphereGeometry args={[2.8, 96, 96]} />
+
+        <meshStandardMaterial
+          color="#ff9d00"
+          emissive="#ff7a00"
+          emissiveIntensity={3}
+          roughness={1}
+        />
+      </mesh>
+
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[3.15, 64, 64]} />
+
+        <meshBasicMaterial
+          color="#ffb347"
+          transparent
+          opacity={0.16}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
       <mesh>
-        <sphereGeometry args={[2.8, 64, 64]} />
-        <meshBasicMaterial color="#FDB813" />
+        <sphereGeometry args={[3.65, 64, 64]} />
+
+        <meshBasicMaterial
+          color="#ff8c1a"
+          transparent
+          opacity={0.055}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
       </mesh>
     </>
   );

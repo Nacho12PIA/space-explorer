@@ -1506,6 +1506,7 @@ function JupiterAtmosphereMarkers({
         latitude={15}
         longitude={-25}
         label="CINTURÓN OSCURO"
+        variant="band"
         occluder={
           occluder
         }

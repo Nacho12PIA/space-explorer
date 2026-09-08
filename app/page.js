@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-  <main
+<main
   style={{
     height: "100vh",
     overflowY: "auto",
@@ -14,8 +14,7 @@ export default function Home() {
     padding: "32px 20px",
   }}
 >
-    >
-      <div
+  <div
         style={{
           width: "100%",
           maxWidth: 1100,

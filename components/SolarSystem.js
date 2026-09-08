@@ -507,6 +507,32 @@ function JupiterMoons({
   );
 }
 
+function SaturnMoons({
+  size,
+}) {
+  return (
+    <group>
+      <JupiterMoon
+        size={size}
+        distance={size * 1.75}
+        speed={0.34}
+        color="#d9a441"
+        label="TITÁN"
+        moonSize={size * 0.075}
+      />
+
+      <JupiterMoon
+        size={size}
+        distance={size * 1.4}
+        speed={0.62}
+        color="#e7edf4"
+        label="ENCÉLADO"
+        moonSize={size * 0.04}
+      />
+    </group>
+  );
+}
+
 function PlanetLabel({
   children,
 }) {
@@ -2153,6 +2179,15 @@ function Planet({
         )}
 
         {planet.name ===
+          "Saturno" &&
+          isSelected &&
+          activeSection ===
+    "moons" && (
+    <SaturnMoons
+      size={planet.size}
+    />
+  )}
+        {planet.name ===
           "Tierra" &&
           !selectedPlanet && (
             <Moon
@@ -3569,6 +3604,57 @@ if (planet.name === "Júpiter") {
     </div>
   );
 }
+if (planet.name === "Saturno") {
+  return (
+    <div>
+      <StatusBadge>
+        SIN SUPERFICIE SÓLIDA
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Tampoco podrías aterrizar aquí
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Saturno es un gigante gaseoso.
+        No posee una superficie sólida
+        como la Tierra, Marte o Mercurio.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(245,158,11,0.08)",
+          border:
+            "1px solid rgba(250,204,21,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        ☁️ Las franjas que observas
+        pertenecen a las capas superiores
+        de su atmósfera. Al descender,
+        la presión y la temperatura
+        aumentarían enormemente.
+      </div>
+    </div>
+  );
+}
   return (
     <ComingSoonSection
       eyebrow="SUPERFICIE"
@@ -3931,6 +4017,75 @@ function AtmosphereSection({
     );
   }
 
+if (planet.name === "Saturno") {
+  return (
+    <div>
+      <StatusBadge>
+        GIGANTE GASEOSO
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Una atmósfera enorme
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        La atmósfera de Saturno está
+        formada principalmente por
+        hidrógeno y helio.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "1fr 1fr",
+          gap: 9,
+          marginTop: 14,
+        }}
+      >
+        <AtmosphereGas
+          value="H₂"
+          label="Gas principal"
+        />
+
+        <AtmosphereGas
+          value="He"
+          label="Segundo gas"
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(59,130,246,0.08)",
+          border:
+            "1px solid rgba(96,165,250,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🌬️ Saturno posee fuertes
+        corrientes atmosféricas y
+        enormes sistemas de tormentas.
+      </div>
+    </div>
+  );
+}
   return (
     <ComingSoonSection
       eyebrow="ATMÓSFERA"
@@ -4366,6 +4521,89 @@ if (planet.name === "Júpiter") {
         velocidades se han adaptado
         para poder observarlas mejor.
       </p>
+    </div>
+  );
+}
+
+if (planet.name === "Saturno") {
+  return (
+    <div>
+      <StatusBadge>
+        MUNDOS DE SATURNO
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Titán y Encélado
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Saturno posee muchas lunas.
+        Dos de las más fascinantes son
+        Titán y Encélado.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(245,158,11,0.08)",
+          border:
+            "1px solid rgba(250,204,21,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🌕 <strong>Titán:</strong>{" "}
+        es la luna más grande de Saturno
+        y posee una atmósfera muy densa.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(147,197,253,0.07)",
+          border:
+            "1px solid rgba(147,197,253,0.16)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        💧 <strong>Encélado:</strong>{" "}
+        es un pequeño mundo helado que
+        expulsa chorros de agua y hielo
+        desde su región polar.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        Los tamaños, distancias y
+        velocidades de las lunas están
+        adaptados para facilitar su
+        observación.
+      </div>
     </div>
   );
 }

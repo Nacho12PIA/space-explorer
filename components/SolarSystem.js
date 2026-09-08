@@ -1403,118 +1403,28 @@ function JupiterHotspot({
   );
 }
 
-function JupiterWindFlow({
-  size,
-  latitude,
-  speed,
-  color,
-}) {
-  const flowRef = useRef();
-
-  useFrame((state, delta) => {
-    if (flowRef.current) {
-      flowRef.current.rotation.y +=
-        delta * speed;
-    }
-  });
-
-  const lat =
-    THREE.MathUtils.degToRad(
-      latitude
-    );
-
-  const radius =
-    size *
-    1.018 *
-    Math.cos(lat);
-
-  const y =
-    size *
-    1.018 *
-    Math.sin(lat);
-
-  const trail = [
-    0,
-    0.09,
-    0.18,
-  ];
-
-  return (
-    <group ref={flowRef}>
-      {trail.map(
-        (offset, index) => {
-          const x =
-            radius *
-            Math.cos(offset);
-
-          const z =
-            -radius *
-            Math.sin(offset);
-
-          return (
-            <mesh
-              key={offset}
-              position={[
-                x,
-                y,
-                z,
-              ]}
-              scale={
-                1 -
-                index * 0.18
-              }
-            >
-              <sphereGeometry
-                args={[
-                  size *
-                    0.022,
-                  16,
-                  16,
-                ]}
-              />
-
-              <meshBasicMaterial
-                color={color}
-                transparent
-                opacity={
-                  0.75 -
-                  index *
-                    0.2
-                }
-                depthWrite={
-                  false
-                }
-                toneMapped={
-                  false
-                }
-              />
-            </mesh>
-          );
-        }
-      )}
-    </group>
-  );
-}
-
 function JupiterBandsLayer({
   size,
 }) {
   return (
-    <>
-      <JupiterWindFlow
-        size={size}
-        latitude={15}
-        speed={0.38}
-        color="#f6d6a8"
+    <mesh
+      scale={1.006}
+    >
+      <sphereGeometry
+        args={[
+          size,
+          64,
+          64,
+        ]}
       />
 
-      <JupiterWindFlow
-        size={size}
-        latitude={32}
-        speed={-0.3}
-        color="#dbeafe"
+      <meshBasicMaterial
+        color="#f5d6a1"
+        transparent
+        opacity={0.08}
+        depthWrite={false}
       />
-    </>
+    </mesh>
   );
 }
 function JupiterAtmosphereMarkers({
@@ -1523,9 +1433,6 @@ function JupiterAtmosphereMarkers({
 }) {
   return (
     <>
-    <JupiterBandsLayer
-  size={size}
-/>
     
       <JupiterHotspot
         size={size}

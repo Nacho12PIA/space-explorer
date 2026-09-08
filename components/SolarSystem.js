@@ -148,14 +148,94 @@ function MarsMoon({
   size,
   speed,
   startAngle,
-  scale,
   color,
+  seed,
 }) {
   const orbitRef =
     useRef();
 
   const moonRef =
     useRef();
+
+  const geometry =
+    useMemo(() => {
+      const geo =
+        new THREE.IcosahedronGeometry(
+          size,
+          3
+        );
+
+      const positions =
+        geo.attributes.position;
+
+      const vertex =
+        new THREE.Vector3();
+
+      for (
+        let i = 0;
+        i <
+        positions.count;
+        i++
+      ) {
+        vertex.fromBufferAttribute(
+          positions,
+          i
+        );
+
+        const direction =
+          vertex
+            .clone()
+            .normalize();
+
+        const irregularity =
+          1 +
+          Math.sin(
+            direction.x *
+              7.3 +
+              seed
+          ) *
+            0.08 +
+          Math.sin(
+            direction.y *
+              9.1 +
+              seed *
+                1.7
+          ) *
+            0.06 +
+          Math.sin(
+            direction.z *
+              11.4 +
+              seed *
+                2.3
+          ) *
+            0.05;
+
+        const length =
+          vertex.length() *
+          irregularity;
+
+        direction.multiplyScalar(
+          length
+        );
+
+        positions.setXYZ(
+          i,
+          direction.x,
+          direction.y,
+          direction.z
+        );
+      }
+
+      positions.needsUpdate =
+        true;
+
+      geo.computeVertexNormals();
+
+      return geo;
+    }, [
+      size,
+      seed,
+    ]);
 
   useFrame(
     (state, delta) => {
@@ -178,6 +258,104 @@ function MarsMoon({
     }
   );
 
+  return (
+    <>
+      <mesh
+        rotation={[
+          Math.PI / 2,
+          0,
+          0,
+        ]}
+      >
+        <torusGeometry
+          args={[
+            orbitDistance,
+            0.008,
+            8,
+            128,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#a8a29e"
+          transparent
+          opacity={0.34}
+        />
+      </mesh>
+
+      <group
+        ref={orbitRef}
+        rotation={[
+          0,
+          startAngle,
+          0,
+        ]}
+      >
+        <group
+          position={[
+            orbitDistance,
+            0.04,
+            0,
+          ]}
+        >
+          <mesh
+            ref={moonRef}
+            geometry={
+              geometry
+            }
+          >
+            <meshStandardMaterial
+              color={
+                color
+              }
+              roughness={1}
+              metalness={0}
+              flatShading
+            />
+          </mesh>
+
+          <Html
+            position={[
+              0,
+              size * 3.8,
+              0,
+            ]}
+            center
+            distanceFactor={5}
+            style={{
+              pointerEvents:
+                "none",
+            }}
+          >
+            <div
+              style={{
+                padding:
+                  "5px 8px",
+                borderRadius:
+                  999,
+                background:
+                  "rgba(15, 10, 8, 0.88)",
+                border:
+                  "1px solid rgba(214,211,209,0.32)",
+                color:
+                  "#f5f5f4",
+                fontSize: 9,
+                fontWeight: 800,
+                letterSpacing:
+                  0.6,
+                whiteSpace:
+                  "nowrap",
+              }}
+            >
+              {name}
+            </div>
+          </Html>
+        </group>
+      </group>
+    </>
+  );
+}
+  
   return (
     <>
       <mesh
@@ -288,15 +466,11 @@ function MarsMoons({
         orbitDistance={
           marsSize + 0.72
         }
-        size={0.13}
+        size={0.075}
         speed={0.95}
         startAngle={0}
-        scale={[
-          1.35,
-          0.85,
-          1,
-        ]}
         color="#8c8179"
+        seed={1.7}
       />
 
       <MarsMoon
@@ -304,17 +478,13 @@ function MarsMoons({
         orbitDistance={
           marsSize + 1.32
         }
-        size={0.09}
+        size={0.055}
         speed={0.34}
         startAngle={
           Math.PI * 0.8
         }
-        scale={[
-          1.2,
-          0.88,
-          1,
-        ]}
         color="#aaa09a"
+        seed={4.3}
       />
     </group>
   );

@@ -1663,6 +1663,9 @@ function Planet({
 
   const jupiterRotationGroup =
   useRef();
+
+  const uranusRotationGroup =
+  useRef();
   
   const venusAtmosphereMaterial =
     useRef();
@@ -1720,6 +1723,10 @@ function Planet({
   const isJupiter =
   planet.name ===
   "Júpiter";
+
+  const isUranus =
+  planet.name ===
+  "Urano";
   
   useFrame(
     (state, delta) => {
@@ -1756,6 +1763,12 @@ function Planet({
   jupiterRotationGroup.current
 ) {
   jupiterRotationGroup.current.rotation.y +=
+    delta * 0.08;
+} else if (
+  isUranus &&
+  uranusRotationGroup.current
+) {
+  uranusRotationGroup.current.rotation.y +=
     delta * 0.08;
 } else if (
   planetMesh.current
@@ -2118,7 +2131,38 @@ function Planet({
     />
   )}
           </group>
-        ) : (
+        ) : isUranus ? (
+  <group
+    rotation={[
+      0,
+      0,
+      THREE.MathUtils.degToRad(98),
+    ]}
+  >
+    <group
+      ref={uranusRotationGroup}
+    >
+      <mesh
+        ref={planetMesh}
+        onClick={handlePlanetClick}
+      >
+        <sphereGeometry
+          args={[
+            planet.size,
+            64,
+            64,
+          ]}
+        />
+
+        <meshStandardMaterial
+          map={texture}
+          roughness={0.9}
+          metalness={0}
+        />
+      </mesh>
+    </group>
+  </group>
+) : (
           <mesh
             ref={planetMesh}
             onClick={

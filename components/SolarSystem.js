@@ -423,6 +423,109 @@ function EarthAtmosphereLayer({
   );
 }
 
+function MarsAtmosphereLayer({
+  size,
+  onClick,
+}) {
+  const vertexShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewDirection;
+
+    void main() {
+      vec4 modelViewPosition =
+        modelViewMatrix *
+        vec4(position, 1.0);
+
+      vNormal =
+        normalize(
+          normalMatrix *
+          normal
+        );
+
+      vViewDirection =
+        normalize(
+          -modelViewPosition.xyz
+        );
+
+      gl_Position =
+        projectionMatrix *
+        modelViewPosition;
+    }
+  `;
+
+  const fragmentShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewDirection;
+
+    void main() {
+      float facing =
+        max(
+          dot(
+            normalize(vNormal),
+            normalize(vViewDirection)
+          ),
+          0.0
+        );
+
+      float rim =
+        pow(
+          1.0 - facing,
+          2.5
+        );
+
+      vec3 atmosphereColor =
+        vec3(
+          1.0,
+          0.34,
+          0.12
+        );
+
+      float alpha =
+        rim *
+        0.28;
+
+      gl_FragColor =
+        vec4(
+          atmosphereColor *
+          (0.65 + rim),
+          alpha
+        );
+    }
+  `;
+
+  return (
+    <mesh
+      scale={1.035}
+      onClick={onClick}
+    >
+      <sphereGeometry
+        args={[
+          size,
+          96,
+          96,
+        ]}
+      />
+
+      <shaderMaterial
+        vertexShader={
+          vertexShader
+        }
+        fragmentShader={
+          fragmentShader
+        }
+        transparent
+        depthWrite={false}
+        blending={
+          THREE.AdditiveBlending
+        }
+        side={
+          THREE.FrontSide
+        }
+      />
+    </mesh>
+  );
+}
+
 /*
   Convierte una latitud
   y longitud aproximadas
@@ -954,50 +1057,65 @@ function Planet({
               )}
           </>
         ) : isMars ? (
-          <group
-            ref={
-              marsRotationGroup
-            }
-          >
-            <mesh
+          <>
+            <group
               ref={
-                planetMesh
-              }
-              onClick={
-                handlePlanetClick
+                marsRotationGroup
               }
             >
-              <sphereGeometry
-                args={[
-                  planet.size,
-                  64,
-                  64,
-                ]}
-              />
+              <mesh
+                ref={
+                  planetMesh
+                }
+                onClick={
+                  handlePlanetClick
+                }
+              >
+                <sphereGeometry
+                  args={[
+                    planet.size,
+                    64,
+                    64,
+                  ]}
+                />
 
-              <meshStandardMaterial
-                map={
-                  texture
-                }
-                roughness={
-                  0.95
-                }
-                metalness={
-                  0
-                }
-              />
-            </mesh>
+                <meshStandardMaterial
+                  map={
+                    texture
+                  }
+                  roughness={
+                    0.95
+                  }
+                  metalness={
+                    0
+                  }
+                />
+              </mesh>
+
+              {isSelected &&
+                activeSection ===
+                  "surface" && (
+                  <MarsSurfaceMarkers
+                    size={
+                      planet.size
+                    }
+                  />
+                )}
+            </group>
 
             {isSelected &&
               activeSection ===
-                "surface" && (
-                <MarsSurfaceMarkers
+                "atmosphere" && (
+                <MarsAtmosphereLayer
                   size={
                     planet.size
                   }
+                  onClick={
+                    handlePlanetClick
+                  }
                 />
               )}
-          </group>
+          </>
         ) : (
           <mesh
             ref={
@@ -2680,6 +2798,103 @@ function AtmosphereSection({
           }}
         >
           * Los 100 km corresponden aproximadamente a la línea de Kármán, una referencia convencional para señalar el comienzo del espacio. La atmósfera no termina bruscamente a esa altura.
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    planet.name ===
+    "Marte"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          ATMÓSFERA MUY FINA
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Un cielo muy diferente
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Marte tiene una atmósfera mucho más fina que la de la Tierra. Está formada principalmente por dióxido de carbono y retiene mucho menos calor.
+        </p>
+
+        <div
+          style={{
+            display:
+              "grid",
+            gridTemplateColumns:
+              "1fr 1fr",
+            gap: 9,
+            marginTop: 14,
+          }}
+        >
+          <AtmosphereGas
+            value="≈95%"
+            label="Dióxido de carbono"
+          />
+
+          <AtmosphereGas
+            value="<1%"
+            label="Presión respecto a la Tierra"
+          />
+
+          <AtmosphereGas
+            value="≈−63 °C"
+            label="Temperatura media"
+          />
+
+          <AtmosphereGas
+            value="Muy fina"
+            label="Atmósfera"
+          />
+        </div>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(249,115,22,0.09)",
+            border:
+              "1px solid rgba(251,146,60,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🔴 Mira el borde de Marte. El halo representa su tenue atmósfera. Su grosor está exagerado en la visualización para que podamos distinguirla.
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(234,88,12,0.07)",
+            border:
+              "1px solid rgba(251,146,60,0.15)",
+            fontSize: 12,
+            lineHeight: 1.5,
+          }}
+        >
+          🌪️ Aunque la atmósfera es muy tenue, el polvo puede levantarse y formar enormes tormentas. Algunas llegan a extenderse por gran parte del planeta.
         </div>
       </div>
     );

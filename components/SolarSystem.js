@@ -25,19 +25,13 @@ import { planets } from "../data/planets";
 
 const textureFiles = {
   Mercurio: "/textures/2k_mercury.jpg",
-  Venus:
-    "/textures/2k_venus_atmosphere.jpg",
-  Tierra:
-    "/textures/2k_earth_daymap.jpg",
+  Venus: "/textures/2k_venus_atmosphere.jpg",
+  Tierra: "/textures/2k_earth_daymap.jpg",
   Marte: "/textures/2k_mars.jpg",
-  Júpiter:
-    "/textures/2k_jupiter.jpg",
-  Saturno:
-    "/textures/2k_saturn.jpg",
-  Urano:
-    "/textures/2k_uranus.jpg",
-  Neptuno:
-    "/textures/2k_neptune.jpg",
+  Júpiter: "/textures/2k_jupiter.jpg",
+  Saturno: "/textures/2k_saturn.jpg",
+  Urano: "/textures/2k_uranus.jpg",
+  Neptuno: "/textures/2k_neptune.jpg",
 };
 
 function Moon({ earthSize }) {
@@ -119,15 +113,24 @@ function Planet({
   onSelect,
   registerPlanet,
   selectedPlanet,
+  activeSection,
 }) {
   const orbitGroup = useRef();
   const planetGroup = useRef();
   const planetMesh = useRef();
+  const venusAtmosphereMaterial =
+    useRef();
 
   const texture = useLoader(
     THREE.TextureLoader,
     textureFiles[planet.name]
   );
+
+  const venusSurfaceTexture =
+    useLoader(
+      THREE.TextureLoader,
+      "/textures/2k_venus_surface.jpg"
+    );
 
   const saturnRingTexture =
     useLoader(
@@ -141,6 +144,9 @@ function Planet({
 
   const isVisible =
     !selectedPlanet || isSelected;
+
+  const isVenus =
+    planet.name === "Venus";
 
   useFrame((state, delta) => {
     if (
@@ -158,6 +164,27 @@ function Planet({
         delta * 0.08;
     }
 
+    if (
+      isVenus &&
+      venusAtmosphereMaterial.current
+    ) {
+      const revealSurface =
+        isSelected &&
+        activeSection ===
+          "surface";
+
+      const targetOpacity =
+        revealSurface ? 0 : 1;
+
+      venusAtmosphereMaterial.current.opacity =
+        THREE.MathUtils.lerp(
+          venusAtmosphereMaterial
+            .current.opacity,
+          targetOpacity,
+          0.06
+        );
+    }
+
     if (planetGroup.current) {
       registerPlanet(
         planet.name,
@@ -170,6 +197,16 @@ function Planet({
     (index / planets.length) *
     Math.PI *
     2;
+
+  function handlePlanetClick(
+    event
+  ) {
+    event.stopPropagation();
+
+    if (!selectedPlanet) {
+      onSelect(planet);
+    }
+  }
 
   return (
     <group
@@ -189,30 +226,82 @@ function Planet({
         ]}
         visible={isVisible}
       >
-        <mesh
-          ref={planetMesh}
-          onClick={(event) => {
-            event.stopPropagation();
+        {isVenus ? (
+          <>
+            {/* Superficie real de Venus */}
+            <mesh
+              ref={planetMesh}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
 
-            if (!selectedPlanet) {
-              onSelect(planet);
+              <meshStandardMaterial
+                map={
+                  venusSurfaceTexture
+                }
+                roughness={0.95}
+                metalness={0}
+              />
+            </mesh>
+
+            {/* Capa de nubes */}
+            <mesh
+              scale={1.012}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
+
+              <meshStandardMaterial
+                ref={
+                  venusAtmosphereMaterial
+                }
+                map={texture}
+                roughness={0.9}
+                metalness={0}
+                transparent
+                opacity={1}
+                depthWrite={false}
+              />
+            </mesh>
+          </>
+        ) : (
+          <mesh
+            ref={planetMesh}
+            onClick={
+              handlePlanetClick
             }
-          }}
-        >
-          <sphereGeometry
-            args={[
-              planet.size,
-              64,
-              64,
-            ]}
-          />
+          >
+            <sphereGeometry
+              args={[
+                planet.size,
+                64,
+                64,
+              ]}
+            />
 
-          <meshStandardMaterial
-            map={texture}
-            roughness={0.9}
-            metalness={0}
-          />
-        </mesh>
+            <meshStandardMaterial
+              map={texture}
+              roughness={0.9}
+              metalness={0}
+            />
+          </mesh>
+        )}
 
         {planet.name ===
           "Saturno" && (
@@ -222,13 +311,9 @@ function Planet({
               0,
               0,
             ]}
-            onClick={(event) => {
-              event.stopPropagation();
-
-              if (!selectedPlanet) {
-                onSelect(planet);
-              }
-            }}
+            onClick={
+              handlePlanetClick
+            }
           >
             <ringGeometry
               args={[
@@ -461,16 +546,6 @@ function CameraController({
   const isFocusing =
     useRef(false);
 
-  /*
-    DESPLAZAMIENTO VISUAL DEL PLANETA
-
-    El planeta sigue siendo el centro real
-    de OrbitControls, pero la cámara utiliza
-    una vista desplazada para que aparezca
-    más arriba en la pantalla.
-
-    De este modo la ficha no lo tapa.
-  */
   useEffect(() => {
     if (selectedPlanet) {
       const verticalOffset =
@@ -660,6 +735,7 @@ function Scene({
   onSelect,
   returningHome,
   onArrivedHome,
+  activeSection,
 }) {
   const controlsRef =
     useRef();
@@ -718,6 +794,9 @@ function Scene({
             }
             selectedPlanet={
               selectedPlanet
+            }
+            activeSection={
+              activeSection
             }
           />
         )
@@ -828,6 +907,9 @@ export default function SolarSystem() {
           returningHome={
             returningHome
           }
+          activeSection={
+            activeSection
+          }
           onArrivedHome={() =>
             setReturningHome(
               false
@@ -921,8 +1003,7 @@ export default function SolarSystem() {
               "none",
           }}
         >
-          Volviendo al Sistema
-          Solar…
+          Volviendo al Sistema Solar…
         </div>
       )}
 
@@ -1123,28 +1204,22 @@ function PlanetCard({
 
       {activeSection ===
         "surface" && (
-        <ComingSoonSection
-          eyebrow="SUPERFICIE"
-          title={`Explora la superficie de ${planet.name}`}
-          text="Esta sección está preparada para incorporar una experiencia interactiva de exploración de la superficie."
+        <SurfaceSection
+          planet={planet}
         />
       )}
 
       {activeSection ===
         "atmosphere" && (
-        <ComingSoonSection
-          eyebrow="ATMÓSFERA"
-          title={`Investiga la atmósfera de ${planet.name}`}
-          text="Esta sección está preparada para mostrar de forma visual cómo es la atmósfera del planeta y qué efectos produce."
+        <AtmosphereSection
+          planet={planet}
         />
       )}
 
       {activeSection ===
         "moons" && (
-        <ComingSoonSection
-          eyebrow="LUNAS"
-          title={`Descubre las lunas de ${planet.name}`}
-          text="Esta sección permitirá explorar los satélites naturales del planeta cuando incorporemos esta experiencia."
+        <MoonsSection
+          planet={planet}
         />
       )}
     </div>
@@ -1231,6 +1306,224 @@ function OverviewSection({
   );
 }
 
+function SurfaceSection({
+  planet,
+}) {
+  if (
+    planet.name === "Venus"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          SUPERFICIE REVELADA
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Bajo las nubes de Venus
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          La espesa capa de
+          nubes de Venus impide
+          observar directamente
+          su superficie en luz
+          visible. Por eso las
+          sondas espaciales han
+          utilizado radar para
+          estudiar el terreno que
+          se esconde debajo.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(245,158,11,0.10)",
+            border:
+              "1px solid rgba(245,158,11,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🔎 Mira el planeta:
+          acabamos de retirar
+          visualmente sus nubes
+          para poder explorar lo
+          que hay debajo.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ComingSoonSection
+      eyebrow="SUPERFICIE"
+      title={`Explora la superficie de ${planet.name}`}
+      text="La exploración interactiva de la superficie de este mundo se incorporará progresivamente."
+    />
+  );
+}
+
+function AtmosphereSection({
+  planet,
+}) {
+  if (
+    planet.name === "Venus"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          NUBES VISIBLES
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Un planeta oculto
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Venus posee una
+          atmósfera extremadamente
+          densa, formada
+          principalmente por
+          dióxido de carbono y
+          cubierta por gruesas
+          nubes de ácido sulfúrico.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(96,165,250,0.10)",
+            border:
+              "1px solid rgba(96,165,250,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          ☁️ Desde el espacio,
+          esas nubes esconden la
+          superficie. Cambia ahora
+          a <strong>SUPERFICIE</strong>{" "}
+          y observa qué ocurre.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ComingSoonSection
+      eyebrow="ATMÓSFERA"
+      title={`Investiga la atmósfera de ${planet.name}`}
+      text="Esta sección incorporará experiencias visuales para estudiar la composición y los fenómenos atmosféricos de cada planeta."
+    />
+  );
+}
+
+function MoonsSection({
+  planet,
+}) {
+  if (
+    planet.name === "Venus"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          0 LUNAS
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Venus no tiene lunas
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Venus es uno de los dos
+          planetas del Sistema Solar
+          que no poseen satélites
+          naturales. El otro es
+          Mercurio.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <ComingSoonSection
+      eyebrow="LUNAS"
+      title={`Descubre las lunas de ${planet.name}`}
+      text="Aquí podremos explorar los satélites naturales asociados a este planeta."
+    />
+  );
+}
+
+function StatusBadge({
+  children,
+}) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "6px 9px",
+        borderRadius: 999,
+        background:
+          "rgba(59,130,246,0.13)",
+        border:
+          "1px solid rgba(96,165,250,0.25)",
+        color: "#93c5fd",
+        fontSize: 10,
+        fontWeight: 800,
+        letterSpacing: 1,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function ComingSoonSection({
   eyebrow,
   title,
@@ -1239,7 +1532,8 @@ function ComingSoonSection({
   return (
     <div
       style={{
-        padding: "18px 4px 4px",
+        padding:
+          "18px 4px 4px",
       }}
     >
       <div

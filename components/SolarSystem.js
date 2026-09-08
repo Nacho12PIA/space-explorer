@@ -1251,6 +1251,162 @@ function MercurySurfaceMarkers({
     </>
   );
 }
+function JupiterHotspot({
+  size,
+  latitude,
+  longitude,
+  label,
+  occluder,
+}) {
+  const markerRef =
+    useRef();
+
+  const position =
+    getSpherePosition(
+      size * 1.045,
+      latitude,
+      longitude
+    );
+
+  useFrame(
+    (state) => {
+      if (
+        markerRef.current
+      ) {
+        const time =
+          state.clock.getElapsedTime();
+
+        const pulse =
+          1 +
+          Math.sin(
+            time * 3
+          ) *
+            0.14;
+
+        markerRef.current.scale.setScalar(
+          pulse
+        );
+      }
+    }
+  );
+
+  return (
+    <group
+      position={position}
+    >
+      <mesh
+        ref={markerRef}
+      >
+        <sphereGeometry
+          args={[
+            size * 0.045,
+            24,
+            24,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#ff6b4a"
+          toneMapped={false}
+        />
+      </mesh>
+
+      <mesh>
+        <sphereGeometry
+          args={[
+            size * 0.075,
+            24,
+            24,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#ef4444"
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+          blending={
+            THREE.AdditiveBlending
+          }
+        />
+      </mesh>
+
+      <Html
+        position={[
+          0,
+          size * 0.17,
+          0,
+        ]}
+        center
+        distanceFactor={5}
+        occlude={
+          occluder?.current
+            ? [
+                occluder,
+              ]
+            : false
+        }
+        zIndexRange={[
+          10,
+          0,
+        ]}
+        style={{
+          pointerEvents:
+            "none",
+        }}
+      >
+        <div
+          style={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            gap: 5,
+            padding:
+              "5px 8px",
+            borderRadius:
+              999,
+            background:
+              "rgba(35, 8, 5, 0.92)",
+            border:
+              "1px solid rgba(248,113,113,0.45)",
+            color:
+              "#fecaca",
+            fontSize: 9,
+            fontWeight: 800,
+            whiteSpace:
+              "nowrap",
+            boxShadow:
+              "0 4px 16px rgba(0,0,0,0.45)",
+          }}
+        >
+          <span>
+            ◉
+          </span>
+
+          {label}
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+function JupiterAtmosphereMarkers({
+  size,
+  occluder,
+}) {
+  return (
+    <JupiterHotspot
+      size={size}
+      latitude={-22}
+      longitude={70}
+      label="GRAN MANCHA ROJA"
+      occluder={
+        occluder
+      }
+    />
+  );
+}
 function Planet({
   planet,
   index,
@@ -1275,6 +1431,9 @@ function Planet({
     useRef();
 
   const mercuryRotationGroup =
+  useRef();
+
+  const jupiterRotationGroup =
   useRef();
   
   const venusAtmosphereMaterial =
@@ -1329,6 +1488,10 @@ function Planet({
   const isMercury =
   planet.name ===
   "Mercurio";
+
+  const isJupiter =
+  planet.name ===
+  "Júpiter";
   
   useFrame(
     (state, delta) => {
@@ -1359,6 +1522,12 @@ function Planet({
   mercuryRotationGroup.current
 ) {
   mercuryRotationGroup.current.rotation.y +=
+    delta * 0.08;
+} else if (
+  isJupiter &&
+  jupiterRotationGroup.current
+) {
+  jupiterRotationGroup.current.rotation.y +=
     delta * 0.08;
 } else if (
   planetMesh.current
@@ -1674,6 +1843,46 @@ function Planet({
                 />
               )}
           </>
+        ) : isJupiter ? (
+          <group
+            ref={
+              jupiterRotationGroup
+            }
+          >
+            <mesh
+              ref={planetMesh}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
+
+              <meshStandardMaterial
+                map={texture}
+                roughness={0.9}
+                metalness={0}
+              />
+            </mesh>
+
+            {isSelected &&
+              activeSection ===
+                "atmosphere" && (
+                <JupiterAtmosphereMarkers
+                  size={
+                    planet.size
+                  }
+                  occluder={
+                    planetMesh
+                  }
+                />
+              )}
+          </group>
         ) : (
           <mesh
             ref={planetMesh}

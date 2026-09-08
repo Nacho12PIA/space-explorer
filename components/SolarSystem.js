@@ -1660,6 +1660,84 @@ function JupiterAtmosphereMarkers({
     </>
   );
 }
+function GasAtmosphereLayer({
+  size,
+  color,
+  intensity = 0.55,
+  scale = 1.06,
+}) {
+  return (
+    <mesh scale={scale}>
+      <sphereGeometry args={[size, 64, 64]} />
+
+      <shaderMaterial
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        side={THREE.FrontSide}
+        uniforms={{
+          glowColor: {
+            value: new THREE.Color(color),
+          },
+          intensity: {
+            value: intensity,
+          },
+        }}
+        vertexShader={`
+          varying vec3 vNormal;
+          varying vec3 vViewDirection;
+
+          void main() {
+            vec4 mvPosition =
+              modelViewMatrix *
+              vec4(position, 1.0);
+
+            vNormal =
+              normalize(
+                normalMatrix * normal
+              );
+
+            vViewDirection =
+              normalize(-mvPosition.xyz);
+
+            gl_Position =
+              projectionMatrix *
+              mvPosition;
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 glowColor;
+          uniform float intensity;
+
+          varying vec3 vNormal;
+          varying vec3 vViewDirection;
+
+          void main() {
+            float fresnel =
+              1.0 -
+              max(
+                dot(
+                  normalize(vNormal),
+                  normalize(vViewDirection)
+                ),
+                0.0
+              );
+
+            fresnel =
+              pow(fresnel, 2.4);
+
+            gl_FragColor =
+              vec4(
+                glowColor,
+                fresnel * intensity
+              );
+          }
+        `}
+      />
+    </mesh>
+  );
+}
+
 function Planet({
   planet,
   index,
@@ -2247,6 +2325,32 @@ function Planet({
           </mesh>
         )}
 
+{planet.name ===
+  "Saturno" &&
+  isSelected &&
+  activeSection ===
+    "atmosphere" && (
+    <GasAtmosphereLayer
+      size={planet.size}
+      color="#e8c982"
+      intensity={0.42}
+      scale={1.055}
+    />
+  )}
+
+        {planet.name ===
+  "Urano" &&
+  isSelected &&
+  activeSection ===
+    "atmosphere" && (
+    <GasAtmosphereLayer
+      size={planet.size}
+      color="#70e1e8"
+      intensity={0.52}
+      scale={1.065}
+    />
+  )}
+        
         {planet.name ===
           "Saturno" &&
           isSelected &&

@@ -642,6 +642,107 @@ function EarthAtmosphereLayer({
     </mesh>
   );
 }
+function MercuryExosphereLayer({
+  size,
+  onClick,
+}) {
+  const vertexShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewDirection;
+
+    void main() {
+      vec4 modelViewPosition =
+        modelViewMatrix *
+        vec4(position, 1.0);
+
+      vNormal =
+        normalize(
+          normalMatrix *
+          normal
+        );
+
+      vViewDirection =
+        normalize(
+          -modelViewPosition.xyz
+        );
+
+      gl_Position =
+        projectionMatrix *
+        modelViewPosition;
+    }
+  `;
+
+  const fragmentShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewDirection;
+
+    void main() {
+      float facing =
+        max(
+          dot(
+            normalize(vNormal),
+            normalize(vViewDirection)
+          ),
+          0.0
+        );
+
+      float rim =
+        pow(
+          1.0 - facing,
+          3.4
+        );
+
+      vec3 exosphereColor =
+        vec3(
+          1.0,
+          0.72,
+          0.35
+        );
+
+      float alpha =
+        rim * 0.16;
+
+      gl_FragColor =
+        vec4(
+          exosphereColor *
+          (0.55 + rim),
+          alpha
+        );
+    }
+  `;
+
+  return (
+    <mesh
+      scale={1.045}
+      onClick={onClick}
+    >
+      <sphereGeometry
+        args={[
+          size,
+          96,
+          96,
+        ]}
+      />
+
+      <shaderMaterial
+        vertexShader={
+          vertexShader
+        }
+        fragmentShader={
+          fragmentShader
+        }
+        transparent
+        depthWrite={false}
+        blending={
+          THREE.AdditiveBlending
+        }
+        side={
+          THREE.FrontSide
+        }
+      />
+    </mesh>
+  );
+}
 
 function MarsAtmosphereLayer({
   size,
@@ -1381,7 +1482,20 @@ function Planet({
             }
           />
         )}
-    </group>
+        </group>
+
+    {isSelected &&
+      activeSection ===
+        "atmosphere" && (
+        <MercuryExosphereLayer
+          size={
+            planet.size
+          }
+          onClick={
+            handlePlanetClick
+          }
+        />
+      )}
   </>
 ) : isVenus ? (
           <>
@@ -3014,6 +3128,113 @@ function SurfaceSection({
 function AtmosphereSection({
   planet,
 }) {
+  if (
+  planet.name ===
+  "Mercurio"
+) {
+  return (
+    <div>
+      <StatusBadge>
+        EXOSFERA EXTREMADAMENTE TENUE
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin:
+            "12px 0 8px",
+        }}
+      >
+        Casi sin atmósfera
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Mercurio no posee una atmósfera densa como la Tierra. Está rodeado por una exosfera extremadamente tenue formada por átomos y partículas dispersas alrededor del planeta.
+      </p>
+
+      <div
+        style={{
+          display:
+            "grid",
+          gridTemplateColumns:
+            "1fr 1fr",
+          gap: 9,
+          marginTop: 14,
+        }}
+      >
+        <AtmosphereGas
+          value="Muy tenue"
+          label="Densidad"
+        />
+
+        <AtmosphereGas
+          value="Exosfera"
+          label="Tipo"
+        />
+
+        <AtmosphereGas
+          value="Na · O"
+          label="Entre sus elementos"
+        />
+
+        <AtmosphereGas
+          value="Casi vacío"
+          label="Comparada con la Tierra"
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(245,158,11,0.08)",
+          border:
+            "1px solid rgba(250,204,21,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        ✨ Mira atentamente el borde de Mercurio. El halo representa su exosfera, pero en realidad sería muchísimo más tenue de lo que podemos mostrar en pantalla.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(148,163,184,0.06)",
+          border:
+            "1px solid rgba(203,213,225,0.14)",
+          fontSize: 12,
+          lineHeight: 1.5,
+        }}
+      >
+        ☀️ El viento solar y los impactos de pequeños cuerpos pueden liberar átomos de la superficie de Mercurio. Algunas de esas partículas pasan temporalmente a formar parte de su exosfera.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        El grosor y el brillo del halo están exagerados para que la exosfera pueda distinguirse visualmente.
+      </div>
+    </div>
+  );
+}
   if (
     planet.name ===
     "Venus"

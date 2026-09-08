@@ -1403,6 +1403,31 @@ function JupiterHotspot({
   );
 }
 
+function JupiterBandsLayer({
+  size,
+}) {
+  return (
+    <mesh
+      scale={1.006}
+    >
+      <sphereGeometry
+        args={[
+          size,
+          64,
+          64,
+        ]}
+      />
+
+      <meshBasicMaterial
+        color="#f5d6a1"
+        transparent
+        opacity={0.08}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
+
 function JupiterAtmosphereMarkers({
   size,
   occluder,

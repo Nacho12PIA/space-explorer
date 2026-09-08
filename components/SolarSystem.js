@@ -1257,6 +1257,7 @@ function JupiterHotspot({
   longitude,
   label,
   occluder,
+  variant = "spot",
 }) {
   const markerRef =
     useRef();

@@ -1334,7 +1334,7 @@ function JupiterHotspot({
       <Html
         position={[
           0,
-          size * 0.17,
+          0,
           0,
         ]}
         center
@@ -1353,6 +1353,8 @@ function JupiterHotspot({
         style={{
           pointerEvents:
             "none",
+          transform:
+            "translateY(-28px)",
         }}
       >
         <div

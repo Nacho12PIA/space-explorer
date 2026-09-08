@@ -114,11 +114,16 @@ function Planet({
   registerPlanet,
   selectedPlanet,
   activeSection,
+  earthView,
 }) {
   const orbitGroup = useRef();
   const planetGroup = useRef();
   const planetMesh = useRef();
+
   const venusAtmosphereMaterial =
+    useRef();
+
+  const earthNightMaterial =
     useRef();
 
   const texture = useLoader(
@@ -130,6 +135,12 @@ function Planet({
     useLoader(
       THREE.TextureLoader,
       "/textures/2k_venus_surface.jpg"
+    );
+
+  const earthNightTexture =
+    useLoader(
+      THREE.TextureLoader,
+      "/textures/2k_earth_nightmap.jpg"
     );
 
   const saturnRingTexture =
@@ -147,6 +158,9 @@ function Planet({
 
   const isVenus =
     planet.name === "Venus";
+
+  const isEarth =
+    planet.name === "Tierra";
 
   useFrame((state, delta) => {
     if (
@@ -182,6 +196,28 @@ function Planet({
             .current.opacity,
           targetOpacity,
           0.06
+        );
+    }
+
+    if (
+      isEarth &&
+      earthNightMaterial.current
+    ) {
+      const showNight =
+        isSelected &&
+        activeSection ===
+          "surface" &&
+        earthView === "night";
+
+      const targetOpacity =
+        showNight ? 1 : 0;
+
+      earthNightMaterial.current.opacity =
+        THREE.MathUtils.lerp(
+          earthNightMaterial
+            .current.opacity,
+          targetOpacity,
+          0.08
         );
     }
 
@@ -228,7 +264,6 @@ function Planet({
       >
         {isVenus ? (
           <>
-            {/* Superficie real de Venus */}
             <mesh
               ref={planetMesh}
               onClick={
@@ -252,7 +287,6 @@ function Planet({
               />
             </mesh>
 
-            {/* Capa de nubes */}
             <mesh
               scale={1.012}
               onClick={
@@ -276,6 +310,58 @@ function Planet({
                 metalness={0}
                 transparent
                 opacity={1}
+                depthWrite={false}
+              />
+            </mesh>
+          </>
+        ) : isEarth ? (
+          <>
+            {/* Tierra diurna */}
+            <mesh
+              ref={planetMesh}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
+
+              <meshStandardMaterial
+                map={texture}
+                roughness={0.9}
+                metalness={0}
+              />
+            </mesh>
+
+            {/* Capa nocturna */}
+            <mesh
+              scale={1.003}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
+
+              <meshBasicMaterial
+                ref={
+                  earthNightMaterial
+                }
+                map={
+                  earthNightTexture
+                }
+                transparent
+                opacity={0}
                 depthWrite={false}
               />
             </mesh>
@@ -736,6 +822,7 @@ function Scene({
   returningHome,
   onArrivedHome,
   activeSection,
+  earthView,
 }) {
   const controlsRef =
     useRef();
@@ -797,6 +884,9 @@ function Scene({
             }
             activeSection={
               activeSection
+            }
+            earthView={
+              earthView
             }
           />
         )
@@ -865,16 +955,23 @@ export default function SolarSystem() {
     setActiveSection,
   ] = useState("overview");
 
+  const [
+    earthView,
+    setEarthView,
+  ] = useState("day");
+
   function handleSelectPlanet(
     planet
   ) {
     setReturningHome(false);
     setActiveSection("overview");
+    setEarthView("day");
     setSelectedPlanet(planet);
   }
 
   function handleReturnHome() {
     setActiveSection("overview");
+    setEarthView("day");
     setSelectedPlanet(null);
     setReturningHome(true);
   }
@@ -909,6 +1006,9 @@ export default function SolarSystem() {
           }
           activeSection={
             activeSection
+          }
+          earthView={
+            earthView
           }
           onArrivedHome={() =>
             setReturningHome(
@@ -1018,6 +1118,12 @@ export default function SolarSystem() {
           onSectionChange={
             setActiveSection
           }
+          earthView={
+            earthView
+          }
+          onEarthViewChange={
+            setEarthView
+          }
           onClose={
             handleReturnHome
           }
@@ -1118,6 +1224,8 @@ function PlanetCard({
   planet,
   activeSection,
   onSectionChange,
+  earthView,
+  onEarthViewChange,
   onClose,
 }) {
   return (
@@ -1206,6 +1314,12 @@ function PlanetCard({
         "surface" && (
         <SurfaceSection
           planet={planet}
+          earthView={
+            earthView
+          }
+          onEarthViewChange={
+            onEarthViewChange
+          }
         />
       )}
 
@@ -1306,8 +1420,81 @@ function OverviewSection({
   );
 }
 
+function EarthDayNightControl({
+  earthView,
+  onEarthViewChange,
+}) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns:
+          "1fr 1fr",
+        gap: 8,
+        marginTop: 14,
+      }}
+    >
+      <button
+        onClick={() =>
+          onEarthViewChange(
+            "day"
+          )
+        }
+        style={{
+          padding: "11px 12px",
+          borderRadius: 12,
+          border:
+            earthView === "day"
+              ? "1px solid rgba(250,204,21,0.75)"
+              : "1px solid rgba(255,255,255,0.12)",
+          background:
+            earthView === "day"
+              ? "rgba(250,204,21,0.14)"
+              : "rgba(255,255,255,0.045)",
+          color: "white",
+          fontWeight: 800,
+          fontSize: 12,
+          cursor: "pointer",
+        }}
+      >
+        ☀️ DÍA
+      </button>
+
+      <button
+        onClick={() =>
+          onEarthViewChange(
+            "night"
+          )
+        }
+        style={{
+          padding: "11px 12px",
+          borderRadius: 12,
+          border:
+            earthView ===
+            "night"
+              ? "1px solid rgba(96,165,250,0.8)"
+              : "1px solid rgba(255,255,255,0.12)",
+          background:
+            earthView ===
+            "night"
+              ? "rgba(59,130,246,0.20)"
+              : "rgba(255,255,255,0.045)",
+          color: "white",
+          fontWeight: 800,
+          fontSize: 12,
+          cursor: "pointer",
+        }}
+      >
+        🌙 NOCHE
+      </button>
+    </div>
+  );
+}
+
 function SurfaceSection({
   planet,
+  earthView,
+  onEarthViewChange,
 }) {
   if (
     planet.name === "Venus"
@@ -1365,6 +1552,79 @@ function SurfaceSection({
           visualmente sus nubes
           para poder explorar lo
           que hay debajo.
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    planet.name === "Tierra"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          VISTA DE LA TIERRA
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Día y noche
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          La Tierra gira sobre su
+          eje. La parte orientada
+          hacia el Sol está
+          iluminada y vive el día,
+          mientras que la parte
+          opuesta permanece en la
+          noche.
+        </p>
+
+        <EarthDayNightControl
+          earthView={
+            earthView
+          }
+          onEarthViewChange={
+            onEarthViewChange
+          }
+        />
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              earthView ===
+              "night"
+                ? "rgba(59,130,246,0.11)"
+                : "rgba(245,158,11,0.10)",
+            border:
+              earthView ===
+              "night"
+                ? "1px solid rgba(96,165,250,0.24)"
+                : "1px solid rgba(245,158,11,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          {earthView ===
+          "night"
+            ? "🌃 En la vista nocturna puedes observar las luces de las zonas habitadas de nuestro planeta."
+            : "☀️ En la vista diurna puedes distinguir océanos, continentes, nubes y otras características de la Tierra."}
         </div>
       </div>
     );
@@ -1434,7 +1694,10 @@ function AtmosphereSection({
           ☁️ Desde el espacio,
           esas nubes esconden la
           superficie. Cambia ahora
-          a <strong>SUPERFICIE</strong>{" "}
+          a{" "}
+          <strong>
+            SUPERFICIE
+          </strong>{" "}
           y observa qué ocurre.
         </div>
       </div>

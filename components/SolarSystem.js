@@ -3490,6 +3490,71 @@ function AtmosphereSection({
 function MoonsSection({
   planet,
 }) {
+    if (
+    planet.name ===
+    "Mercurio"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          0 LUNAS
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Mercurio no tiene lunas
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Mercurio no posee ningún satélite natural conocido. Junto con Venus, es uno de los dos únicos planetas del Sistema Solar que no tienen lunas.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(245,158,11,0.08)",
+            border:
+              "1px solid rgba(250,204,21,0.18)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          ☀️ Mercurio se encuentra muy cerca del Sol, donde la influencia gravitatoria solar es muy intensa. No conocemos ninguna luna que orbite de forma natural alrededor del planeta.
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(59,130,246,0.07)",
+            border:
+              "1px solid rgba(96,165,250,0.16)",
+            fontSize: 12,
+            lineHeight: 1.5,
+          }}
+        >
+          🔭 Cuando explores otros planetas descubrirás una enorme diferencia: mientras Mercurio tiene <strong>0 lunas</strong>, algunos gigantes del Sistema Solar poseen decenas.
+        </div>
+      </div>
+    );
+  }
   if (
     planet.name ===
     "Venus"

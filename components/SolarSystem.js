@@ -4060,6 +4060,89 @@ function AtmosphereSection({
       </div>
     );
   }
+if (planet.name === "Júpiter") {
+  return (
+    <div>
+      <StatusBadge>
+        ATMÓSFERA GIGANTE
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Un mundo de nubes y tormentas
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Júpiter está formado principalmente
+        por hidrógeno y helio. Sus nubes se
+        organizan en bandas que recorren el
+        planeta a enormes velocidades.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 9,
+          marginTop: 14,
+        }}
+      >
+        <AtmosphereGas
+          value="H₂"
+          label="Gas principal"
+        />
+
+        <AtmosphereGas
+          value="He"
+          label="Segundo gas"
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(239,68,68,0.08)",
+          border:
+            "1px solid rgba(248,113,113,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🔴 <strong>Gran Mancha Roja:</strong>{" "}
+        es una gigantesca tormenta que lleva
+        observándose desde hace siglos.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        Los marcadores sobre el planeta te
+        permiten localizar una zona clara,
+        un cinturón oscuro y la Gran Mancha
+        Roja.
+      </div>
+    </div>
+  );
+}
 
 if (planet.name === "Saturno") {
   return (

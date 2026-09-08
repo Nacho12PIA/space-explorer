@@ -142,6 +142,184 @@ function Moon({
   );
 }
 
+function MarsMoon({
+  name,
+  orbitDistance,
+  size,
+  speed,
+  startAngle,
+  scale,
+  color,
+}) {
+  const orbitRef =
+    useRef();
+
+  const moonRef =
+    useRef();
+
+  useFrame(
+    (state, delta) => {
+      if (
+        orbitRef.current
+      ) {
+        orbitRef.current.rotation.y +=
+          delta * speed;
+      }
+
+      if (
+        moonRef.current
+      ) {
+        moonRef.current.rotation.x +=
+          delta * 0.12;
+
+        moonRef.current.rotation.y +=
+          delta * 0.18;
+      }
+    }
+  );
+
+  return (
+    <>
+      <mesh
+        rotation={[
+          Math.PI / 2,
+          0,
+          0,
+        ]}
+      >
+        <torusGeometry
+          args={[
+            orbitDistance,
+            0.008,
+            8,
+            128,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#a8a29e"
+          transparent
+          opacity={0.34}
+        />
+      </mesh>
+
+      <group
+        ref={orbitRef}
+        rotation={[
+          0,
+          startAngle,
+          0,
+        ]}
+      >
+        <group
+          position={[
+            orbitDistance,
+            0.04,
+            0,
+          ]}
+        >
+          <mesh
+            ref={moonRef}
+            scale={scale}
+          >
+            <icosahedronGeometry
+              args={[
+                size,
+                2,
+              ]}
+            />
+
+            <meshStandardMaterial
+              color={color}
+              roughness={1}
+              metalness={0}
+            />
+          </mesh>
+
+          <Html
+            position={[
+              0,
+              size * 3,
+              0,
+            ]}
+            center
+            distanceFactor={5}
+            style={{
+              pointerEvents:
+                "none",
+            }}
+          >
+            <div
+              style={{
+                padding:
+                  "5px 8px",
+                borderRadius:
+                  999,
+                background:
+                  "rgba(15, 10, 8, 0.88)",
+                border:
+                  "1px solid rgba(214,211,209,0.32)",
+                color:
+                  "#f5f5f4",
+                fontSize: 9,
+                fontWeight: 800,
+                letterSpacing:
+                  0.6,
+                whiteSpace:
+                  "nowrap",
+              }}
+            >
+              {name}
+            </div>
+          </Html>
+        </group>
+      </group>
+    </>
+  );
+}
+
+function MarsMoons({
+  marsSize,
+}) {
+  return (
+    <group>
+      <MarsMoon
+        name="FOBOS"
+        orbitDistance={
+          marsSize + 0.72
+        }
+        size={0.13}
+        speed={0.95}
+        startAngle={0}
+        scale={[
+          1.35,
+          0.85,
+          1,
+        ]}
+        color="#8c8179"
+      />
+
+      <MarsMoon
+        name="DEIMOS"
+        orbitDistance={
+          marsSize + 1.32
+        }
+        size={0.09}
+        speed={0.34}
+        startAngle={
+          Math.PI * 0.8
+        }
+        scale={[
+          1.2,
+          0.88,
+          1,
+        ]}
+        color="#aaa09a"
+      />
+    </group>
+  );
+}
+
 function PlanetLabel({
   children,
 }) {
@@ -1084,6 +1262,16 @@ function Planet({
                   }
                   onClick={
                     handlePlanetClick
+                  }
+                />
+              )}
+
+            {isSelected &&
+              activeSection ===
+                "moons" && (
+                <MarsMoons
+                  marsSize={
+                    planet.size
                   }
                 />
               )}
@@ -2424,7 +2612,7 @@ function SurfaceSection({
             lineHeight: 1.5,
           }}
         >
-          🔴 Los marcadores están anclados a la superficie de Marte. Al rotar el planeta, cada uno viaja con su región y desaparece cuando queda detrás.
+          📍 Los marcadores están anclados a la superficie de Marte. Al rotar el planeta, cada uno viaja con su región y desaparece cuando queda detrás.
         </div>
 
         <div
@@ -2834,6 +3022,179 @@ function MoonsSection({
           }}
         >
           ¿Sabías que la Luna tarda aproximadamente lo mismo en girar sobre sí misma que en dar una vuelta alrededor de la Tierra? Por eso siempre vemos prácticamente la misma cara desde nuestro planeta.
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    planet.name ===
+    "Marte"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          2 LUNAS
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Fobos y Deimos
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Marte tiene dos pequeños satélites naturales. Ambos son mucho más pequeños que nuestra Luna y poseen formas irregulares.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(249,115,22,0.08)",
+            border:
+              "1px solid rgba(251,146,60,0.18)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 800,
+              color:
+                "#fdba74",
+              marginBottom: 8,
+            }}
+          >
+            🪨 Fobos
+          </div>
+
+          <div
+            style={{
+              display:
+                "grid",
+              gridTemplateColumns:
+                "1fr 1fr",
+              gap: 8,
+            }}
+          >
+            <InfoBox
+              label="Diámetro aprox."
+              value="22 km"
+            />
+
+            <InfoBox
+              label="Órbita"
+              value="7 h 39 min"
+            />
+          </div>
+
+          <p
+            style={{
+              fontSize: 12,
+              lineHeight: 1.5,
+              opacity: 0.72,
+              margin:
+                "10px 0 0",
+            }}
+          >
+            Es la luna más grande y cercana a Marte. Se mueve alrededor del planeta mucho más rápido que Deimos.
+          </p>
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(148,163,184,0.07)",
+            border:
+              "1px solid rgba(203,213,225,0.15)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 800,
+              color:
+                "#d6d3d1",
+              marginBottom: 8,
+            }}
+          >
+            🪨 Deimos
+          </div>
+
+          <div
+            style={{
+              display:
+                "grid",
+              gridTemplateColumns:
+                "1fr 1fr",
+              gap: 8,
+            }}
+          >
+            <InfoBox
+              label="Diámetro aprox."
+              value="12 km"
+            />
+
+            <InfoBox
+              label="Órbita"
+              value="30 h 18 min"
+            />
+          </div>
+
+          <p
+            style={{
+              fontSize: 12,
+              lineHeight: 1.5,
+              opacity: 0.72,
+              margin:
+                "10px 0 0",
+            }}
+          >
+            Es más pequeña y orbita mucho más lejos de Marte, por eso tarda más tiempo en completar una vuelta.
+          </p>
+        </div>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(59,130,246,0.08)",
+            border:
+              "1px solid rgba(96,165,250,0.18)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🛰️ Observa las dos órbitas. Fobos es el satélite interior y se desplaza más deprisa; Deimos se encuentra más lejos y avanza más lentamente.
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 11,
+            lineHeight: 1.45,
+            opacity: 0.55,
+          }}
+        >
+          Los tamaños, las distancias y las velocidades de la animación están adaptados para facilitar la comparación y no representan la escala real.
         </div>
       </div>
     );

@@ -1319,25 +1319,27 @@ function JupiterHotspot({
 />
       </mesh>
 
-      <mesh>
-        <sphereGeometry
-          args={[
-            size * 0.075,
-            24,
-            24,
-          ]}
-        />
+      {variant !== "band" && (
+  <mesh>
+    <sphereGeometry
+      args={[
+        size * 0.075,
+        24,
+        24,
+      ]}
+    />
 
-        <meshBasicMaterial
-          color="#ef4444"
-          transparent
-          opacity={0.18}
-          depthWrite={false}
-          blending={
-            THREE.AdditiveBlending
-          }
-        />
-      </mesh>
+    <meshBasicMaterial
+      color="#ef4444"
+      transparent
+      opacity={0.18}
+      depthWrite={false}
+      blending={
+        THREE.AdditiveBlending
+      }
+    />
+  </mesh>
+)}
 
       <Html
         position={[

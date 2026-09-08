@@ -1398,15 +1398,27 @@ function JupiterAtmosphereMarkers({
   occluder,
 }) {
   return (
-    <JupiterHotspot
-      size={size}
-      latitude={-22}
-      longitude={-45}
-      label="GRAN MANCHA ROJA"
-      occluder={
-        occluder
-      }
-    />
+    <>
+      <JupiterHotspot
+        size={size}
+        latitude={-22}
+        longitude={-45}
+        label="GRAN MANCHA ROJA"
+        occluder={
+          occluder
+        }
+      />
+
+      <JupiterHotspot
+        size={size}
+        latitude={15}
+        longitude={-25}
+        label="CINTURÓN OSCURO"
+        occluder={
+          occluder
+        }
+      />
+    </>
   );
 }
 function Planet({

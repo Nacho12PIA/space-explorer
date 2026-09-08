@@ -75,11 +75,14 @@ export default function Home() {
             style={{
               color: "white",
               textDecoration: "none",
+              display: "block",
+              height: "100%",
             }}
           >
             <section
               style={{
                 minHeight: 220,
+                height: "100%",
                 padding: 24,
                 borderRadius: 22,
                 background:
@@ -122,11 +125,14 @@ export default function Home() {
   style={{
     color: "white",
     textDecoration: "none",
+    display: "block",
+    height: "100%",
   }}
 >
   <section
     style={{
       minHeight: 220,
+      height: "100%",
       padding: 24,
       borderRadius: 22,
       background:

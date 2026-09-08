@@ -232,18 +232,15 @@ function Sun() {
   );
 
   useFrame((state) => {
-    const t =
-      state.clock.getElapsedTime();
+    const t = state.clock.getElapsedTime();
 
     if (sunRef.current) {
-      sunRef.current.rotation.y =
-        t * 0.025;
+      sunRef.current.rotation.y = t * 0.025;
     }
 
     if (glowRef.current) {
       const pulse =
-        1 +
-        Math.sin(t * 1.5) * 0.02;
+        1 + Math.sin(t * 1.5) * 0.02;
 
       glowRef.current.scale.set(
         pulse,
@@ -283,9 +280,7 @@ function Sun() {
           transparent
           opacity={0.12}
           side={THREE.BackSide}
-          blending={
-            THREE.AdditiveBlending
-          }
+          blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
@@ -300,9 +295,7 @@ function Sun() {
           transparent
           opacity={0.035}
           side={THREE.BackSide}
-          blending={
-            THREE.AdditiveBlending
-          }
+          blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
@@ -314,8 +307,18 @@ function CameraController({
   selectedPlanet,
   planetRefs,
   controlsRef,
+  returningHome,
+  onArrivedHome,
 }) {
   const { camera } = useThree();
+
+  const homePosition = useRef(
+    new THREE.Vector3(0, 18, 34)
+  );
+
+  const homeTarget = useRef(
+    new THREE.Vector3(0, 0, 0)
+  );
 
   const targetPosition = useRef(
     new THREE.Vector3()
@@ -370,6 +373,42 @@ function CameraController({
 
         controlsRef.current.update();
       }
+    } else if (returningHome) {
+      camera.position.lerp(
+        homePosition.current,
+        0.055
+      );
+
+      controlsRef.current.target.lerp(
+        homeTarget.current,
+        0.055
+      );
+
+      controlsRef.current.update();
+
+      const cameraIsHome =
+        camera.position.distanceTo(
+          homePosition.current
+        ) < 0.15;
+
+      const targetIsHome =
+        controlsRef.current.target.distanceTo(
+          homeTarget.current
+        ) < 0.15;
+
+      if (cameraIsHome && targetIsHome) {
+        camera.position.copy(
+          homePosition.current
+        );
+
+        controlsRef.current.target.copy(
+          homeTarget.current
+        );
+
+        controlsRef.current.update();
+
+        onArrivedHome();
+      }
     } else {
       controlsRef.current.update();
     }
@@ -381,23 +420,19 @@ function CameraController({
 function Scene({
   selectedPlanet,
   onSelect,
+  returningHome,
+  onArrivedHome,
 }) {
   const controlsRef = useRef();
   const planetRefs = useRef({});
 
-  function registerPlanet(
-    name,
-    object
-  ) {
-    planetRefs.current[name] =
-      object;
+  function registerPlanet(name, object) {
+    planetRefs.current[name] = object;
   }
 
   return (
     <>
-      <ambientLight
-        intensity={0.18}
-      />
+      <ambientLight intensity={0.18} />
 
       <Stars
         radius={120}
@@ -411,40 +446,34 @@ function Scene({
 
       <Sun />
 
-      {planets.map(
-        (planet, index) => (
-          <Planet
-            key={planet.name}
-            planet={planet}
-            index={index}
-            onSelect={onSelect}
-            registerPlanet={
-              registerPlanet
-            }
-            selectedPlanet={
-              selectedPlanet
-            }
-          />
-        )
-      )}
+      {planets.map((planet, index) => (
+        <Planet
+          key={planet.name}
+          planet={planet}
+          index={index}
+          onSelect={onSelect}
+          registerPlanet={registerPlanet}
+          selectedPlanet={selectedPlanet}
+        />
+      ))}
 
       <OrbitControls
         ref={controlsRef}
         enablePan={
-          !selectedPlanet
+          !selectedPlanet && !returningHome
         }
-        enableZoom
-        enableRotate
+        enableZoom={!returningHome}
+        enableRotate={!returningHome}
         minDistance={2}
         maxDistance={70}
       />
 
       <CameraController
-        selectedPlanet={
-          selectedPlanet
-        }
+        selectedPlanet={selectedPlanet}
         planetRefs={planetRefs}
         controlsRef={controlsRef}
+        returningHome={returningHome}
+        onArrivedHome={onArrivedHome}
       />
     </>
   );
@@ -455,6 +484,21 @@ export default function SolarSystem() {
     selectedPlanet,
     setSelectedPlanet,
   ] = useState(null);
+
+  const [
+    returningHome,
+    setReturningHome,
+  ] = useState(false);
+
+  function handleSelectPlanet(planet) {
+    setReturningHome(false);
+    setSelectedPlanet(planet);
+  }
+
+  function handleReturnHome() {
+    setSelectedPlanet(null);
+    setReturningHome(true);
+  }
 
   return (
     <div
@@ -471,11 +515,11 @@ export default function SolarSystem() {
         }}
       >
         <Scene
-          selectedPlanet={
-            selectedPlanet
-          }
-          onSelect={
-            setSelectedPlanet
+          selectedPlanet={selectedPlanet}
+          onSelect={handleSelectPlanet}
+          returningHome={returningHome}
+          onArrivedHome={() =>
+            setReturningHome(false)
           }
         />
       </Canvas>
@@ -498,17 +542,35 @@ export default function SolarSystem() {
           SPACE EXPLORER
         </div>
 
-        <div
-          style={{
-            opacity: 0.72,
-          }}
-        >
-          Explora. Descubre.
-          Aprende.
+        <div style={{ opacity: 0.72 }}>
+          Explora. Descubre. Aprende.
         </div>
       </div>
 
-      {!selectedPlanet && (
+      {!selectedPlanet &&
+        !returningHome && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 18,
+              left: "50%",
+              transform:
+                "translateX(-50%)",
+              background:
+                "rgba(5, 10, 25, 0.78)",
+              padding: "10px 16px",
+              borderRadius: 999,
+              fontSize: 13,
+              textAlign: "center",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Arrastra para girar ·
+            Pellizca para hacer zoom
+          </div>
+        )}
+
+      {returningHome && (
         <div
           style={{
             position: "absolute",
@@ -517,26 +579,23 @@ export default function SolarSystem() {
             transform:
               "translateX(-50%)",
             background:
-              "rgba(5, 10, 25, 0.78)",
-            padding:
-              "10px 16px",
+              "rgba(5, 10, 25, 0.82)",
+            padding: "10px 16px",
             borderRadius: 999,
             fontSize: 13,
             textAlign: "center",
             whiteSpace: "nowrap",
+            pointerEvents: "none",
           }}
         >
-          Arrastra para girar ·
-          Pellizca para hacer zoom
+          Volviendo al Sistema Solar…
         </div>
       )}
 
       {selectedPlanet && (
         <PlanetCard
           planet={selectedPlanet}
-          onClose={() =>
-            setSelectedPlanet(null)
-          }
+          onClose={handleReturnHome}
         />
       )}
     </div>
@@ -558,8 +617,7 @@ function PlanetCard({
         margin: "0 auto",
         background:
           "rgba(4, 10, 25, 0.94)",
-        backdropFilter:
-          "blur(14px)",
+        backdropFilter: "blur(14px)",
         border:
           "1px solid rgba(255,255,255,0.16)",
         borderRadius: 22,

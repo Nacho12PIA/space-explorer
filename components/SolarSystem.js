@@ -336,18 +336,8 @@ function CameraController({
         controlsRef.current.update();
       }
     } else {
-      camera.position.lerp(
-        homePosition.current,
-        0.035
-      );
-
-      controlsRef.current.target.lerp(
-        new THREE.Vector3(0, 0, 0),
-        0.05
-      );
-
-      controlsRef.current.update();
-    }
+  controlsRef.current.update();
+}
   });
 
   return null;

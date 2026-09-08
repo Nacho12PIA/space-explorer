@@ -210,45 +210,70 @@ function Impact(){
   const [diameter,setDiameter]=useState(35),[speed,setSpeed]=useState(20),[impactKey,setImpactKey]=useState(0),[launched,setLaunched]=useState(false);
   const normalizedSize=(diameter-5)/145;
   const normalizedSpeed=(speed-11)/39;
-  const intensity=Math.min(1,(normalizedSize*.68+normalizedSpeed*.32));
   const energyScore=Math.pow(diameter/35,3)*Math.pow(speed/20,2);
-  const asteroidSize=28+normalizedSize*78;
-  const craterSize=52+Math.min(170,Math.sqrt(energyScore)*54);
-  const flashSize=90+Math.min(260,Math.sqrt(energyScore)*90);
+  const intensity=Math.min(1,Math.log10(1+energyScore)/1.8);
+  const asteroidSize=24+normalizedSize*74;
+  const craterDiameter=Math.round(45+Math.min(355,Math.pow(energyScore,.32)*92));
+  const craterWidth=Math.min(340,56+Math.pow(energyScore,.3)*92);
+  const craterDepth=Math.min(95,18+Math.pow(energyScore,.28)*24);
+  const blastRadius=Math.round(90+Math.min(990,Math.pow(energyScore,.36)*210));
+  const waveScale=Math.min(4.2,1.2+Math.pow(energyScore,.22));
+  const flashSize=Math.min(420,80+Math.pow(energyScore,.28)*120);
   const level=energyScore<.35?"IMPACTO PEQUEÑO":energyScore<1.3?"IMPACTO LOCAL":energyScore<5?"IMPACTO REGIONAL":"IMPACTO CATASTRÓFICO";
   const levelColor=energyScore<.35?"#fde68a":energyScore<1.3?"#fb923c":energyScore<5?"#fb7185":"#ef4444";
 
   useEffect(()=>{setLaunched(false)},[diameter,speed]);
   const launch=()=>{setLaunched(false);setImpactKey(k=>k+1);requestAnimationFrame(()=>requestAnimationFrame(()=>setLaunched(true)))};
 
-  return <ExperimentShell icon="☄️" number="05" title="IMPACTO DE ASTEROIDE" intro="Cambia el diámetro y la velocidad y vuelve a lanzar. Ahora el tamaño del asteroide, su estela, la explosión, el cráter y las ondas de choque responden al impacto.">
+  return <ExperimentShell icon="☄️" number="05" title="IMPACTO DE ASTEROIDE" intro="Lanza el asteroide y observa el terreno después del choque. El cráter final y la onda expansiva cambian con el tamaño y la velocidad.">
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:10}}>
       <Control label={`DIÁMETRO · ${diameter} m`}><input type="range" min="5" max="150" value={diameter} onChange={e=>setDiameter(+e.target.value)} style={{...slider,accentColor:"#fb7185"}}/><Scale left="🚗 5 m" right="🏢 150 m"/></Control>
       <Control label={`VELOCIDAD · ${speed} km/s`}><input type="range" min="11" max="50" value={speed} onChange={e=>setSpeed(+e.target.value)} style={{...slider,accentColor:"#fb7185"}}/><Scale left="11 km/s" right="50 km/s ⚡"/></Control>
     </div>
-    <Stage height={430} background={`linear-gradient(#020617 0%,#0f172a 50%,#1e3a8a 51%,#0f766e 70%,#14532d 71%,#052e16 100%)`}>
+
+    <Stage height={460} background="linear-gradient(#020617 0%,#0f172a 42%,#1d4ed8 43%,#0f766e 60%,#14532d 61%,#052e16 100%)">
       <StarField />
-      <div style={{position:"absolute",left:"50%",bottom:-265,width:620,height:330,marginLeft:-310,borderRadius:"50% 50% 0 0",background:"radial-gradient(circle at 50% 0%,#4ade80,#166534 45%,#052e16 72%)",boxShadow:"0 -10px 60px rgba(56,189,248,.22)"}}/>
-      <div key={impactKey} style={{position:"absolute",left:launched?"59%":"7%",top:launched?"73%":"7%",width:asteroidSize,height:asteroidSize,borderRadius:"48% 52% 45% 55%",background:"radial-gradient(circle at 35% 30%,#a8a29e,#57534e 45%,#292524 78%)",boxShadow:`-${16+normalizedSpeed*35}px -${10+normalizedSpeed*24}px ${10+normalizedSpeed*22}px rgba(249,115,22,${.45+normalizedSpeed*.5}),0 0 ${8+normalizedSize*16}px rgba(255,255,255,.25)`,transform:`translate(-50%,-50%) rotate(${launched?520:25}deg)`,transition:launched?`left ${1.05-normalizedSpeed*.42}s cubic-bezier(.65,.02,.9,.5), top ${1.05-normalizedSpeed*.42}s cubic-bezier(.65,.02,.9,.5), transform ${1.05-normalizedSpeed*.42}s linear`:"none",opacity:launched?.05:1,zIndex:5}}>
-        <div style={{position:"absolute",left:"18%",top:"20%",width:"20%",height:"16%",borderRadius:"50%",background:"#292524",opacity:.8}}/><div style={{position:"absolute",right:"15%",bottom:"25%",width:"28%",height:"20%",borderRadius:"50%",background:"#1c1917",opacity:.75}}/>
+      <div style={{position:"absolute",left:0,right:0,bottom:0,height:180,background:"linear-gradient(#166534,#14532d 42%,#3f3f46 43%,#292524 100%)",zIndex:1}}/>
+      <div style={{position:"absolute",left:"50%",bottom:142,width:520,height:90,marginLeft:-260,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(74,222,128,.42),rgba(22,101,52,.16) 58%,transparent 72%)",zIndex:2}}/>
+
+      <div key={`asteroid-${impactKey}`} style={{position:"absolute",left:launched?"52%":"8%",top:launched?"58%":"7%",width:asteroidSize,height:asteroidSize,borderRadius:"48% 52% 45% 55%",background:"radial-gradient(circle at 35% 30%,#a8a29e,#57534e 45%,#292524 78%)",boxShadow:`-${16+normalizedSpeed*35}px -${10+normalizedSpeed*24}px ${10+normalizedSpeed*22}px rgba(249,115,22,${.45+normalizedSpeed*.5}),0 0 ${8+normalizedSize*16}px rgba(255,255,255,.25)`,transform:`translate(-50%,-50%) rotate(${launched?540:25}deg)`,transition:launched?`left ${1.08-normalizedSpeed*.44}s cubic-bezier(.65,.02,.9,.5), top ${1.08-normalizedSpeed*.44}s cubic-bezier(.65,.02,.9,.5), transform ${1.08-normalizedSpeed*.44}s linear`:"none",opacity:launched?.02:1,zIndex:7}}>
+        <div style={{position:"absolute",left:"18%",top:"20%",width:"20%",height:"16%",borderRadius:"50%",background:"#292524",opacity:.8}}/>
+        <div style={{position:"absolute",right:"15%",bottom:"25%",width:"28%",height:"20%",borderRadius:"50%",background:"#1c1917",opacity:.75}}/>
       </div>
-      <div style={{position:"absolute",left:launched?"20%":"2%",top:launched?"30%":"3%",width:launched?"38%":"8%",height:6,background:`linear-gradient(90deg,transparent,rgba(249,115,22,${.45+normalizedSpeed*.5}),#fff7ed)`,filter:`blur(${2+normalizedSpeed*4}px)`,transform:"rotate(34deg)",transformOrigin:"right",transition:launched?`all ${.9-normalizedSpeed*.3}s ease-in`:"none",opacity:launched?.9:.25}}/>
+      <div style={{position:"absolute",left:launched?"18%":"2%",top:launched?"24%":"3%",width:launched?"34%":"8%",height:7,background:`linear-gradient(90deg,transparent,rgba(249,115,22,${.45+normalizedSpeed*.5}),#fff7ed)`,filter:`blur(${2+normalizedSpeed*4}px)`,transform:"rotate(33deg)",transformOrigin:"right",transition:launched?`all ${.9-normalizedSpeed*.3}s ease-in`:"none",opacity:launched?.9:.25,zIndex:6}}/>
+
       {launched&&<>
-        <div style={{position:"absolute",left:"59%",top:"73%",width:flashSize,height:flashSize,marginLeft:-flashSize/2,marginTop:-flashSize/2,borderRadius:"50%",background:"radial-gradient(circle,#fff 0%,#fde047 18%,#f97316 43%,rgba(239,68,68,.55) 58%,transparent 72%)",boxShadow:`0 0 ${30+flashSize*.25}px #f97316`,animation:"labImpactFlash 1.25s ease-out forwards",zIndex:6}}/>
-        {[0,1,2].map(i=><div key={i} style={{position:"absolute",left:"59%",top:"73%",width:craterSize+i*38,height:(craterSize+i*38)*.35,marginLeft:-(craterSize+i*38)/2,marginTop:-(craterSize+i*38)*.175,borderRadius:"50%",border:`${3-i*.5}px solid rgba(255,${170-i*35},70,${.8-i*.18})`,animation:`labShockwave ${.9+i*.24}s ease-out ${i*.12}s forwards`,zIndex:7}}/>)}
-        <div style={{position:"absolute",left:"59%",top:"76%",width:craterSize,height:craterSize*.28,marginLeft:-craterSize/2,marginTop:-craterSize*.14,borderRadius:"50%",background:"radial-gradient(ellipse,#020617 0%,#451a03 50%,#92400e 75%,transparent 78%)",boxShadow:`inset 0 0 18px #000,0 0 ${14+intensity*24}px rgba(249,115,22,.8)`,animation:"labCrater .8s ease-out forwards",zIndex:4}}/>
-        {energyScore>1.3&&<div style={{position:"absolute",left:"59%",top:"70%",width:90+intensity*120,height:150+intensity*150,marginLeft:-(45+intensity*60),background:"radial-gradient(ellipse at bottom,rgba(251,146,60,.75),rgba(120,53,15,.42) 42%,transparent 72%)",filter:"blur(7px)",animation:"labPlume 2s ease-out forwards",zIndex:3}}/>}
-        <div style={{position:"absolute",inset:0,background:`rgba(255,245,220,${.12+intensity*.33})`,animation:"labScreenFlash .8s ease-out forwards",pointerEvents:"none",zIndex:8}}/>
-        <div style={{position:"absolute",left:0,right:0,bottom:18,textAlign:"center",fontSize:15+intensity*5,fontWeight:950,color:levelColor,textShadow:"0 2px 8px #000",zIndex:10}}>{level}</div>
+        <div style={{position:"absolute",left:"52%",top:"58%",width:flashSize,height:flashSize,marginLeft:-flashSize/2,marginTop:-flashSize/2,borderRadius:"50%",background:"radial-gradient(circle,#fff 0%,#fde047 16%,#f97316 38%,rgba(239,68,68,.48) 55%,transparent 72%)",boxShadow:`0 0 ${40+flashSize*.2}px #f97316`,animation:"labImpactFlash 1.1s ease-out forwards",zIndex:9}}/>
+
+        {[0,1,2].map(i=><div key={`wave-${i}`} style={{position:"absolute",left:"52%",top:"62%",width:110+i*28,height:38+i*10,marginLeft:-(55+i*14),marginTop:-(19+i*5),borderRadius:"50%",border:`${4-i}px solid rgba(${i===0?"255,245,200":"255,160,80"},${.95-i*.18})`,boxShadow:`0 0 ${15+i*6}px rgba(255,180,80,.65)`,"--waveScale":waveScale+i*.35,animation:`labGroundWave ${1.3+i*.25}s ease-out ${i*.1}s forwards`,zIndex:8}}/>)}
+
+        <div style={{position:"absolute",left:"52%",top:"65%",width:craterWidth,height:craterDepth*2.1,marginLeft:-craterWidth/2,marginTop:-craterDepth,borderRadius:"50%",background:"radial-gradient(ellipse at 50% 38%,#050505 0%,#1c1917 37%,#451a03 57%,#78350f 69%,#a16207 75%,transparent 78%)",boxShadow:`inset 0 ${craterDepth*.35}px ${craterDepth*.5}px #000,inset 0 -${craterDepth*.22}px ${craterDepth*.35}px rgba(245,158,11,.38),0 0 ${16+intensity*28}px rgba(249,115,22,.42)`,animation:"labCraterFinal .95s ease-out forwards",zIndex:5}}/>
+        <div style={{position:"absolute",left:"52%",top:"65%",width:craterWidth*1.22,height:craterDepth*2.45,marginLeft:-(craterWidth*1.22)/2,marginTop:-(craterDepth*1.22),borderRadius:"50%",border:`${4+intensity*7}px solid rgba(120,53,15,.85)`,boxShadow:`0 0 0 ${4+intensity*6}px rgba(217,119,6,.22)`,animation:"labCraterRim .9s ease-out forwards",zIndex:4}}/>
+
+        {[0,1,2,3].map(i=><div key={`dust-${i}`} style={{position:"absolute",left:`${46+i*4}%`,top:"61%",width:18+intensity*25,height:110+intensity*115,borderRadius:"50%",background:`linear-gradient(rgba(251,146,60,${.55-i*.08}),rgba(120,53,15,.28),transparent)`,filter:`blur(${5+i}px)`,transform:`rotate(${-18+i*12}deg)`,transformOrigin:"bottom",animation:`labDebris ${1.5+i*.18}s ease-out forwards`,zIndex:7}}/>)}
+
+        <div style={{position:"absolute",left:0,right:0,bottom:8,textAlign:"center",zIndex:11}}>
+          <div style={{display:"inline-block",padding:"9px 13px",borderRadius:14,background:"rgba(0,0,0,.66)",border:`1px solid ${levelColor}66`,color:levelColor,fontWeight:950,fontSize:15}}>💥 {level}</div>
+        </div>
+        <div style={{position:"absolute",inset:0,background:`rgba(255,245,220,${.12+intensity*.28})`,animation:"labScreenFlash .75s ease-out forwards",pointerEvents:"none",zIndex:10}}/>
       </>}
     </Stage>
+
     <button onClick={launch} style={{...actionButton,background:"linear-gradient(90deg,#be123c,#ea580c)",border:"1px solid #fb718566"}}>☄️ LANZAR ASTEROIDE</button>
-    <Metrics items={[["ASTEROIDE",`${diameter} m`],["VELOCIDAD",`${speed} km/s`],["ENERGÍA RELATIVA",`${energyScore.toFixed(1)}×`],["RESULTADO",level]]}/>
-    <Discovery>{energyScore<.35?"Este objeto produce un impacto relativamente pequeño en esta escala. Prueba a aumentar su tamaño o velocidad y vuelve a lanzarlo.":energyScore<1.3?"Ya tienes energía suficiente para producir daños locales importantes. Observa cómo crecen el destello y el cráter.":energyScore<5?"El impacto es ahora mucho más violento: aparecen grandes ondas de choque, una explosión mayor y un cráter claramente más grande.":"Has creado un impacto extremadamente energético. Un pequeño aumento del diámetro dispara la energía porque la masa crece aproximadamente con el cubo del tamaño."}</Discovery>
-    <Note>Modelo educativo simplificado. Un impacto real también depende de la densidad del asteroide, el ángulo, la composición del terreno y muchos otros factores.</Note>
+
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:9,marginTop:13}}>
+      <MetricCard title="CRÁTER ESTIMADO" value={`≈ ${craterDiameter} m`} detail="diámetro visual relativo" />
+      <MetricCard title="ONDA EXPANSIVA" value={`≈ ${blastRadius} m`} detail="radio educativo" />
+      <MetricCard title="ENERGÍA RELATIVA" value={`${energyScore.toFixed(1)}×`} detail="respecto al ajuste inicial" />
+      <MetricCard title="RESULTADO" value={level} detail="clasificación educativa" />
+    </div>
+
+    <Discovery>{energyScore<.35?"El cráter es pequeño y la onda expansiva alcanza una zona limitada. Aumenta el diámetro o la velocidad y vuelve a lanzar.":energyScore<1.3?"El impacto ya excava un cráter mucho mayor y la onda expansiva cubre una zona claramente más amplia.":energyScore<5?"La onda de choque recorre una gran superficie y el cráter crece de forma muy visible. La energía aumenta con enorme rapidez.":"Has creado un impacto extremo: el cráter domina la zona de choque y la onda expansiva se extiende muy lejos del punto de impacto."}</Discovery>
+    <Note>Modelo educativo simplificado: el tamaño real del cráter y la onda expansiva dependen también de densidad, ángulo de entrada, terreno, atmósfera y composición del asteroide.</Note>
   </ExperimentShell>
 }
 
+function MetricCard({title,value,detail}){return <div style={{padding:13,borderRadius:15,background:"rgba(249,115,22,.08)",border:"1px solid rgba(251,146,60,.16)"}}><div style={{fontSize:9,fontWeight:950,letterSpacing:1,opacity:.52}}>{title}</div><div style={{fontSize:17,fontWeight:950,marginTop:5}}>{value}</div><div style={{fontSize:10,opacity:.5,marginTop:4}}>{detail}</div></div>}
 function ExperimentShell({icon,number,title,intro,children}){return <div style={panel}><div style={{padding:"25px 22px 18px",background:"radial-gradient(circle at 90% 0%,rgba(56,189,248,.10),transparent 40%)"}}><div style={{fontSize:42}}>{icon}</div><div style={{marginTop:8,fontSize:10,letterSpacing:2,fontWeight:950,color:"#7dd3fc"}}>EXPERIMENTO {number}</div><h2 style={{fontSize:"clamp(27px,6vw,42px)",margin:"6px 0 8px"}}>{title}</h2><p style={{maxWidth:700,margin:0,lineHeight:1.55,opacity:.74}}>{intro}</p></div><div style={{padding:"0 22px 25px"}}>{children}</div></div>}
 function Control({label,children}){return <div style={{padding:15,borderRadius:17,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.08)"}}><div style={{fontSize:11,fontWeight:950,letterSpacing:1.1,marginBottom:10}}>{label}</div>{children}</div>}
 function Scale({left,right}){return <div style={{display:"flex",justifyContent:"space-between",fontSize:10,opacity:.55,marginTop:5}}><span>{left}</span><span>{right}</span></div>}
@@ -268,9 +293,10 @@ const animations=`
 @keyframes labDisk{to{transform:rotate(347deg)}}
 @keyframes labDiskGlow{50%{filter:blur(3px) brightness(1.35);opacity:.72}}
 @keyframes labPhotonRing{50%{filter:brightness(1.55);opacity:.72;transform:scale(1.035)}}
-@keyframes labImpactFlash{0%{transform:scale(.12);opacity:1}55%{opacity:.96}100%{transform:scale(1.7);opacity:0}}
-@keyframes labShockwave{0%{transform:scale(.15);opacity:1}100%{transform:scale(2.2);opacity:0}}
-@keyframes labCrater{0%{transform:scale(.15);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
-@keyframes labPlume{0%{transform:translateY(30px) scale(.3);opacity:.2}35%{opacity:.9}100%{transform:translateY(-110px) scale(1.4);opacity:0}}
-@keyframes labScreenFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+@keyframes labImpactFlash{0%{transform:scale(.08);opacity:1}48%{opacity:.98}100%{transform:scale(1.7);opacity:0}}
+@keyframes labGroundWave{0%{transform:scale(.18);opacity:1}70%{opacity:.72}100%{transform:scale(var(--waveScale));opacity:0}}
+@keyframes labCraterFinal{0%{transform:scale(.08);opacity:0}55%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes labCraterRim{0%{transform:scale(.1);opacity:0}65%{transform:scale(1.08);opacity:.95}100%{transform:scale(1);opacity:.82}}
+@keyframes labDebris{0%{transform:translateY(30px) scale(.25);opacity:.15}30%{opacity:.9}100%{transform:translateY(-150px) scale(1.5);opacity:0}}
+@keyframes labScreenFlash{0%{opacity:0}16%{opacity:1}100%{opacity:0}}
 `;

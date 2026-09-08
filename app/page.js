@@ -2,14 +2,18 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background:
-          "radial-gradient(circle at top, #13213f 0%, #060b18 45%, #02040a 100%)",
-        color: "white",
-        padding: "32px 20px",
-      }}
+  <main
+  style={{
+    height: "100vh",
+    overflowY: "auto",
+    WebkitOverflowScrolling: "touch",
+    boxSizing: "border-box",
+    background:
+      "radial-gradient(circle at top, #13213f 0%, #060b18 45%, #02040a 100%)",
+    color: "white",
+    padding: "32px 20px",
+  }}
+>
     >
       <div
         style={{

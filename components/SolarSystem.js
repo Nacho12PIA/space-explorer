@@ -25,13 +25,19 @@ import { planets } from "../data/planets";
 
 const textureFiles = {
   Mercurio: "/textures/2k_mercury.jpg",
-  Venus: "/textures/2k_venus_atmosphere.jpg",
-  Tierra: "/textures/2k_earth_daymap.jpg",
+  Venus:
+    "/textures/2k_venus_atmosphere.jpg",
+  Tierra:
+    "/textures/2k_earth_daymap.jpg",
   Marte: "/textures/2k_mars.jpg",
-  Júpiter: "/textures/2k_jupiter.jpg",
-  Saturno: "/textures/2k_saturn.jpg",
-  Urano: "/textures/2k_uranus.jpg",
-  Neptuno: "/textures/2k_neptune.jpg",
+  Júpiter:
+    "/textures/2k_jupiter.jpg",
+  Saturno:
+    "/textures/2k_saturn.jpg",
+  Urano:
+    "/textures/2k_uranus.jpg",
+  Neptuno:
+    "/textures/2k_neptune.jpg",
 };
 
 function Moon({ earthSize }) {
@@ -44,14 +50,23 @@ function Moon({ earthSize }) {
 
   useFrame((state, delta) => {
     if (moonOrbit.current) {
-      moonOrbit.current.rotation.y += delta * 0.35;
+      moonOrbit.current.rotation.y +=
+        delta * 0.35;
     }
   });
 
   return (
     <group ref={moonOrbit}>
-      <mesh position={[earthSize + 1.4, 0.15, 0]}>
-        <sphereGeometry args={[0.27, 48, 48]} />
+      <mesh
+        position={[
+          earthSize + 1.4,
+          0.15,
+          0,
+        ]}
+      >
+        <sphereGeometry
+          args={[0.27, 48, 48]}
+        />
 
         <meshStandardMaterial
           map={moonTexture}
@@ -61,11 +76,17 @@ function Moon({ earthSize }) {
       </mesh>
 
       <Html
-        position={[earthSize + 1.4, 0.7, 0]}
+        position={[
+          earthSize + 1.4,
+          0.7,
+          0,
+        ]}
         center
         distanceFactor={12}
       >
-        <PlanetLabel>Luna</PlanetLabel>
+        <PlanetLabel>
+          Luna
+        </PlanetLabel>
       </Html>
     </group>
   );
@@ -77,8 +98,10 @@ function PlanetLabel({ children }) {
       style={{
         padding: "4px 8px",
         borderRadius: 999,
-        background: "rgba(4, 10, 25, 0.82)",
-        border: "1px solid rgba(255,255,255,0.16)",
+        background:
+          "rgba(4, 10, 25, 0.82)",
+        border:
+          "1px solid rgba(255,255,255,0.16)",
         color: "white",
         fontSize: 11,
         whiteSpace: "nowrap",
@@ -106,13 +129,15 @@ function Planet({
     textureFiles[planet.name]
   );
 
-  const saturnRingTexture = useLoader(
-    THREE.TextureLoader,
-    "/textures/2k_saturn_ring_alpha.png"
-  );
+  const saturnRingTexture =
+    useLoader(
+      THREE.TextureLoader,
+      "/textures/2k_saturn_ring_alpha.png"
+    );
 
   const isSelected =
-    selectedPlanet?.name === planet.name;
+    selectedPlanet?.name ===
+    planet.name;
 
   const isVisible =
     !selectedPlanet || isSelected;
@@ -123,7 +148,9 @@ function Planet({
       !selectedPlanet
     ) {
       orbitGroup.current.rotation.y +=
-        planet.speed * delta * 0.35;
+        planet.speed *
+        delta *
+        0.35;
     }
 
     if (planetMesh.current) {
@@ -147,7 +174,11 @@ function Planet({
   return (
     <group
       ref={orbitGroup}
-      rotation={[0, startingAngle, 0]}
+      rotation={[
+        0,
+        startingAngle,
+        0,
+      ]}
     >
       <group
         ref={planetGroup}
@@ -183,7 +214,8 @@ function Planet({
           />
         </mesh>
 
-        {planet.name === "Saturno" && (
+        {planet.name ===
+          "Saturno" && (
           <mesh
             rotation={[
               Math.PI / 2.15,
@@ -200,26 +232,35 @@ function Planet({
           >
             <ringGeometry
               args={[
-                planet.size * 1.25,
-                planet.size * 2.25,
+                planet.size *
+                  1.25,
+                planet.size *
+                  2.25,
                 128,
               ]}
             />
 
             <meshBasicMaterial
-              map={saturnRingTexture}
+              map={
+                saturnRingTexture
+              }
               transparent
               opacity={0.95}
-              side={THREE.DoubleSide}
+              side={
+                THREE.DoubleSide
+              }
               depthWrite={false}
             />
           </mesh>
         )}
 
-        {planet.name === "Tierra" &&
+        {planet.name ===
+          "Tierra" &&
           !selectedPlanet && (
             <Moon
-              earthSize={planet.size}
+              earthSize={
+                planet.size
+              }
             />
           )}
 
@@ -227,7 +268,8 @@ function Planet({
           <Html
             position={[
               0,
-              planet.size + 0.7,
+              planet.size +
+                0.7,
               0,
             ]}
             center
@@ -339,7 +381,9 @@ function Sun({ planetMode }) {
               color="#ff9d32"
               transparent
               opacity={0.12}
-              side={THREE.BackSide}
+              side={
+                THREE.BackSide
+              }
               blending={
                 THREE.AdditiveBlending
               }
@@ -360,7 +404,9 @@ function Sun({ planetMode }) {
               color="#ff7300"
               transparent
               opacity={0.035}
-              side={THREE.BackSide}
+              side={
+                THREE.BackSide
+              }
               blending={
                 THREE.AdditiveBlending
               }
@@ -380,10 +426,8 @@ function CameraController({
   returningHome,
   onArrivedHome,
 }) {
-  const {
-    camera,
-    size,
-  } = useThree();
+  const { camera, size } =
+    useThree();
 
   const homePosition = useRef(
     new THREE.Vector3(
@@ -401,13 +445,15 @@ function CameraController({
     )
   );
 
-  const targetPosition = useRef(
-    new THREE.Vector3()
-  );
+  const targetPosition =
+    useRef(
+      new THREE.Vector3()
+    );
 
-  const targetLookAt = useRef(
-    new THREE.Vector3()
-  );
+  const targetLookAt =
+    useRef(
+      new THREE.Vector3()
+    );
 
   const currentPlanet =
     useRef(null);
@@ -478,7 +524,8 @@ function CameraController({
         currentPlanet.current =
           selectedPlanet.name;
 
-        isFocusing.current = true;
+        isFocusing.current =
+          true;
       }
 
       const worldPosition =
@@ -488,21 +535,19 @@ function CameraController({
         worldPosition
       );
 
-      /*
-        Acercamos algo más el planeta
-        que antes para que tenga mayor
-        presencia en la vista.
-      */
       const distance = Math.max(
-        selectedPlanet.size * 3.4,
+        selectedPlanet.size *
+          3.4,
         3.4
       );
 
       targetPosition.current.set(
-        worldPosition.x + distance,
+        worldPosition.x +
+          distance,
         worldPosition.y +
           distance * 0.22,
-        worldPosition.z + distance
+        worldPosition.z +
+          distance
       );
 
       targetLookAt.current.copy(
@@ -552,7 +597,9 @@ function CameraController({
       }
 
       controlsRef.current.update();
-    } else if (returningHome) {
+    } else if (
+      returningHome
+    ) {
       currentPlanet.current =
         null;
 
@@ -614,7 +661,8 @@ function Scene({
   returningHome,
   onArrivedHome,
 }) {
-  const controlsRef = useRef();
+  const controlsRef =
+    useRef();
 
   const planetRefs =
     useRef({});
@@ -733,14 +781,21 @@ export default function SolarSystem() {
     setReturningHome,
   ] = useState(false);
 
+  const [
+    activeSection,
+    setActiveSection,
+  ] = useState("overview");
+
   function handleSelectPlanet(
     planet
   ) {
     setReturningHome(false);
+    setActiveSection("overview");
     setSelectedPlanet(planet);
   }
 
   function handleReturnHome() {
+    setActiveSection("overview");
     setSelectedPlanet(null);
     setReturningHome(true);
   }
@@ -866,7 +921,8 @@ export default function SolarSystem() {
               "none",
           }}
         >
-          Volviendo al Sistema Solar…
+          Volviendo al Sistema
+          Solar…
         </div>
       )}
 
@@ -874,6 +930,12 @@ export default function SolarSystem() {
         <PlanetCard
           planet={
             selectedPlanet
+          }
+          activeSection={
+            activeSection
+          }
+          onSectionChange={
+            setActiveSection
           }
           onClose={
             handleReturnHome
@@ -884,8 +946,97 @@ export default function SolarSystem() {
   );
 }
 
+function PlanetNavigation({
+  activeSection,
+  onSectionChange,
+}) {
+  const sections = [
+    {
+      id: "overview",
+      label: "VISTA GENERAL",
+    },
+    {
+      id: "surface",
+      label: "SUPERFICIE",
+    },
+    {
+      id: "atmosphere",
+      label: "ATMÓSFERA",
+    },
+    {
+      id: "moons",
+      label: "LUNAS",
+    },
+  ];
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 7,
+        overflowX: "auto",
+        scrollbarWidth: "none",
+        WebkitOverflowScrolling:
+          "touch",
+        marginTop: 16,
+        marginBottom: 16,
+        paddingBottom: 2,
+      }}
+    >
+      {sections.map(
+        (section) => {
+          const isActive =
+            activeSection ===
+            section.id;
+
+          return (
+            <button
+              key={section.id}
+              onClick={() =>
+                onSectionChange(
+                  section.id
+                )
+              }
+              style={{
+                flex: "0 0 auto",
+                border: isActive
+                  ? "1px solid rgba(96,165,250,0.8)"
+                  : "1px solid rgba(255,255,255,0.12)",
+                background: isActive
+                  ? "rgba(59,130,246,0.22)"
+                  : "rgba(255,255,255,0.045)",
+                color: "white",
+                borderRadius: 999,
+                padding:
+                  "8px 11px",
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing:
+                  0.55,
+                whiteSpace:
+                  "nowrap",
+                cursor:
+                  "pointer",
+                opacity: isActive
+                  ? 1
+                  : 0.68,
+                transition:
+                  "all 0.2s ease",
+              }}
+            >
+              {section.label}
+            </button>
+          );
+        }
+      )}
+    </div>
+  );
+}
+
 function PlanetCard({
   planet,
+  activeSection,
+  onSectionChange,
   onClose,
 }) {
   return (
@@ -896,6 +1047,8 @@ function PlanetCard({
         right: 16,
         bottom: 18,
         maxWidth: 420,
+        maxHeight: "48vh",
+        overflowY: "auto",
         margin: "0 auto",
         background:
           "rgba(4, 10, 25, 0.94)",
@@ -913,7 +1066,8 @@ function PlanetCard({
       <button
         onClick={onClose}
         style={{
-          position: "absolute",
+          position:
+            "absolute",
           right: 14,
           top: 14,
           background:
@@ -944,13 +1098,64 @@ function PlanetCard({
       <h1
         style={{
           marginTop: 6,
-          marginBottom: 8,
+          marginBottom: 0,
           fontSize: 28,
         }}
       >
         {planet.name}
       </h1>
 
+      <PlanetNavigation
+        activeSection={
+          activeSection
+        }
+        onSectionChange={
+          onSectionChange
+        }
+      />
+
+      {activeSection ===
+        "overview" && (
+        <OverviewSection
+          planet={planet}
+        />
+      )}
+
+      {activeSection ===
+        "surface" && (
+        <ComingSoonSection
+          eyebrow="SUPERFICIE"
+          title={`Explora la superficie de ${planet.name}`}
+          text="Esta sección está preparada para incorporar una experiencia interactiva de exploración de la superficie."
+        />
+      )}
+
+      {activeSection ===
+        "atmosphere" && (
+        <ComingSoonSection
+          eyebrow="ATMÓSFERA"
+          title={`Investiga la atmósfera de ${planet.name}`}
+          text="Esta sección está preparada para mostrar de forma visual cómo es la atmósfera del planeta y qué efectos produce."
+        />
+      )}
+
+      {activeSection ===
+        "moons" && (
+        <ComingSoonSection
+          eyebrow="LUNAS"
+          title={`Descubre las lunas de ${planet.name}`}
+          text="Esta sección permitirá explorar los satélites naturales del planeta cuando incorporemos esta experiencia."
+        />
+      )}
+    </div>
+  );
+}
+
+function OverviewSection({
+  planet,
+}) {
+  return (
+    <>
       <p
         style={{
           lineHeight: 1.5,
@@ -1021,6 +1226,53 @@ function PlanetCard({
         >
           {planet.fact}
         </div>
+      </div>
+    </>
+  );
+}
+
+function ComingSoonSection({
+  eyebrow,
+  title,
+  text,
+}) {
+  return (
+    <div
+      style={{
+        padding: "18px 4px 4px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: 1.4,
+          color: "#60a5fa",
+          marginBottom: 8,
+        }}
+      >
+        {eyebrow}
+      </div>
+
+      <div
+        style={{
+          fontSize: 19,
+          lineHeight: 1.25,
+          fontWeight: 750,
+          marginBottom: 10,
+        }}
+      >
+        {title}
+      </div>
+
+      <div
+        style={{
+          fontSize: 14,
+          lineHeight: 1.5,
+          opacity: 0.72,
+        }}
+      >
+        {text}
       </div>
     </div>
   );

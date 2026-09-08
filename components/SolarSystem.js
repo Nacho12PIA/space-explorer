@@ -1298,18 +1298,25 @@ function JupiterHotspot({
       <mesh
         ref={markerRef}
       >
-        <sphereGeometry
-          args={[
-            size * 0.045,
-            24,
-            24,
-          ]}
-        />
+       <sphereGeometry
+  args={[
+    size *
+      (variant === "band"
+        ? 0.025
+        : 0.045),
+    24,
+    24,
+  ]}
+/>
 
-        <meshBasicMaterial
-          color="#ff6b4a"
-          toneMapped={false}
-        />
+<meshBasicMaterial
+  color={
+    variant === "band"
+      ? "#f6d6a8"
+      : "#ff6b4a"
+  }
+  toneMapped={false}
+/>
       </mesh>
 
       <mesh>

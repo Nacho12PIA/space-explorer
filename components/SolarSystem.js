@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -44,14 +45,23 @@ function Moon({ earthSize }) {
 
   useFrame((state, delta) => {
     if (moonOrbit.current) {
-      moonOrbit.current.rotation.y += delta * 0.35;
+      moonOrbit.current.rotation.y +=
+        delta * 0.35;
     }
   });
 
   return (
     <group ref={moonOrbit}>
-      <mesh position={[earthSize + 1.4, 0.15, 0]}>
-        <sphereGeometry args={[0.27, 48, 48]} />
+      <mesh
+        position={[
+          earthSize + 1.4,
+          0.15,
+          0,
+        ]}
+      >
+        <sphereGeometry
+          args={[0.27, 48, 48]}
+        />
 
         <meshStandardMaterial
           map={moonTexture}
@@ -61,11 +71,17 @@ function Moon({ earthSize }) {
       </mesh>
 
       <Html
-        position={[earthSize + 1.4, 0.7, 0]}
+        position={[
+          earthSize + 1.4,
+          0.7,
+          0,
+        ]}
         center
         distanceFactor={12}
       >
-        <PlanetLabel>Luna</PlanetLabel>
+        <PlanetLabel>
+          Luna
+        </PlanetLabel>
       </Html>
     </group>
   );
@@ -77,8 +93,10 @@ function PlanetLabel({ children }) {
       style={{
         padding: "4px 8px",
         borderRadius: 999,
-        background: "rgba(4, 10, 25, 0.82)",
-        border: "1px solid rgba(255,255,255,0.16)",
+        background:
+          "rgba(4, 10, 25, 0.82)",
+        border:
+          "1px solid rgba(255,255,255,0.16)",
         color: "white",
         fontSize: 11,
         whiteSpace: "nowrap",
@@ -90,45 +108,289 @@ function PlanetLabel({ children }) {
   );
 }
 
+function EarthNightLayer({
+  size,
+  nightTexture,
+  onClick,
+}) {
+  const uniforms = useMemo(
+    () => ({
+      nightMap: {
+        value: nightTexture,
+      },
+    }),
+    [nightTexture]
+  );
+
+  const vertexShader = `
+    varying vec2 vUv;
+    varying vec3 vWorldPosition;
+    varying vec3 vWorldNormal;
+
+    void main() {
+      vUv = uv;
+
+      vec4 worldPosition =
+        modelMatrix *
+        vec4(position, 1.0);
+
+      vWorldPosition =
+        worldPosition.xyz;
+
+      vWorldNormal =
+        normalize(
+          mat3(modelMatrix) *
+          normal
+        );
+
+      gl_Position =
+        projectionMatrix *
+        viewMatrix *
+        worldPosition;
+    }
+  `;
+
+  const fragmentShader = `
+    uniform sampler2D nightMap;
+
+    varying vec2 vUv;
+    varying vec3 vWorldPosition;
+    varying vec3 vWorldNormal;
+
+    void main() {
+      vec3 normal =
+        normalize(vWorldNormal);
+
+      /*
+        El Sol está situado en el
+        origen del Sistema Solar.
+      */
+      vec3 directionToSun =
+        normalize(
+          -vWorldPosition
+        );
+
+      float illumination =
+        dot(
+          normal,
+          directionToSun
+        );
+
+      /*
+        0 = zona iluminada
+        1 = zona nocturna
+
+        smoothstep crea una
+        transición suave en el
+        terminador.
+      */
+      float darkness =
+        1.0 -
+        smoothstep(
+          -0.10,
+          0.12,
+          illumination
+        );
+
+      vec3 nightColor =
+        texture2D(
+          nightMap,
+          vUv
+        ).rgb;
+
+      /*
+        Eliminamos casi todo lo
+        oscuro del mapa nocturno
+        y conservamos principalmente
+        las luces urbanas.
+      */
+      float brightness =
+        max(
+          nightColor.r,
+          max(
+            nightColor.g,
+            nightColor.b
+          )
+        );
+
+      float lightsMask =
+        smoothstep(
+          0.055,
+          0.32,
+          brightness
+        );
+
+      float alpha =
+        darkness *
+        lightsMask;
+
+      vec3 cityLights =
+        nightColor * 1.55;
+
+      gl_FragColor =
+        vec4(
+          cityLights,
+          alpha
+        );
+    }
+  `;
+
+  return (
+    <mesh
+      scale={1.004}
+      onClick={onClick}
+    >
+      <sphereGeometry
+        args={[
+          size,
+          64,
+          64,
+        ]}
+      />
+
+      <shaderMaterial
+        uniforms={uniforms}
+        vertexShader={
+          vertexShader
+        }
+        fragmentShader={
+          fragmentShader
+        }
+        transparent
+        depthWrite={false}
+        blending={
+          THREE.AdditiveBlending
+        }
+      />
+    </mesh>
+  );
+}
+
 function Planet({
   planet,
   index,
   onSelect,
   registerPlanet,
   selectedPlanet,
+  activeSection,
 }) {
   const orbitGroup = useRef();
   const planetGroup = useRef();
   const planetMesh = useRef();
+
+  /*
+    La Tierra utiliza este grupo
+    para que superficie y luces
+    nocturnas roten juntas.
+  */
+  const earthRotationGroup =
+    useRef();
+
+  const venusAtmosphereMaterial =
+    useRef();
 
   const texture = useLoader(
     THREE.TextureLoader,
     textureFiles[planet.name]
   );
 
-  const saturnRingTexture = useLoader(
-    THREE.TextureLoader,
-    "/textures/2k_saturn_ring_alpha.png"
-  );
+  const venusSurfaceTexture =
+    useLoader(
+      THREE.TextureLoader,
+      "/textures/2k_venus_surface.jpg"
+    );
+
+  const earthNightTexture =
+    useLoader(
+      THREE.TextureLoader,
+      "/textures/2k_earth_nightmap.jpg"
+    );
+
+  const saturnRingTexture =
+    useLoader(
+      THREE.TextureLoader,
+      "/textures/2k_saturn_ring_alpha.png"
+    );
 
   const isSelected =
-    selectedPlanet?.name === planet.name;
+    selectedPlanet?.name ===
+    planet.name;
 
   const isVisible =
     !selectedPlanet || isSelected;
 
+  const isVenus =
+    planet.name === "Venus";
+
+  const isEarth =
+    planet.name === "Tierra";
+
   useFrame((state, delta) => {
+    /*
+      Órbita de los planetas.
+
+      Cuando entramos en modo
+      planeta se detiene.
+    */
     if (
       orbitGroup.current &&
       !selectedPlanet
     ) {
       orbitGroup.current.rotation.y +=
-        planet.speed * delta * 0.35;
+        planet.speed *
+        delta *
+        0.35;
     }
 
-    if (planetMesh.current) {
+    /*
+      Rotación sobre su eje.
+
+      Tierra:
+      gira el grupo completo,
+      incluyendo superficie y
+      luces nocturnas.
+
+      Resto:
+      gira la esfera normal.
+    */
+    if (
+      isEarth &&
+      earthRotationGroup.current
+    ) {
+      earthRotationGroup.current.rotation.y +=
+        delta * 0.08;
+    } else if (
+      planetMesh.current
+    ) {
       planetMesh.current.rotation.y +=
         delta * 0.08;
+    }
+
+    /*
+      Venus:
+      al entrar en SUPERFICIE
+      retiramos progresivamente
+      la capa atmosférica.
+    */
+    if (
+      isVenus &&
+      venusAtmosphereMaterial.current
+    ) {
+      const revealSurface =
+        isSelected &&
+        activeSection ===
+          "surface";
+
+      const targetOpacity =
+        revealSurface ? 0 : 1;
+
+      venusAtmosphereMaterial.current.opacity =
+        THREE.MathUtils.lerp(
+          venusAtmosphereMaterial
+            .current.opacity,
+          targetOpacity,
+          0.06
+        );
     }
 
     if (planetGroup.current) {
@@ -144,10 +406,24 @@ function Planet({
     Math.PI *
     2;
 
+  function handlePlanetClick(
+    event
+  ) {
+    event.stopPropagation();
+
+    if (!selectedPlanet) {
+      onSelect(planet);
+    }
+  }
+
   return (
     <group
       ref={orbitGroup}
-      rotation={[0, startingAngle, 0]}
+      rotation={[
+        0,
+        startingAngle,
+        0,
+      ]}
     >
       <group
         ref={planetGroup}
@@ -158,68 +434,178 @@ function Planet({
         ]}
         visible={isVisible}
       >
-        <mesh
-          ref={planetMesh}
-          onClick={(event) => {
-            event.stopPropagation();
+        {isVenus ? (
+          <>
+            {/* Superficie de Venus */}
+            <mesh
+              ref={planetMesh}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
 
-            if (!selectedPlanet) {
-              onSelect(planet);
+              <meshStandardMaterial
+                map={
+                  venusSurfaceTexture
+                }
+                roughness={0.95}
+                metalness={0}
+              />
+            </mesh>
+
+            {/* Atmósfera de Venus */}
+            <mesh
+              scale={1.012}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
+
+              <meshStandardMaterial
+                ref={
+                  venusAtmosphereMaterial
+                }
+                map={texture}
+                roughness={0.9}
+                metalness={0}
+                transparent
+                opacity={1}
+                depthWrite={false}
+              />
+            </mesh>
+          </>
+        ) : isEarth ? (
+          /*
+            Superficie y luces están
+            dentro del MISMO grupo.
+
+            Así mantienen exactamente
+            la misma rotación.
+          */
+          <group
+            ref={
+              earthRotationGroup
             }
-          }}
-        >
-          <sphereGeometry
-            args={[
-              planet.size,
-              64,
-              64,
-            ]}
-          />
+          >
+            {/* Tierra visible */}
+            <mesh
+              ref={planetMesh}
+              onClick={
+                handlePlanetClick
+              }
+            >
+              <sphereGeometry
+                args={[
+                  planet.size,
+                  64,
+                  64,
+                ]}
+              />
 
-          <meshStandardMaterial
-            map={texture}
-            roughness={0.9}
-            metalness={0}
-          />
-        </mesh>
+              <meshStandardMaterial
+                map={texture}
+                roughness={0.9}
+                metalness={0}
+              />
+            </mesh>
 
-        {planet.name === "Saturno" && (
+            {/* Luces nocturnas */}
+            {isSelected &&
+              activeSection ===
+                "surface" && (
+                <EarthNightLayer
+                  size={
+                    planet.size
+                  }
+                  nightTexture={
+                    earthNightTexture
+                  }
+                  onClick={
+                    handlePlanetClick
+                  }
+                />
+              )}
+          </group>
+        ) : (
+          <mesh
+            ref={planetMesh}
+            onClick={
+              handlePlanetClick
+            }
+          >
+            <sphereGeometry
+              args={[
+                planet.size,
+                64,
+                64,
+              ]}
+            />
+
+            <meshStandardMaterial
+              map={texture}
+              roughness={0.9}
+              metalness={0}
+            />
+          </mesh>
+        )}
+
+        {planet.name ===
+          "Saturno" && (
           <mesh
             rotation={[
               Math.PI / 2.15,
               0,
               0,
             ]}
-            onClick={(event) => {
-              event.stopPropagation();
-
-              if (!selectedPlanet) {
-                onSelect(planet);
-              }
-            }}
+            onClick={
+              handlePlanetClick
+            }
           >
             <ringGeometry
               args={[
-                planet.size * 1.25,
-                planet.size * 2.25,
+                planet.size *
+                  1.25,
+                planet.size *
+                  2.25,
                 128,
               ]}
             />
 
             <meshBasicMaterial
-              map={saturnRingTexture}
+              map={
+                saturnRingTexture
+              }
               transparent
               opacity={0.95}
-              side={THREE.DoubleSide}
+              side={
+                THREE.DoubleSide
+              }
               depthWrite={false}
             />
           </mesh>
         )}
 
-        {planet.name === "Tierra" &&
+        {planet.name ===
+          "Tierra" &&
           !selectedPlanet && (
             <Moon
-              earthSize={planet.size}
+              earthSize={
+                planet.size
+              }
             />
           )}
 
@@ -227,7 +613,8 @@ function Planet({
           <Html
             position={[
               0,
-              planet.size + 0.7,
+              planet.size +
+                0.7,
               0,
             ]}
             center
@@ -339,7 +726,9 @@ function Sun({ planetMode }) {
               color="#ff9d32"
               transparent
               opacity={0.12}
-              side={THREE.BackSide}
+              side={
+                THREE.BackSide
+              }
               blending={
                 THREE.AdditiveBlending
               }
@@ -360,7 +749,9 @@ function Sun({ planetMode }) {
               color="#ff7300"
               transparent
               opacity={0.035}
-              side={THREE.BackSide}
+              side={
+                THREE.BackSide
+              }
               blending={
                 THREE.AdditiveBlending
               }
@@ -380,10 +771,8 @@ function CameraController({
   returningHome,
   onArrivedHome,
 }) {
-  const {
-    camera,
-    size,
-  } = useThree();
+  const { camera, size } =
+    useThree();
 
   const homePosition = useRef(
     new THREE.Vector3(
@@ -401,13 +790,15 @@ function CameraController({
     )
   );
 
-  const targetPosition = useRef(
-    new THREE.Vector3()
-  );
+  const targetPosition =
+    useRef(
+      new THREE.Vector3()
+    );
 
-  const targetLookAt = useRef(
-    new THREE.Vector3()
-  );
+  const targetLookAt =
+    useRef(
+      new THREE.Vector3()
+    );
 
   const currentPlanet =
     useRef(null);
@@ -415,16 +806,6 @@ function CameraController({
   const isFocusing =
     useRef(false);
 
-  /*
-    DESPLAZAMIENTO VISUAL DEL PLANETA
-
-    El planeta sigue siendo el centro real
-    de OrbitControls, pero la cámara utiliza
-    una vista desplazada para que aparezca
-    más arriba en la pantalla.
-
-    De este modo la ficha no lo tapa.
-  */
   useEffect(() => {
     if (selectedPlanet) {
       const verticalOffset =
@@ -478,7 +859,8 @@ function CameraController({
         currentPlanet.current =
           selectedPlanet.name;
 
-        isFocusing.current = true;
+        isFocusing.current =
+          true;
       }
 
       const worldPosition =
@@ -488,21 +870,19 @@ function CameraController({
         worldPosition
       );
 
-      /*
-        Acercamos algo más el planeta
-        que antes para que tenga mayor
-        presencia en la vista.
-      */
       const distance = Math.max(
-        selectedPlanet.size * 3.4,
+        selectedPlanet.size *
+          3.4,
         3.4
       );
 
       targetPosition.current.set(
-        worldPosition.x + distance,
+        worldPosition.x +
+          distance,
         worldPosition.y +
           distance * 0.22,
-        worldPosition.z + distance
+        worldPosition.z +
+          distance
       );
 
       targetLookAt.current.copy(
@@ -552,7 +932,9 @@ function CameraController({
       }
 
       controlsRef.current.update();
-    } else if (returningHome) {
+    } else if (
+      returningHome
+    ) {
       currentPlanet.current =
         null;
 
@@ -613,8 +995,10 @@ function Scene({
   onSelect,
   returningHome,
   onArrivedHome,
+  activeSection,
 }) {
-  const controlsRef = useRef();
+  const controlsRef =
+    useRef();
 
   const planetRefs =
     useRef({});
@@ -670,6 +1054,9 @@ function Scene({
             }
             selectedPlanet={
               selectedPlanet
+            }
+            activeSection={
+              activeSection
             }
           />
         )
@@ -733,14 +1120,21 @@ export default function SolarSystem() {
     setReturningHome,
   ] = useState(false);
 
+  const [
+    activeSection,
+    setActiveSection,
+  ] = useState("overview");
+
   function handleSelectPlanet(
     planet
   ) {
     setReturningHome(false);
+    setActiveSection("overview");
     setSelectedPlanet(planet);
   }
 
   function handleReturnHome() {
+    setActiveSection("overview");
     setSelectedPlanet(null);
     setReturningHome(true);
   }
@@ -772,6 +1166,9 @@ export default function SolarSystem() {
           }
           returningHome={
             returningHome
+          }
+          activeSection={
+            activeSection
           }
           onArrivedHome={() =>
             setReturningHome(
@@ -875,6 +1272,12 @@ export default function SolarSystem() {
           planet={
             selectedPlanet
           }
+          activeSection={
+            activeSection
+          }
+          onSectionChange={
+            setActiveSection
+          }
           onClose={
             handleReturnHome
           }
@@ -884,8 +1287,97 @@ export default function SolarSystem() {
   );
 }
 
+function PlanetNavigation({
+  activeSection,
+  onSectionChange,
+}) {
+  const sections = [
+    {
+      id: "overview",
+      label: "VISTA GENERAL",
+    },
+    {
+      id: "surface",
+      label: "SUPERFICIE",
+    },
+    {
+      id: "atmosphere",
+      label: "ATMÓSFERA",
+    },
+    {
+      id: "moons",
+      label: "LUNAS",
+    },
+  ];
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 7,
+        overflowX: "auto",
+        scrollbarWidth: "none",
+        WebkitOverflowScrolling:
+          "touch",
+        marginTop: 16,
+        marginBottom: 16,
+        paddingBottom: 2,
+      }}
+    >
+      {sections.map(
+        (section) => {
+          const isActive =
+            activeSection ===
+            section.id;
+
+          return (
+            <button
+              key={section.id}
+              onClick={() =>
+                onSectionChange(
+                  section.id
+                )
+              }
+              style={{
+                flex: "0 0 auto",
+                border: isActive
+                  ? "1px solid rgba(96,165,250,0.8)"
+                  : "1px solid rgba(255,255,255,0.12)",
+                background: isActive
+                  ? "rgba(59,130,246,0.22)"
+                  : "rgba(255,255,255,0.045)",
+                color: "white",
+                borderRadius: 999,
+                padding:
+                  "8px 11px",
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing:
+                  0.55,
+                whiteSpace:
+                  "nowrap",
+                cursor:
+                  "pointer",
+                opacity: isActive
+                  ? 1
+                  : 0.68,
+                transition:
+                  "all 0.2s ease",
+              }}
+            >
+              {section.label}
+            </button>
+          );
+        }
+      )}
+    </div>
+  );
+}
+
 function PlanetCard({
   planet,
+  activeSection,
+  onSectionChange,
   onClose,
 }) {
   return (
@@ -896,6 +1388,8 @@ function PlanetCard({
         right: 16,
         bottom: 18,
         maxWidth: 420,
+        maxHeight: "48vh",
+        overflowY: "auto",
         margin: "0 auto",
         background:
           "rgba(4, 10, 25, 0.94)",
@@ -913,7 +1407,8 @@ function PlanetCard({
       <button
         onClick={onClose}
         style={{
-          position: "absolute",
+          position:
+            "absolute",
           right: 14,
           top: 14,
           background:
@@ -944,13 +1439,58 @@ function PlanetCard({
       <h1
         style={{
           marginTop: 6,
-          marginBottom: 8,
+          marginBottom: 0,
           fontSize: 28,
         }}
       >
         {planet.name}
       </h1>
 
+      <PlanetNavigation
+        activeSection={
+          activeSection
+        }
+        onSectionChange={
+          onSectionChange
+        }
+      />
+
+      {activeSection ===
+        "overview" && (
+        <OverviewSection
+          planet={planet}
+        />
+      )}
+
+      {activeSection ===
+        "surface" && (
+        <SurfaceSection
+          planet={planet}
+        />
+      )}
+
+      {activeSection ===
+        "atmosphere" && (
+        <AtmosphereSection
+          planet={planet}
+        />
+      )}
+
+      {activeSection ===
+        "moons" && (
+        <MoonsSection
+          planet={planet}
+        />
+      )}
+    </div>
+  );
+}
+
+function OverviewSection({
+  planet,
+}) {
+  return (
+    <>
       <p
         style={{
           lineHeight: 1.5,
@@ -1021,6 +1561,346 @@ function PlanetCard({
         >
           {planet.fact}
         </div>
+      </div>
+    </>
+  );
+}
+
+function SurfaceSection({
+  planet,
+}) {
+  if (
+    planet.name === "Venus"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          SUPERFICIE REVELADA
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Bajo las nubes de Venus
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          La espesa capa de
+          nubes de Venus impide
+          observar directamente
+          su superficie en luz
+          visible. Por eso las
+          sondas espaciales han
+          utilizado radar para
+          estudiar el terreno que
+          se esconde debajo.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(245,158,11,0.10)",
+            border:
+              "1px solid rgba(245,158,11,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🔎 Mira el planeta:
+          acabamos de retirar
+          visualmente sus nubes
+          para poder explorar lo
+          que hay debajo.
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    planet.name === "Tierra"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          DÍA Y NOCHE EN TIEMPO REAL
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Dos caras de la Tierra
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          La mitad de la Tierra
+          orientada hacia el Sol
+          vive el día. En el lado
+          opuesto es de noche.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(59,130,246,0.10)",
+            border:
+              "1px solid rgba(96,165,250,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🌍 Gira la Tierra y
+          observa la frontera entre
+          el día y la noche. En el
+          hemisferio oscuro podrás
+          ver las luces de las
+          ciudades.
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 12,
+            lineHeight: 1.45,
+            opacity: 0.6,
+          }}
+        >
+          La línea que separa la
+          zona iluminada de la
+          zona oscura se llama
+          terminador.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ComingSoonSection
+      eyebrow="SUPERFICIE"
+      title={`Explora la superficie de ${planet.name}`}
+      text="La exploración interactiva de la superficie de este mundo se incorporará progresivamente."
+    />
+  );
+}
+
+function AtmosphereSection({
+  planet,
+}) {
+  if (
+    planet.name === "Venus"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          NUBES VISIBLES
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Un planeta oculto
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Venus posee una
+          atmósfera extremadamente
+          densa, formada
+          principalmente por
+          dióxido de carbono y
+          cubierta por gruesas
+          nubes de ácido sulfúrico.
+        </p>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(96,165,250,0.10)",
+            border:
+              "1px solid rgba(96,165,250,0.22)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          ☁️ Desde el espacio,
+          esas nubes esconden la
+          superficie. Cambia ahora
+          a{" "}
+          <strong>
+            SUPERFICIE
+          </strong>{" "}
+          y observa qué ocurre.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <ComingSoonSection
+      eyebrow="ATMÓSFERA"
+      title={`Investiga la atmósfera de ${planet.name}`}
+      text="Esta sección incorporará experiencias visuales para estudiar la composición y los fenómenos atmosféricos de cada planeta."
+    />
+  );
+}
+
+function MoonsSection({
+  planet,
+}) {
+  if (
+    planet.name === "Venus"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          0 LUNAS
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Venus no tiene lunas
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Venus es uno de los dos
+          planetas del Sistema Solar
+          que no poseen satélites
+          naturales. El otro es
+          Mercurio.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <ComingSoonSection
+      eyebrow="LUNAS"
+      title={`Descubre las lunas de ${planet.name}`}
+      text="Aquí podremos explorar los satélites naturales asociados a este planeta."
+    />
+  );
+}
+
+function StatusBadge({
+  children,
+}) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "6px 9px",
+        borderRadius: 999,
+        background:
+          "rgba(59,130,246,0.13)",
+        border:
+          "1px solid rgba(96,165,250,0.25)",
+        color: "#93c5fd",
+        fontSize: 10,
+        fontWeight: 800,
+        letterSpacing: 1,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ComingSoonSection({
+  eyebrow,
+  title,
+  text,
+}) {
+  return (
+    <div
+      style={{
+        padding:
+          "18px 4px 4px",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 800,
+          letterSpacing: 1.4,
+          color: "#60a5fa",
+          marginBottom: 8,
+        }}
+      >
+        {eyebrow}
+      </div>
+
+      <div
+        style={{
+          fontSize: 19,
+          lineHeight: 1.25,
+          fontWeight: 750,
+          marginBottom: 10,
+        }}
+      >
+        {title}
+      </div>
+
+      <div
+        style={{
+          fontSize: 14,
+          lineHeight: 1.5,
+          opacity: 0.72,
+        }}
+      >
+        {text}
       </div>
     </div>
   );

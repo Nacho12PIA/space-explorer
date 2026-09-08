@@ -533,6 +533,87 @@ function SaturnMoons({
   );
 }
 
+if (planet.name === "Urano") {
+  return (
+    <div>
+      <StatusBadge>
+        LUNAS DE URANO
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Titania y Miranda
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Urano posee numerosas lunas.
+        Dos de las más conocidas son
+        Titania y Miranda.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(148,163,184,0.08)",
+          border:
+            "1px solid rgba(148,163,184,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🌕 <strong>Titania:</strong>{" "}
+        es la luna más grande de Urano.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(125,211,252,0.07)",
+          border:
+            "1px solid rgba(125,211,252,0.16)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🧊 <strong>Miranda:</strong>{" "}
+        posee una superficie muy variada,
+        con grandes acantilados y terrenos
+        que parecen haber sido remodelados.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        Los tamaños, distancias y
+        velocidades están adaptados para
+        facilitar su observación.
+      </div>
+    </div>
+  );
+}
+
 function PlanetLabel({
   children,
 }) {
@@ -3699,6 +3780,62 @@ if (planet.name === "Saturno") {
     </div>
   );
 }
+if (planet.name === "Urano") {
+  return (
+    <div>
+      <StatusBadge>
+        SIN SUPERFICIE SÓLIDA
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Un gigante helado
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Urano no posee una superficie
+        sólida sobre la que pudiéramos
+        aterrizar. Sus capas exteriores
+        están formadas principalmente
+        por gases.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(34,211,238,0.07)",
+          border:
+            "1px solid rgba(103,232,249,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🧊 Aunque lo llamamos
+        <strong> gigante helado</strong>,
+        eso no significa que Urano sea
+        una enorme bola de hielo. Bajo
+        su atmósfera existen materiales
+        como agua, metano y amoníaco a
+        enormes presiones y temperaturas.
+      </div>
+    </div>
+  );
+}
+
   return (
     <ComingSoonSection
       eyebrow="SUPERFICIE"
@@ -4213,6 +4350,90 @@ if (planet.name === "Saturno") {
     </div>
   );
 }
+
+if (planet.name === "Urano") {
+  return (
+    <div>
+      <StatusBadge>
+        ATMÓSFERA FRÍA
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        El metano le da su color
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        La atmósfera de Urano está
+        formada principalmente por
+        hidrógeno y helio, con pequeñas
+        cantidades de metano.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 9,
+          marginTop: 14,
+        }}
+      >
+        <AtmosphereGas
+          value="H₂"
+          label="Gas principal"
+        />
+
+        <AtmosphereGas
+          value="CH₄"
+          label="Metano"
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(34,211,238,0.07)",
+          border:
+            "1px solid rgba(103,232,249,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🔵 El metano absorbe parte de
+        la luz roja del Sol, ayudando
+        a que Urano presente su tono
+        azul verdoso característico.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        Urano es uno de los planetas
+        más fríos del Sistema Solar.
+      </div>
+    </div>
+  );
+}
+
   return (
     <ComingSoonSection
       eyebrow="ATMÓSFERA"

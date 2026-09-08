@@ -3386,6 +3386,41 @@ function SurfaceSection({
     );
   }
 
+if (planet.name === "Júpiter") {
+  return (
+    <div className="planet-section-content">
+      <p className="planet-section-eyebrow">
+        SUPERFICIE
+      </p>
+
+      <h3>
+        ¿Dónde aterrizarías?
+      </h3>
+
+      <p>
+        En Júpiter no podrías aterrizar:
+        es un gigante gaseoso y no tiene
+        una superficie sólida como la
+        Tierra o Marte.
+      </p>
+
+      <p>
+        Lo que vemos desde el espacio son
+        las capas superiores de sus nubes.
+        Si descendieras, la presión y la
+        temperatura aumentarían cada vez
+        más.
+      </p>
+
+      <div className="planet-fact">
+        ☁️ <strong>DESCUBRIMIENTO:</strong>{" "}
+        las bandas que ves en Júpiter
+        forman parte de su enorme atmósfera,
+        no de un suelo.
+      </div>
+    </div>
+  );
+}
   return (
     <ComingSoonSection
       eyebrow="SUPERFICIE"

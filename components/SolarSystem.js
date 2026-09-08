@@ -1,17 +1,24 @@
 "use client";
 
-import { useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
   Canvas,
   useFrame,
   useLoader,
   useThree,
 } from "@react-three/fiber";
+
 import {
   OrbitControls,
   Stars,
   Html,
 } from "@react-three/drei";
+
 import * as THREE from "three";
 
 import { planets } from "../data/planets";
@@ -176,8 +183,7 @@ function Planet({
           />
         </mesh>
 
-        {planet.name ===
-          "Saturno" && (
+        {planet.name === "Saturno" && (
           <mesh
             rotation={[
               Math.PI / 2.15,
@@ -204,21 +210,16 @@ function Planet({
               map={saturnRingTexture}
               transparent
               opacity={0.95}
-              side={
-                THREE.DoubleSide
-              }
+              side={THREE.DoubleSide}
               depthWrite={false}
             />
           </mesh>
         )}
 
-        {planet.name ===
-          "Tierra" &&
+        {planet.name === "Tierra" &&
           !selectedPlanet && (
             <Moon
-              earthSize={
-                planet.size
-              }
+              earthSize={planet.size}
             />
           )}
 
@@ -338,9 +339,7 @@ function Sun({ planetMode }) {
               color="#ff9d32"
               transparent
               opacity={0.12}
-              side={
-                THREE.BackSide
-              }
+              side={THREE.BackSide}
               blending={
                 THREE.AdditiveBlending
               }
@@ -361,9 +360,7 @@ function Sun({ planetMode }) {
               color="#ff7300"
               transparent
               opacity={0.035}
-              side={
-                THREE.BackSide
-              }
+              side={THREE.BackSide}
               blending={
                 THREE.AdditiveBlending
               }
@@ -383,7 +380,10 @@ function CameraController({
   returningHome,
   onArrivedHome,
 }) {
-  const { camera } = useThree();
+  const {
+    camera,
+    size,
+  } = useThree();
 
   const homePosition = useRef(
     new THREE.Vector3(
@@ -394,7 +394,11 @@ function CameraController({
   );
 
   const homeTarget = useRef(
-    new THREE.Vector3(0, 0, 0)
+    new THREE.Vector3(
+      0,
+      0,
+      0
+    )
   );
 
   const targetPosition = useRef(
@@ -411,9 +415,51 @@ function CameraController({
   const isFocusing =
     useRef(false);
 
+  /*
+    DESPLAZAMIENTO VISUAL DEL PLANETA
+
+    El planeta sigue siendo el centro real
+    de OrbitControls, pero la cámara utiliza
+    una vista desplazada para que aparezca
+    más arriba en la pantalla.
+
+    De este modo la ficha no lo tapa.
+  */
+  useEffect(() => {
+    if (selectedPlanet) {
+      const verticalOffset =
+        size.height * 0.17;
+
+      camera.setViewOffset(
+        size.width,
+        size.height,
+        0,
+        verticalOffset,
+        size.width,
+        size.height
+      );
+
+      camera.updateProjectionMatrix();
+    } else {
+      camera.clearViewOffset();
+      camera.updateProjectionMatrix();
+    }
+
+    return () => {
+      camera.clearViewOffset();
+      camera.updateProjectionMatrix();
+    };
+  }, [
+    selectedPlanet,
+    camera,
+    size.width,
+    size.height,
+  ]);
+
   useFrame(() => {
-    if (!controlsRef.current)
+    if (!controlsRef.current) {
       return;
+    }
 
     if (selectedPlanet) {
       const object =
@@ -421,7 +467,9 @@ function CameraController({
           selectedPlanet.name
         ];
 
-      if (!object) return;
+      if (!object) {
+        return;
+      }
 
       if (
         currentPlanet.current !==
@@ -440,18 +488,21 @@ function CameraController({
         worldPosition
       );
 
+      /*
+        Acercamos algo más el planeta
+        que antes para que tenga mayor
+        presencia en la vista.
+      */
       const distance = Math.max(
-        selectedPlanet.size * 3.8,
-        3.8
+        selectedPlanet.size * 3.4,
+        3.4
       );
 
       targetPosition.current.set(
-        worldPosition.x +
-          distance,
+        worldPosition.x + distance,
         worldPosition.y +
-          distance * 0.25,
-        worldPosition.z +
-          distance
+          distance * 0.22,
+        worldPosition.z + distance
       );
 
       targetLookAt.current.copy(
@@ -495,14 +546,6 @@ function CameraController({
             false;
         }
       } else {
-        /*
-          Una vez terminado el viaje,
-          ya NO movemos la cámara.
-
-          OrbitControls queda libre
-          para girar y hacer zoom
-          alrededor del planeta.
-        */
         controlsRef.current.target.copy(
           worldPosition
         );
@@ -618,9 +661,7 @@ function Scene({
       {planets.map(
         (planet, index) => (
           <Planet
-            key={
-              planet.name
-            }
+            key={planet.name}
             planet={planet}
             index={index}
             onSelect={onSelect}
@@ -742,8 +783,7 @@ export default function SolarSystem() {
 
       <div
         style={{
-          position:
-            "absolute",
+          position: "absolute",
           top: 24,
           left: 24,
           zIndex: 10,
@@ -799,8 +839,7 @@ export default function SolarSystem() {
             }}
           >
             Arrastra para girar ·
-            Pellizca para hacer
-            zoom
+            Pellizca para hacer zoom
           </div>
         )}
 
@@ -827,8 +866,7 @@ export default function SolarSystem() {
               "none",
           }}
         >
-          Volviendo al Sistema
-          Solar…
+          Volviendo al Sistema Solar…
         </div>
       )}
 
@@ -875,8 +913,7 @@ function PlanetCard({
       <button
         onClick={onClose}
         style={{
-          position:
-            "absolute",
+          position: "absolute",
           right: 14,
           top: 14,
           background:
@@ -885,12 +922,10 @@ function PlanetCard({
             "1px solid rgba(255,255,255,0.14)",
           borderRadius: 999,
           color: "white",
-          padding:
-            "7px 12px",
+          padding: "7px 12px",
           fontSize: 12,
           fontWeight: 700,
-          cursor:
-            "pointer",
+          cursor: "pointer",
         }}
       >
         ← SISTEMA SOLAR
@@ -937,9 +972,7 @@ function PlanetCard({
       >
         <InfoBox
           label="Diámetro"
-          value={
-            planet.diameter
-          }
+          value={planet.diameter}
         />
 
         <InfoBox
@@ -949,9 +982,7 @@ function PlanetCard({
 
         <InfoBox
           label="Gravedad"
-          value={
-            planet.gravity
-          }
+          value={planet.gravity}
         />
 
         <InfoBox

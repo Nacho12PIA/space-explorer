@@ -266,6 +266,108 @@ function EarthNightLayer({
   );
 }
 
+function EarthAtmosphereLayer({
+  size,
+  onClick,
+}) {
+  const vertexShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewDirection;
+
+    void main() {
+      vec4 modelViewPosition =
+        modelViewMatrix *
+        vec4(position, 1.0);
+
+      vNormal =
+        normalize(
+          normalMatrix *
+          normal
+        );
+
+      vViewDirection =
+        normalize(
+          -modelViewPosition.xyz
+        );
+
+      gl_Position =
+        projectionMatrix *
+        modelViewPosition;
+    }
+  `;
+
+  const fragmentShader = `
+    varying vec3 vNormal;
+    varying vec3 vViewDirection;
+
+    void main() {
+      float facing =
+        max(
+          dot(
+            normalize(vNormal),
+            normalize(vViewDirection)
+          ),
+          0.0
+        );
+
+      float rim =
+        pow(
+          1.0 - facing,
+          2.2
+        );
+
+      vec3 atmosphereColor =
+        vec3(
+          0.18,
+          0.55,
+          1.0
+        );
+
+      float alpha =
+        rim * 0.72;
+
+      gl_FragColor =
+        vec4(
+          atmosphereColor *
+          (0.8 + rim),
+          alpha
+        );
+    }
+  `;
+
+  return (
+    <mesh
+      scale={1.065}
+      onClick={onClick}
+    >
+      <sphereGeometry
+        args={[
+          size,
+          96,
+          96,
+        ]}
+      />
+
+      <shaderMaterial
+        vertexShader={
+          vertexShader
+        }
+        fragmentShader={
+          fragmentShader
+        }
+        transparent
+        depthWrite={false}
+        blending={
+          THREE.AdditiveBlending
+        }
+        side={
+          THREE.FrontSide
+        }
+      />
+    </mesh>
+  );
+}
+
 function Planet({
   planet,
   index,
@@ -489,57 +591,79 @@ function Planet({
             </mesh>
           </>
         ) : isEarth ? (
-          /*
-            Superficie y luces están
-            dentro del MISMO grupo.
+          <>
+            {/*
+              Superficie y luces están
+              dentro del MISMO grupo.
 
-            Así mantienen exactamente
-            la misma rotación.
-          */
-          <group
-            ref={
-              earthRotationGroup
-            }
-          >
-            {/* Tierra visible */}
-            <mesh
-              ref={planetMesh}
-              onClick={
-                handlePlanetClick
+              Así mantienen exactamente
+              la misma rotación.
+            */}
+            <group
+              ref={
+                earthRotationGroup
               }
             >
-              <sphereGeometry
-                args={[
-                  planet.size,
-                  64,
-                  64,
-                ]}
-              />
+              {/* Tierra visible */}
+              <mesh
+                ref={planetMesh}
+                onClick={
+                  handlePlanetClick
+                }
+              >
+                <sphereGeometry
+                  args={[
+                    planet.size,
+                    64,
+                    64,
+                  ]}
+                />
 
-              <meshStandardMaterial
-                map={texture}
-                roughness={0.9}
-                metalness={0}
-              />
-            </mesh>
+                <meshStandardMaterial
+                  map={texture}
+                  roughness={0.9}
+                  metalness={0}
+                />
+              </mesh>
 
-            {/* Luces nocturnas */}
+              {/* Luces nocturnas */}
+              {isSelected &&
+                activeSection ===
+                  "surface" && (
+                  <EarthNightLayer
+                    size={
+                      planet.size
+                    }
+                    nightTexture={
+                      earthNightTexture
+                    }
+                    onClick={
+                      handlePlanetClick
+                    }
+                  />
+                )}
+            </group>
+
+            {/*
+              La atmósfera se dibuja
+              como una capa visual
+              alrededor de la Tierra
+              únicamente cuando
+              entramos en ATMÓSFERA.
+            */}
             {isSelected &&
               activeSection ===
-                "surface" && (
-                <EarthNightLayer
+                "atmosphere" && (
+                <EarthAtmosphereLayer
                   size={
                     planet.size
-                  }
-                  nightTexture={
-                    earthNightTexture
                   }
                   onClick={
                     handlePlanetClick
                   }
                 />
               )}
-          </group>
+          </>
         ) : (
           <mesh
             ref={planetMesh}
@@ -1775,6 +1899,114 @@ function AtmosphereSection({
     );
   }
 
+  if (
+    planet.name === "Tierra"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          ATMÓSFERA VISIBLE
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          El escudo azul de la Tierra
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          La Tierra está rodeada
+          por una fina envoltura
+          de gases llamada
+          atmósfera. Nos proporciona
+          el aire que respiramos y
+          ayuda a proteger la
+          superficie del entorno
+          espacial.
+        </p>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "1fr 1fr",
+            gap: 9,
+            marginTop: 14,
+          }}
+        >
+          <AtmosphereGas
+            value="78%"
+            label="Nitrógeno"
+          />
+
+          <AtmosphereGas
+            value="21%"
+            label="Oxígeno"
+          />
+
+          <AtmosphereGas
+            value="≈1%"
+            label="Otros gases"
+          />
+
+          <AtmosphereGas
+            value="≈100 km"
+            label="Inicio del espacio*"
+          />
+        </div>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(56,189,248,0.09)",
+            border:
+              "1px solid rgba(125,211,252,0.20)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🔵 Mira el borde de la
+          Tierra: hemos exagerado
+          visualmente el grosor de
+          la atmósfera para que
+          puedas distinguirla con
+          claridad.
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 11,
+            lineHeight: 1.45,
+            opacity: 0.55,
+          }}
+        >
+          * Los 100 km corresponden
+          aproximadamente a la línea
+          de Kármán, una referencia
+          convencional para señalar
+          el comienzo del espacio.
+          La atmósfera no termina
+          bruscamente a esa altura.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ComingSoonSection
       eyebrow="ATMÓSFERA"
@@ -1901,6 +2133,44 @@ function ComingSoonSection({
         }}
       >
         {text}
+      </div>
+    </div>
+  );
+}
+
+function AtmosphereGas({
+  value,
+  label,
+}) {
+  return (
+    <div
+      style={{
+        padding: 12,
+        borderRadius: 13,
+        background:
+          "rgba(56,189,248,0.07)",
+        border:
+          "1px solid rgba(125,211,252,0.14)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 18,
+          fontWeight: 800,
+          color: "#7dd3fc",
+          marginBottom: 3,
+        }}
+      >
+        {value}
+      </div>
+
+      <div
+        style={{
+          fontSize: 11,
+          opacity: 0.7,
+        }}
+      >
+        {label}
       </div>
     </div>
   );

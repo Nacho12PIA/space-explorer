@@ -2314,11 +2314,10 @@ function Planet({
           "Saturno" && (
           <mesh
             rotation={[
-              Math.PI /
-                2.15,
-              0,
-              0,
-            ]}
+  Math.PI / 2,
+  THREE.MathUtils.degToRad(26.7),
+  0,
+]}
             onClick={
               handlePlanetClick
             }

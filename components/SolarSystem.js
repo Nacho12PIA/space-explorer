@@ -558,6 +558,23 @@ function UranusMoons({
   );
 }
 
+function NeptuneMoons({
+  size,
+}) {
+  return (
+    <group>
+      <JupiterMoon
+        size={size}
+        distance={size * 1.65}
+        speed={0.48}
+        color="#d8d2c4"
+        label="TRITÓN"
+        moonSize={size * 0.065}
+      />
+    </group>
+  );
+}
+
 function PlanetLabel({
   children,
 }) {
@@ -2350,6 +2367,19 @@ function Planet({
       scale={1.065}
     />
   )}
+
+        {planet.name ===
+  "Neptuno" &&
+  isSelected &&
+  activeSection ===
+    "atmosphere" && (
+    <GasAtmosphereLayer
+      size={planet.size}
+      color="#3b82f6"
+      intensity={0.58}
+      scale={1.07}
+    />
+  )}
         
         {planet.name ===
           "Saturno" &&
@@ -2367,6 +2397,16 @@ function Planet({
   activeSection ===
     "moons" && (
     <UranusMoons
+      size={planet.size}
+    />
+  )}
+
+{planet.name ===
+  "Neptuno" &&
+  isSelected &&
+  activeSection ===
+    "moons" && (
+    <NeptuneMoons
       size={planet.size}
     />
   )}
@@ -3895,6 +3935,60 @@ if (planet.name === "Urano") {
   );
 }
 
+if (planet.name === "Neptuno") {
+  return (
+    <div>
+      <StatusBadge>
+        SIN SUPERFICIE SÓLIDA
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Un mundo sin suelo firme
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Neptuno es un gigante helado y
+        no posee una superficie sólida
+        sobre la que pudiéramos aterrizar.
+        Lo que vemos son las capas
+        superiores de su atmósfera.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(59,130,246,0.08)",
+          border:
+            "1px solid rgba(96,165,250,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🧊 Bajo sus nubes, la presión
+        aumenta enormemente. En el
+        interior existen materiales como
+        agua, metano y amoníaco sometidos
+        a condiciones extremas.
+      </div>
+    </div>
+  );
+}
+
   return (
     <ComingSoonSection
       eyebrow="SUPERFICIE"
@@ -4488,6 +4582,78 @@ if (planet.name === "Urano") {
       >
         Urano es uno de los planetas
         más fríos del Sistema Solar.
+      </div>
+    </div>
+  );
+}
+
+if (planet.name === "Neptuno") {
+  return (
+    <div>
+      <StatusBadge>
+        ATMÓSFERA ACTIVA
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Vientos extraordinarios
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        La atmósfera de Neptuno está
+        formada principalmente por
+        hidrógeno y helio, además de
+        pequeñas cantidades de metano.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 9,
+          marginTop: 14,
+        }}
+      >
+        <AtmosphereGas
+          value="H₂"
+          label="Gas principal"
+        />
+
+        <AtmosphereGas
+          value="CH₄"
+          label="Metano"
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(59,130,246,0.08)",
+          border:
+            "1px solid rgba(96,165,250,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        💨 Neptuno posee los vientos
+        más rápidos conocidos entre los
+        planetas del Sistema Solar:
+        pueden superar los
+        <strong> 2.000 km/h</strong>.
       </div>
     </div>
   );
@@ -5090,6 +5256,89 @@ if (planet.name === "Urano") {
       >
         Los tamaños, distancias y
         velocidades están adaptados para
+        facilitar su observación.
+      </div>
+    </div>
+  );
+}
+
+if (planet.name === "Neptuno") {
+  return (
+    <div>
+      <StatusBadge>
+        LUNAS DE NEPTUNO
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Tritón
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Tritón es la luna más grande
+        de Neptuno y uno de los mundos
+        helados más interesantes del
+        Sistema Solar.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(148,163,184,0.08)",
+          border:
+            "1px solid rgba(148,163,184,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🔄 <strong>Órbita retrógrada:</strong>{" "}
+        Tritón orbita Neptuno en sentido
+        contrario a la rotación del planeta.
+        Esto hace pensar que pudo ser
+        capturado por la gravedad de Neptuno.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(96,165,250,0.07)",
+          border:
+            "1px solid rgba(96,165,250,0.16)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        ❄️ Su superficie es extremadamente
+        fría y está cubierta por hielos.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        El tamaño, la distancia y la
+        velocidad están adaptados para
         facilitar su observación.
       </div>
     </div>

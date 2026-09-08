@@ -514,7 +514,7 @@ function SaturnMoons({
     <group>
       <JupiterMoon
         size={size}
-        distance={size * 1.75}
+        distance={size * 3.1}
         speed={0.34}
         color="#d9a441"
         label="TITÁN"
@@ -523,7 +523,7 @@ function SaturnMoons({
 
       <JupiterMoon
         size={size}
-        distance={size * 1.4}
+        distance={size * 2.55}
         speed={0.62}
         color="#e7edf4"
         label="ENCÉLADO"
@@ -566,7 +566,7 @@ function NeptuneMoons({
       <JupiterMoon
         size={size}
         distance={size * 1.65}
-        speed={0.48}
+        speed={-0.48}
         color="#d8d2c4"
         label="TRITÓN"
         moonSize={size * 0.065}
@@ -3662,7 +3662,7 @@ function SurfaceSection({
     return (
       <div>
         <StatusBadge>
-          DÍA Y NOCHE EN TIEMPO REAL
+          DÍA Y NOCHE DINÁMICOS
         </StatusBadge>
 
         <h2

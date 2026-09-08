@@ -2,30 +2,26 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-<main
-  style={{
-    height: "100vh",
-    overflowY: "auto",
-    WebkitOverflowScrolling: "touch",
-    boxSizing: "border-box",
-    background:
-      "radial-gradient(circle at top, #13213f 0%, #060b18 45%, #02040a 100%)",
-    color: "white",
-    padding: "32px 20px",
-  }}
->
-  <div
+    <main
+      style={{
+        height: "100vh",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        boxSizing: "border-box",
+        background:
+          "radial-gradient(circle at top, #13213f 0%, #060b18 45%, #02040a 100%)",
+        color: "white",
+        padding: "32px 20px",
+      }}
+    >
+      <div
         style={{
           width: "100%",
           maxWidth: 1100,
           margin: "0 auto",
         }}
       >
-        <div
-          style={{
-            marginBottom: 40,
-          }}
-        >
+        <div style={{ marginBottom: 40 }}>
           <div
             style={{
               fontSize: 12,
@@ -56,123 +52,45 @@ export default function Home() {
               margin: 0,
             }}
           >
-            Explora el espacio, descubre
-            cómo funciona el Universo y
-            supera nuevos retos.
+            Explora el espacio, descubre cómo funciona el Universo y supera nuevos retos.
           </p>
         </div>
 
         <div
           style={{
             display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(230px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
             gap: 16,
           }}
         >
-          <Link
+          <AreaLink
             href="/explora"
-            style={{
-              color: "white",
-              textDecoration: "none",
-              display: "block",
-              height: "100%",
-            }}
-          >
-            <section
-              style={{
-                minHeight: 220,
-                height: "100%",
-                padding: 24,
-                borderRadius: 22,
-                background:
-                  "linear-gradient(145deg, rgba(37,99,235,0.28), rgba(15,23,42,0.88))",
-                border:
-                  "1px solid rgba(96,165,250,0.35)",
-              }}
-            >
-              <div style={{ fontSize: 34 }}>
-                🪐
-              </div>
+            icon="🪐"
+            title="EXPLORA"
+            description="Viaja por el Sistema Solar y descubre sus planetas, lunas y nuestra estrella."
+            action="INICIAR EXPLORACIÓN →"
+            background="linear-gradient(145deg, rgba(37,99,235,0.28), rgba(15,23,42,0.88))"
+            border="1px solid rgba(96,165,250,0.35)"
+          />
 
-              <h2>EXPLORA</h2>
+          <AreaLink
+            href="/misiones"
+            icon="🚀"
+            title="MISIONES"
+            description="Supera retos y demuestra lo que has descubierto."
+            action="INICIAR MISIÓN →"
+            background="linear-gradient(145deg, rgba(124,58,237,0.24), rgba(15,23,42,0.88))"
+            border="1px solid rgba(167,139,250,0.35)"
+          />
 
-              <p
-                style={{
-                  opacity: 0.7,
-                  lineHeight: 1.5,
-                }}
-              >
-                Viaja por el Sistema Solar
-                y descubre sus planetas,
-                lunas y nuestra estrella.
-              </p>
-
-              <div
-                style={{
-                  marginTop: 24,
-                  fontWeight: 800,
-                  fontSize: 13,
-                }}
-              >
-                INICIAR EXPLORACIÓN →
-              </div>
-            </section>
-          </Link>
-
-     <Link
-  href="/misiones"
-  style={{
-    color: "white",
-    textDecoration: "none",
-    display: "block",
-    height: "100%",
-  }}
->
-  <section
-    style={{
-      minHeight: 220,
-      height: "100%",
-      padding: 24,
-      borderRadius: 22,
-      background:
-        "linear-gradient(145deg, rgba(124,58,237,0.24), rgba(15,23,42,0.88))",
-      border:
-        "1px solid rgba(167,139,250,0.35)",
-    }}
-  >
-    <div style={{ fontSize: 34 }}>
-      🚀
-    </div>
-
-    <h2>MISIONES</h2>
-
-    <p
-      style={{
-        opacity: 0.7,
-        lineHeight: 1.5,
-      }}
-    >
-      Supera retos y demuestra lo que has descubierto.
-    </p>
-
-    <div
-      style={{
-        marginTop: 24,
-        fontWeight: 800,
-        fontSize: 13,
-      }}
-    >
-      INICIAR MISIÓN →
-    </div>
-  </section>
-</Link>
-
-          <HomeArea
+          <AreaLink
+            href="/laboratorio"
             icon="🔬"
             title="LABORATORIO"
-            description="Experimenta con las leyes que gobiernan el espacio."
-            status="PRÓXIMAMENTE"
+            description="Cambia variables y experimenta con las leyes que gobiernan el espacio."
+            action="ENTRAR AL LABORATORIO →"
+            background="linear-gradient(145deg, rgba(8,145,178,0.24), rgba(15,23,42,0.88))"
+            border="1px solid rgba(34,211,238,0.32)"
           />
 
           <HomeArea
@@ -187,40 +105,53 @@ export default function Home() {
   );
 }
 
-function HomeArea({
-  icon,
-  title,
-  description,
-  status,
-}) {
+function AreaLink({ href, icon, title, description, action, background, border }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        color: "white",
+        textDecoration: "none",
+        display: "block",
+        height: "100%",
+      }}
+    >
+      <section
+        style={{
+          minHeight: 220,
+          height: "100%",
+          padding: 24,
+          borderRadius: 22,
+          background,
+          border,
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ fontSize: 34 }}>{icon}</div>
+        <h2>{title}</h2>
+        <p style={{ opacity: 0.7, lineHeight: 1.5 }}>{description}</p>
+        <div style={{ marginTop: 24, fontWeight: 800, fontSize: 13 }}>{action}</div>
+      </section>
+    </Link>
+  );
+}
+
+function HomeArea({ icon, title, description, status }) {
   return (
     <section
       style={{
         minHeight: 220,
         padding: 24,
         borderRadius: 22,
-        background:
-          "rgba(15,23,42,0.72)",
-        border:
-          "1px solid rgba(255,255,255,0.10)",
+        background: "rgba(15,23,42,0.72)",
+        border: "1px solid rgba(255,255,255,0.10)",
         opacity: 0.68,
+        boxSizing: "border-box",
       }}
     >
-      <div style={{ fontSize: 34 }}>
-        {icon}
-      </div>
-
+      <div style={{ fontSize: 34 }}>{icon}</div>
       <h2>{title}</h2>
-
-      <p
-        style={{
-          opacity: 0.7,
-          lineHeight: 1.5,
-        }}
-      >
-        {description}
-      </p>
-
+      <p style={{ opacity: 0.7, lineHeight: 1.5 }}>{description}</p>
       <div
         style={{
           marginTop: 24,

@@ -91,7 +91,7 @@ export default function ExploraPage() {
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 100,
+            zIndex: 20000000,
             display: "grid",
             placeItems: "center",
             padding: 18,

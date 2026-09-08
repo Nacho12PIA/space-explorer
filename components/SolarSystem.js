@@ -1,8 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import { OrbitControls, Stars, Html } from "@react-three/drei";
+import {
+  Canvas,
+  useFrame,
+  useLoader,
+  useThree,
+} from "@react-three/fiber";
+import {
+  OrbitControls,
+  Stars,
+  Html,
+} from "@react-three/drei";
 import * as THREE from "three";
 
 import { planets } from "../data/planets";
@@ -18,8 +27,71 @@ const textureFiles = {
   Neptuno: "/textures/2k_neptune.jpg",
 };
 
-function Planet({ planet, index, onSelect }) {
-  const group = useRef();
+function Moon({ earthSize }) {
+  const moonOrbit = useRef();
+
+  const moonTexture = useLoader(
+    THREE.TextureLoader,
+    "/textures/2k_moon.jpg"
+  );
+
+  useFrame((state, delta) => {
+    if (moonOrbit.current) {
+      moonOrbit.current.rotation.y += delta * 0.35;
+    }
+  });
+
+  return (
+    <group ref={moonOrbit}>
+      <mesh position={[earthSize + 1.4, 0.15, 0]}>
+        <sphereGeometry args={[0.27, 48, 48]} />
+
+        <meshStandardMaterial
+          map={moonTexture}
+          roughness={1}
+          metalness={0}
+        />
+      </mesh>
+
+      <Html
+        position={[earthSize + 1.4, 0.7, 0]}
+        center
+        distanceFactor={12}
+      >
+        <PlanetLabel>Luna</PlanetLabel>
+      </Html>
+    </group>
+  );
+}
+
+function PlanetLabel({ children }) {
+  return (
+    <div
+      style={{
+        padding: "4px 8px",
+        borderRadius: 999,
+        background: "rgba(4, 10, 25, 0.82)",
+        border: "1px solid rgba(255,255,255,0.16)",
+        color: "white",
+        fontSize: 11,
+        whiteSpace: "nowrap",
+        pointerEvents: "none",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Planet({
+  planet,
+  index,
+  onSelect,
+  registerPlanet,
+  selectedPlanet,
+}) {
+  const orbitGroup = useRef();
+  const planetGroup = useRef();
   const planetMesh = useRef();
 
   const texture = useLoader(
@@ -33,24 +105,35 @@ function Planet({ planet, index, onSelect }) {
   );
 
   useFrame((state, delta) => {
-    if (group.current) {
-      group.current.rotation.y += planet.speed * delta * 0.35;
+    if (orbitGroup.current && !selectedPlanet) {
+      orbitGroup.current.rotation.y +=
+        planet.speed * delta * 0.35;
     }
 
     if (planetMesh.current) {
       planetMesh.current.rotation.y += delta * 0.08;
+    }
+
+    if (planetGroup.current) {
+      registerPlanet(planet.name, planetGroup.current);
     }
   });
 
   const startingAngle =
     (index / planets.length) * Math.PI * 2;
 
+  const isSelected =
+    selectedPlanet?.name === planet.name;
+
   return (
     <group
-      ref={group}
+      ref={orbitGroup}
       rotation={[0, startingAngle, 0]}
     >
-      <group position={[planet.distance, 0, 0]}>
+      <group
+        ref={planetGroup}
+        position={[planet.distance, 0, 0]}
+      >
         <mesh
           ref={planetMesh}
           onClick={(event) => {
@@ -92,36 +175,27 @@ function Planet({ planet, index, onSelect }) {
             />
           </mesh>
         )}
-{planet.name === "Tierra" && (
-  <Moon earthSize={planet.size} />
-)}
-        <Html
-          position={[0, planet.size + 0.7, 0]}
-          center
-          distanceFactor={12}
-        >
-          <div
-            style={{
-              padding: "4px 8px",
-              borderRadius: 999,
-              background: "rgba(4, 10, 25, 0.78)",
-              border:
-                "1px solid rgba(255,255,255,0.16)",
-              color: "white",
-              fontSize: 12,
-              whiteSpace: "nowrap",
-              pointerEvents: "none",
-            }}
+
+        {planet.name === "Tierra" && (
+          <Moon earthSize={planet.size} />
+        )}
+
+        {!isSelected && (
+          <Html
+            position={[0, planet.size + 0.7, 0]}
+            center
+            distanceFactor={12}
           >
-            {planet.name}
-          </div>
-        </Html>
+            <PlanetLabel>{planet.name}</PlanetLabel>
+          </Html>
+        )}
       </group>
 
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry
           args={[planet.distance, 0.015, 8, 128]}
         />
+
         <meshBasicMaterial
           color="#475569"
           transparent
@@ -131,54 +205,7 @@ function Planet({ planet, index, onSelect }) {
     </group>
   );
 }
-function Moon({ earthSize }) {
-  const moonOrbit = useRef();
-  const moonTexture = useLoader(
-    THREE.TextureLoader,
-    "/textures/2k_moon.jpg"
-  );
 
-  useFrame((state, delta) => {
-    if (moonOrbit.current) {
-      moonOrbit.current.rotation.y += delta * 0.35;
-    }
-  });
-
-  return (
-    <group ref={moonOrbit}>
-      <mesh position={[earthSize + 1.4, 0.15, 0]}>
-        <sphereGeometry args={[0.27, 48, 48]} />
-
-        <meshStandardMaterial
-          map={moonTexture}
-          roughness={1}
-          metalness={0}
-        />
-      </mesh>
-
-      <Html
-        position={[earthSize + 1.4, 0.7, 0]}
-        center
-        distanceFactor={12}
-      >
-        <div
-          style={{
-            padding: "3px 7px",
-            borderRadius: 999,
-            background: "rgba(4, 10, 25, 0.78)",
-            border: "1px solid rgba(255,255,255,0.16)",
-            color: "white",
-            fontSize: 10,
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-          }}
-        >
-          Luna
-        </div>
-      </Html>
-    </group>
-  );
-}
 function Sun() {
   const sunRef = useRef();
   const glowRef = useRef();
@@ -196,7 +223,8 @@ function Sun() {
     }
 
     if (glowRef.current) {
-      const pulse = 1 + Math.sin(t * 1.5) * 0.02;
+      const pulse =
+        1 + Math.sin(t * 1.5) * 0.02;
 
       glowRef.current.scale.set(
         pulse,
@@ -253,7 +281,89 @@ function Sun() {
   );
 }
 
-function Scene({ onSelect }) {
+function CameraController({
+  selectedPlanet,
+  planetRefs,
+  controlsRef,
+}) {
+  const { camera } = useThree();
+
+  const homePosition = useRef(
+    new THREE.Vector3(0, 18, 34)
+  );
+
+  const targetPosition = useRef(
+    new THREE.Vector3()
+  );
+
+  const targetLookAt = useRef(
+    new THREE.Vector3()
+  );
+
+  useFrame(() => {
+    if (!controlsRef.current) return;
+
+    if (selectedPlanet) {
+      const object =
+        planetRefs.current[selectedPlanet.name];
+
+      if (object) {
+        const worldPosition = new THREE.Vector3();
+
+        object.getWorldPosition(worldPosition);
+
+        const distance =
+          Math.max(selectedPlanet.size * 4.5, 4.5);
+
+        targetPosition.current.set(
+          worldPosition.x + distance,
+          worldPosition.y + distance * 0.35,
+          worldPosition.z + distance
+        );
+
+        targetLookAt.current.copy(worldPosition);
+
+        camera.position.lerp(
+          targetPosition.current,
+          0.045
+        );
+
+        controlsRef.current.target.lerp(
+          targetLookAt.current,
+          0.06
+        );
+
+        controlsRef.current.update();
+      }
+    } else {
+      camera.position.lerp(
+        homePosition.current,
+        0.035
+      );
+
+      controlsRef.current.target.lerp(
+        new THREE.Vector3(0, 0, 0),
+        0.05
+      );
+
+      controlsRef.current.update();
+    }
+  });
+
+  return null;
+}
+
+function Scene({
+  selectedPlanet,
+  onSelect,
+}) {
+  const controlsRef = useRef();
+  const planetRefs = useRef({});
+
+  function registerPlanet(name, object) {
+    planetRefs.current[name] = object;
+  }
+
   return (
     <>
       <ambientLight intensity={0.18} />
@@ -276,15 +386,24 @@ function Scene({ onSelect }) {
           planet={planet}
           index={index}
           onSelect={onSelect}
+          registerPlanet={registerPlanet}
+          selectedPlanet={selectedPlanet}
         />
       ))}
 
       <OrbitControls
-        enablePan
+        ref={controlsRef}
+        enablePan={!selectedPlanet}
         enableZoom
         enableRotate
-        minDistance={8}
+        minDistance={2}
         maxDistance={70}
+      />
+
+      <CameraController
+        selectedPlanet={selectedPlanet}
+        planetRefs={planetRefs}
+        controlsRef={controlsRef}
       />
     </>
   );
@@ -307,11 +426,11 @@ export default function SolarSystem() {
           position: [0, 18, 34],
           fov: 45,
         }}
-        onPointerMissed={() =>
-          setSelectedPlanet(null)
-        }
       >
-        <Scene onSelect={setSelectedPlanet} />
+        <Scene
+          selectedPlanet={selectedPlanet}
+          onSelect={setSelectedPlanet}
+        />
       </Canvas>
 
       <div
@@ -337,152 +456,162 @@ export default function SolarSystem() {
         </div>
       </div>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: 18,
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "rgba(5, 10, 25, 0.78)",
-          padding: "10px 16px",
-          borderRadius: 999,
-          fontSize: 13,
-          textAlign: "center",
-          whiteSpace: "nowrap",
-        }}
-      >
-        Arrastra para girar · Pellizca para hacer zoom
-      </div>
-
-      {selectedPlanet && (
+      {!selectedPlanet && (
         <div
           style={{
             position: "absolute",
-            left: 16,
-            right: 16,
-            bottom: 70,
-            maxWidth: 420,
-            margin: "0 auto",
-            background: "rgba(4, 10, 25, 0.96)",
-            border:
-              "1px solid rgba(255,255,255,0.16)",
-            borderRadius: 22,
-            padding: 20,
-            zIndex: 20,
-            boxShadow:
-              "0 20px 60px rgba(0,0,0,0.45)",
+            bottom: 18,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(5, 10, 25, 0.78)",
+            padding: "10px 16px",
+            borderRadius: 999,
+            fontSize: 13,
+            textAlign: "center",
+            whiteSpace: "nowrap",
           }}
         >
-          <button
-            onClick={() =>
-              setSelectedPlanet(null)
-            }
-            style={{
-              position: "absolute",
-              right: 14,
-              top: 10,
-              background: "transparent",
-              border: 0,
-              color: "white",
-              fontSize: 26,
-              cursor: "pointer",
-            }}
-          >
-            ×
-          </button>
-
-          <div
-            style={{
-              fontSize: 11,
-              letterSpacing: 1.5,
-              opacity: 0.55,
-            }}
-          >
-            PLANETA
-          </div>
-
-          <h1
-            style={{
-              marginTop: 6,
-              marginBottom: 8,
-              fontSize: 28,
-            }}
-          >
-            {selectedPlanet.name}
-          </h1>
-
-          <p
-            style={{
-              lineHeight: 1.5,
-              opacity: 0.9,
-              marginTop: 0,
-            }}
-          >
-            {selectedPlanet.description}
-          </p>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 10,
-              marginTop: 16,
-            }}
-          >
-            <InfoBox
-              label="Diámetro"
-              value={selectedPlanet.diameter}
-            />
-
-            <InfoBox
-              label="Duración del día"
-              value={selectedPlanet.day}
-            />
-
-            <InfoBox
-              label="Gravedad"
-              value={selectedPlanet.gravity}
-            />
-
-            <InfoBox
-              label="Duración del año"
-              value={selectedPlanet.year}
-            />
-          </div>
-
-          <div
-            style={{
-              marginTop: 16,
-              padding: 14,
-              borderRadius: 14,
-              background:
-                "rgba(66, 153, 225, 0.12)",
-              border:
-                "1px solid rgba(66, 153, 225, 0.25)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                marginBottom: 5,
-              }}
-            >
-              ¿SABÍAS QUE...?
-            </div>
-
-            <div
-              style={{
-                fontSize: 14,
-                lineHeight: 1.45,
-                opacity: 0.9,
-              }}
-            >
-              {selectedPlanet.fact}
-            </div>
-          </div>
+          Arrastra para girar · Pellizca para hacer zoom
         </div>
       )}
+
+      {selectedPlanet && (
+        <PlanetCard
+          planet={selectedPlanet}
+          onClose={() => setSelectedPlanet(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function PlanetCard({ planet, onClose }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: 16,
+        right: 16,
+        bottom: 18,
+        maxWidth: 420,
+        margin: "0 auto",
+        background: "rgba(4, 10, 25, 0.94)",
+        backdropFilter: "blur(14px)",
+        border:
+          "1px solid rgba(255,255,255,0.16)",
+        borderRadius: 22,
+        padding: 20,
+        zIndex: 20,
+        boxShadow:
+          "0 20px 60px rgba(0,0,0,0.55)",
+      }}
+    >
+      <button
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          right: 14,
+          top: 10,
+          background: "transparent",
+          border: 0,
+          color: "white",
+          fontSize: 26,
+          cursor: "pointer",
+        }}
+      >
+        ×
+      </button>
+
+      <div
+        style={{
+          fontSize: 11,
+          letterSpacing: 1.5,
+          opacity: 0.55,
+        }}
+      >
+        PLANETA
+      </div>
+
+      <h1
+        style={{
+          marginTop: 6,
+          marginBottom: 8,
+          fontSize: 28,
+        }}
+      >
+        {planet.name}
+      </h1>
+
+      <p
+        style={{
+          lineHeight: 1.5,
+          opacity: 0.9,
+          marginTop: 0,
+        }}
+      >
+        {planet.description}
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 10,
+          marginTop: 16,
+        }}
+      >
+        <InfoBox
+          label="Diámetro"
+          value={planet.diameter}
+        />
+
+        <InfoBox
+          label="Duración del día"
+          value={planet.day}
+        />
+
+        <InfoBox
+          label="Gravedad"
+          value={planet.gravity}
+        />
+
+        <InfoBox
+          label="Duración del año"
+          value={planet.year}
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 16,
+          padding: 14,
+          borderRadius: 14,
+          background:
+            "rgba(66, 153, 225, 0.12)",
+          border:
+            "1px solid rgba(66, 153, 225, 0.25)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            marginBottom: 5,
+          }}
+        >
+          ¿SABÍAS QUE...?
+        </div>
+
+        <div
+          style={{
+            fontSize: 14,
+            lineHeight: 1.45,
+            opacity: 0.9,
+          }}
+        >
+          {planet.fact}
+        </div>
+      </div>
     </div>
   );
 }

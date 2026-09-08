@@ -104,14 +104,24 @@ function Planet({
     "/textures/2k_saturn_ring_alpha.png"
   );
 
+  const isSelected =
+    selectedPlanet?.name === planet.name;
+
+  const isVisible =
+    !selectedPlanet || isSelected;
+
   useFrame((state, delta) => {
-    if (orbitGroup.current && !selectedPlanet) {
+    if (
+      orbitGroup.current &&
+      !selectedPlanet
+    ) {
       orbitGroup.current.rotation.y +=
         planet.speed * delta * 0.35;
     }
 
     if (planetMesh.current) {
-      planetMesh.current.rotation.y += delta * 0.08;
+      planetMesh.current.rotation.y +=
+        delta * 0.08;
     }
 
     if (planetGroup.current) {
@@ -123,10 +133,9 @@ function Planet({
   });
 
   const startingAngle =
-    (index / planets.length) * Math.PI * 2;
-
-  const isSelected =
-    selectedPlanet?.name === planet.name;
+    (index / planets.length) *
+    Math.PI *
+    2;
 
   return (
     <group
@@ -135,17 +144,29 @@ function Planet({
     >
       <group
         ref={planetGroup}
-        position={[planet.distance, 0, 0]}
+        position={[
+          planet.distance,
+          0,
+          0,
+        ]}
+        visible={isVisible}
       >
         <mesh
           ref={planetMesh}
           onClick={(event) => {
             event.stopPropagation();
-            onSelect(planet);
+
+            if (!selectedPlanet) {
+              onSelect(planet);
+            }
           }}
         >
           <sphereGeometry
-            args={[planet.size, 64, 64]}
+            args={[
+              planet.size,
+              64,
+              64,
+            ]}
           />
 
           <meshStandardMaterial
@@ -155,12 +176,20 @@ function Planet({
           />
         </mesh>
 
-        {planet.name === "Saturno" && (
+        {planet.name ===
+          "Saturno" && (
           <mesh
-            rotation={[Math.PI / 2.15, 0, 0]}
+            rotation={[
+              Math.PI / 2.15,
+              0,
+              0,
+            ]}
             onClick={(event) => {
               event.stopPropagation();
-              onSelect(planet);
+
+              if (!selectedPlanet) {
+                onSelect(planet);
+              }
             }}
           >
             <ringGeometry
@@ -175,17 +204,25 @@ function Planet({
               map={saturnRingTexture}
               transparent
               opacity={0.95}
-              side={THREE.DoubleSide}
+              side={
+                THREE.DoubleSide
+              }
               depthWrite={false}
             />
           </mesh>
         )}
 
-        {planet.name === "Tierra" && (
-          <Moon earthSize={planet.size} />
-        )}
+        {planet.name ===
+          "Tierra" &&
+          !selectedPlanet && (
+            <Moon
+              earthSize={
+                planet.size
+              }
+            />
+          )}
 
-        {!isSelected && (
+        {!selectedPlanet && (
           <Html
             position={[
               0,
@@ -202,27 +239,35 @@ function Planet({
         )}
       </group>
 
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry
-          args={[
-            planet.distance,
-            0.015,
-            8,
-            128,
+      {!selectedPlanet && (
+        <mesh
+          rotation={[
+            Math.PI / 2,
+            0,
+            0,
           ]}
-        />
+        >
+          <torusGeometry
+            args={[
+              planet.distance,
+              0.015,
+              8,
+              128,
+            ]}
+          />
 
-        <meshBasicMaterial
-          color="#475569"
-          transparent
-          opacity={0.35}
-        />
-      </mesh>
+          <meshBasicMaterial
+            color="#475569"
+            transparent
+            opacity={0.35}
+          />
+        </mesh>
+      )}
     </group>
   );
 }
 
-function Sun() {
+function Sun({ planetMode }) {
   const sunRef = useRef();
   const glowRef = useRef();
 
@@ -232,15 +277,19 @@ function Sun() {
   );
 
   useFrame((state) => {
-    const t = state.clock.getElapsedTime();
+    const t =
+      state.clock.getElapsedTime();
 
     if (sunRef.current) {
-      sunRef.current.rotation.y = t * 0.025;
+      sunRef.current.rotation.y =
+        t * 0.025;
     }
 
     if (glowRef.current) {
       const pulse =
-        1 + Math.sin(t * 1.5) * 0.02;
+        1 +
+        Math.sin(t * 1.5) *
+          0.02;
 
       glowRef.current.scale.set(
         pulse,
@@ -259,46 +308,70 @@ function Sun() {
         decay={2}
       />
 
-      <mesh ref={sunRef}>
-        <sphereGeometry
-          args={[2.8, 96, 96]}
-        />
+      {!planetMode && (
+        <>
+          <mesh ref={sunRef}>
+            <sphereGeometry
+              args={[
+                2.8,
+                96,
+                96,
+              ]}
+            />
 
-        <meshBasicMaterial
-          map={sunTexture}
-          toneMapped={false}
-        />
-      </mesh>
+            <meshBasicMaterial
+              map={sunTexture}
+              toneMapped={false}
+            />
+          </mesh>
 
-      <mesh ref={glowRef}>
-        <sphereGeometry
-          args={[3.08, 64, 64]}
-        />
+          <mesh ref={glowRef}>
+            <sphereGeometry
+              args={[
+                3.08,
+                64,
+                64,
+              ]}
+            />
 
-        <meshBasicMaterial
-          color="#ff9d32"
-          transparent
-          opacity={0.12}
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
+            <meshBasicMaterial
+              color="#ff9d32"
+              transparent
+              opacity={0.12}
+              side={
+                THREE.BackSide
+              }
+              blending={
+                THREE.AdditiveBlending
+              }
+              depthWrite={false}
+            />
+          </mesh>
 
-      <mesh>
-        <sphereGeometry
-          args={[3.45, 64, 64]}
-        />
+          <mesh>
+            <sphereGeometry
+              args={[
+                3.45,
+                64,
+                64,
+              ]}
+            />
 
-        <meshBasicMaterial
-          color="#ff7300"
-          transparent
-          opacity={0.035}
-          side={THREE.BackSide}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
+            <meshBasicMaterial
+              color="#ff7300"
+              transparent
+              opacity={0.035}
+              side={
+                THREE.BackSide
+              }
+              blending={
+                THREE.AdditiveBlending
+              }
+              depthWrite={false}
+            />
+          </mesh>
+        </>
+      )}
     </>
   );
 }
@@ -313,7 +386,11 @@ function CameraController({
   const { camera } = useThree();
 
   const homePosition = useRef(
-    new THREE.Vector3(0, 18, 34)
+    new THREE.Vector3(
+      0,
+      18,
+      34
+    )
   );
 
   const homeTarget = useRef(
@@ -328,8 +405,15 @@ function CameraController({
     new THREE.Vector3()
   );
 
+  const currentPlanet =
+    useRef(null);
+
+  const isFocusing =
+    useRef(false);
+
   useFrame(() => {
-    if (!controlsRef.current) return;
+    if (!controlsRef.current)
+      return;
 
     if (selectedPlanet) {
       const object =
@@ -337,43 +421,101 @@ function CameraController({
           selectedPlanet.name
         ];
 
-      if (object) {
-        const worldPosition =
-          new THREE.Vector3();
+      if (!object) return;
 
-        object.getWorldPosition(
-          worldPosition
-        );
+      if (
+        currentPlanet.current !==
+        selectedPlanet.name
+      ) {
+        currentPlanet.current =
+          selectedPlanet.name;
 
-        const distance = Math.max(
-          selectedPlanet.size * 4.5,
-          4.5
-        );
+        isFocusing.current = true;
+      }
 
-        targetPosition.current.set(
-          worldPosition.x + distance,
-          worldPosition.y +
-            distance * 0.35,
-          worldPosition.z + distance
-        );
+      const worldPosition =
+        new THREE.Vector3();
 
-        targetLookAt.current.copy(
-          worldPosition
-        );
+      object.getWorldPosition(
+        worldPosition
+      );
 
+      const distance = Math.max(
+        selectedPlanet.size * 3.8,
+        3.8
+      );
+
+      targetPosition.current.set(
+        worldPosition.x +
+          distance,
+        worldPosition.y +
+          distance * 0.25,
+        worldPosition.z +
+          distance
+      );
+
+      targetLookAt.current.copy(
+        worldPosition
+      );
+
+      if (isFocusing.current) {
         camera.position.lerp(
           targetPosition.current,
-          0.045
+          0.055
         );
 
         controlsRef.current.target.lerp(
           targetLookAt.current,
-          0.06
+          0.07
         );
 
-        controlsRef.current.update();
+        const cameraArrived =
+          camera.position.distanceTo(
+            targetPosition.current
+          ) < 0.08;
+
+        const targetArrived =
+          controlsRef.current.target.distanceTo(
+            targetLookAt.current
+          ) < 0.08;
+
+        if (
+          cameraArrived &&
+          targetArrived
+        ) {
+          camera.position.copy(
+            targetPosition.current
+          );
+
+          controlsRef.current.target.copy(
+            targetLookAt.current
+          );
+
+          isFocusing.current =
+            false;
+        }
+      } else {
+        /*
+          Una vez terminado el viaje,
+          ya NO movemos la cámara.
+
+          OrbitControls queda libre
+          para girar y hacer zoom
+          alrededor del planeta.
+        */
+        controlsRef.current.target.copy(
+          worldPosition
+        );
       }
+
+      controlsRef.current.update();
     } else if (returningHome) {
+      currentPlanet.current =
+        null;
+
+      isFocusing.current =
+        false;
+
       camera.position.lerp(
         homePosition.current,
         0.055
@@ -396,7 +538,10 @@ function CameraController({
           homeTarget.current
         ) < 0.15;
 
-      if (cameraIsHome && targetIsHome) {
+      if (
+        cameraIsHome &&
+        targetIsHome
+      ) {
         camera.position.copy(
           homePosition.current
         );
@@ -410,6 +555,9 @@ function CameraController({
         onArrivedHome();
       }
     } else {
+      currentPlanet.current =
+        null;
+
       controlsRef.current.update();
     }
   });
@@ -424,56 +572,110 @@ function Scene({
   onArrivedHome,
 }) {
   const controlsRef = useRef();
-  const planetRefs = useRef({});
 
-  function registerPlanet(name, object) {
-    planetRefs.current[name] = object;
+  const planetRefs =
+    useRef({});
+
+  function registerPlanet(
+    name,
+    object
+  ) {
+    planetRefs.current[name] =
+      object;
   }
+
+  const planetMode =
+    Boolean(selectedPlanet);
 
   return (
     <>
-      <ambientLight intensity={0.18} />
+      <ambientLight
+        intensity={
+          planetMode
+            ? 0.28
+            : 0.18
+        }
+      />
 
       <Stars
         radius={120}
         depth={60}
-        count={5000}
+        count={
+          planetMode
+            ? 3500
+            : 5000
+        }
         factor={4}
         saturation={0}
         fade
         speed={0.3}
       />
 
-      <Sun />
+      <Sun
+        planetMode={planetMode}
+      />
 
-      {planets.map((planet, index) => (
-        <Planet
-          key={planet.name}
-          planet={planet}
-          index={index}
-          onSelect={onSelect}
-          registerPlanet={registerPlanet}
-          selectedPlanet={selectedPlanet}
-        />
-      ))}
+      {planets.map(
+        (planet, index) => (
+          <Planet
+            key={
+              planet.name
+            }
+            planet={planet}
+            index={index}
+            onSelect={onSelect}
+            registerPlanet={
+              registerPlanet
+            }
+            selectedPlanet={
+              selectedPlanet
+            }
+          />
+        )
+      )}
 
       <OrbitControls
         ref={controlsRef}
         enablePan={
-          !selectedPlanet && !returningHome
+          !returningHome &&
+          !selectedPlanet
         }
-        enableZoom={!returningHome}
-        enableRotate={!returningHome}
-        minDistance={2}
-        maxDistance={70}
+        enableZoom={
+          !returningHome
+        }
+        enableRotate={
+          !returningHome
+        }
+        minDistance={
+          selectedPlanet
+            ? 1.7
+            : 2
+        }
+        maxDistance={
+          selectedPlanet
+            ? 20
+            : 70
+        }
+        enableDamping
+        dampingFactor={0.08}
       />
 
       <CameraController
-        selectedPlanet={selectedPlanet}
-        planetRefs={planetRefs}
-        controlsRef={controlsRef}
-        returningHome={returningHome}
-        onArrivedHome={onArrivedHome}
+        selectedPlanet={
+          selectedPlanet
+        }
+        planetRefs={
+          planetRefs
+        }
+        controlsRef={
+          controlsRef
+        }
+        returningHome={
+          returningHome
+        }
+        onArrivedHome={
+          onArrivedHome
+        }
       />
     </>
   );
@@ -490,7 +692,9 @@ export default function SolarSystem() {
     setReturningHome,
   ] = useState(false);
 
-  function handleSelectPlanet(planet) {
+  function handleSelectPlanet(
+    planet
+  ) {
     setReturningHome(false);
     setSelectedPlanet(planet);
   }
@@ -510,23 +714,36 @@ export default function SolarSystem() {
     >
       <Canvas
         camera={{
-          position: [0, 18, 34],
+          position: [
+            0,
+            18,
+            34,
+          ],
           fov: 45,
         }}
       >
         <Scene
-          selectedPlanet={selectedPlanet}
-          onSelect={handleSelectPlanet}
-          returningHome={returningHome}
+          selectedPlanet={
+            selectedPlanet
+          }
+          onSelect={
+            handleSelectPlanet
+          }
+          returningHome={
+            returningHome
+          }
           onArrivedHome={() =>
-            setReturningHome(false)
+            setReturningHome(
+              false
+            )
           }
         />
       </Canvas>
 
       <div
         style={{
-          position: "absolute",
+          position:
+            "absolute",
           top: 24,
           left: 24,
           zIndex: 10,
@@ -534,68 +751,95 @@ export default function SolarSystem() {
       >
         <div
           style={{
-            fontSize: 28,
+            fontSize:
+              selectedPlanet
+                ? 20
+                : 28,
             fontWeight: 800,
             letterSpacing: 0.5,
+            transition:
+              "font-size 0.3s ease",
           }}
         >
           SPACE EXPLORER
         </div>
 
-        <div style={{ opacity: 0.72 }}>
-          Explora. Descubre. Aprende.
-        </div>
+        {!selectedPlanet && (
+          <div
+            style={{
+              opacity: 0.72,
+            }}
+          >
+            Explora. Descubre.
+            Aprende.
+          </div>
+        )}
       </div>
 
       {!selectedPlanet &&
         !returningHome && (
           <div
             style={{
-              position: "absolute",
+              position:
+                "absolute",
               bottom: 18,
               left: "50%",
               transform:
                 "translateX(-50%)",
               background:
                 "rgba(5, 10, 25, 0.78)",
-              padding: "10px 16px",
+              padding:
+                "10px 16px",
               borderRadius: 999,
               fontSize: 13,
-              textAlign: "center",
-              whiteSpace: "nowrap",
+              textAlign:
+                "center",
+              whiteSpace:
+                "nowrap",
             }}
           >
             Arrastra para girar ·
-            Pellizca para hacer zoom
+            Pellizca para hacer
+            zoom
           </div>
         )}
 
       {returningHome && (
         <div
           style={{
-            position: "absolute",
+            position:
+              "absolute",
             bottom: 18,
             left: "50%",
             transform:
               "translateX(-50%)",
             background:
               "rgba(5, 10, 25, 0.82)",
-            padding: "10px 16px",
+            padding:
+              "10px 16px",
             borderRadius: 999,
             fontSize: 13,
-            textAlign: "center",
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
+            textAlign:
+              "center",
+            whiteSpace:
+              "nowrap",
+            pointerEvents:
+              "none",
           }}
         >
-          Volviendo al Sistema Solar…
+          Volviendo al Sistema
+          Solar…
         </div>
       )}
 
       {selectedPlanet && (
         <PlanetCard
-          planet={selectedPlanet}
-          onClose={handleReturnHome}
+          planet={
+            selectedPlanet
+          }
+          onClose={
+            handleReturnHome
+          }
         />
       )}
     </div>
@@ -617,7 +861,8 @@ function PlanetCard({
         margin: "0 auto",
         background:
           "rgba(4, 10, 25, 0.94)",
-        backdropFilter: "blur(14px)",
+        backdropFilter:
+          "blur(14px)",
         border:
           "1px solid rgba(255,255,255,0.16)",
         borderRadius: 22,
@@ -630,7 +875,8 @@ function PlanetCard({
       <button
         onClick={onClose}
         style={{
-          position: "absolute",
+          position:
+            "absolute",
           right: 14,
           top: 14,
           background:
@@ -639,10 +885,12 @@ function PlanetCard({
             "1px solid rgba(255,255,255,0.14)",
           borderRadius: 999,
           color: "white",
-          padding: "7px 12px",
+          padding:
+            "7px 12px",
           fontSize: 12,
           fontWeight: 700,
-          cursor: "pointer",
+          cursor:
+            "pointer",
         }}
       >
         ← SISTEMA SOLAR
@@ -689,7 +937,9 @@ function PlanetCard({
       >
         <InfoBox
           label="Diámetro"
-          value={planet.diameter}
+          value={
+            planet.diameter
+          }
         />
 
         <InfoBox
@@ -699,7 +949,9 @@ function PlanetCard({
 
         <InfoBox
           label="Gravedad"
-          value={planet.gravity}
+          value={
+            planet.gravity
+          }
         />
 
         <InfoBox

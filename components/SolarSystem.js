@@ -43,6 +43,11 @@ const textureFiles = {
     "/textures/2k_neptune.jpg",
 };
 
+const sunData = {
+  name: "Sol",
+  size: 2.8,
+};
+
 function Moon({
   earthSize,
   showOrbit = false,
@@ -2493,8 +2498,13 @@ function Planet({
 }
 
 function Sun({
-  planetMode,
+  selectedPlanet,
+  onSelect,
+  registerPlanet,
 }) {
+  const sunGroup =
+    useRef();
+
   const sunRef =
     useRef();
 
@@ -2506,6 +2516,14 @@ function Sun({
       THREE.TextureLoader,
       "/textures/2k_sun.jpg"
     );
+
+  const isSelected =
+    selectedPlanet?.name ===
+    "Sol";
+
+  const isVisible =
+    !selectedPlanet ||
+    isSelected;
 
   useFrame(
     (state) => {
@@ -2535,8 +2553,31 @@ function Sun({
           pulse
         );
       }
+
+      if (
+        sunGroup.current
+      ) {
+        registerPlanet(
+          "Sol",
+          sunGroup.current
+        );
+      }
     }
   );
+
+  function handleSunClick(
+    event
+  ) {
+    event.stopPropagation();
+
+    if (
+      !selectedPlanet
+    ) {
+      onSelect(
+        sunData
+      );
+    }
+  }
 
   return (
     <>
@@ -2547,78 +2588,104 @@ function Sun({
         decay={2}
       />
 
-      {!planetMode && (
-        <>
-          <mesh
-            ref={sunRef}
+      <group
+        ref={sunGroup}
+        visible={isVisible}
+      >
+        <mesh
+          ref={sunRef}
+          onClick={
+            handleSunClick
+          }
+        >
+          <sphereGeometry
+            args={[
+              2.8,
+              96,
+              96,
+            ]}
+          />
+
+          <meshBasicMaterial
+            map={sunTexture}
+            toneMapped={false}
+          />
+        </mesh>
+
+        <mesh
+          ref={glowRef}
+          onClick={
+            handleSunClick
+          }
+        >
+          <sphereGeometry
+            args={[
+              3.08,
+              64,
+              64,
+            ]}
+          />
+
+          <meshBasicMaterial
+            color="#ff9d32"
+            transparent
+            opacity={0.12}
+            side={
+              THREE.BackSide
+            }
+            blending={
+              THREE.AdditiveBlending
+            }
+            depthWrite={false}
+          />
+        </mesh>
+
+        <mesh
+          onClick={
+            handleSunClick
+          }
+        >
+          <sphereGeometry
+            args={[
+              3.45,
+              64,
+              64,
+            ]}
+          />
+
+          <meshBasicMaterial
+            color="#ff7300"
+            transparent
+            opacity={0.035}
+            side={
+              THREE.BackSide
+            }
+            blending={
+              THREE.AdditiveBlending
+            }
+            depthWrite={false}
+          />
+        </mesh>
+
+        {!selectedPlanet && (
+          <Html
+            position={[
+              0,
+              4,
+              0,
+            ]}
+            center
+            distanceFactor={12}
           >
-            <sphereGeometry
-              args={[
-                2.8,
-                96,
-                96,
-              ]}
-            />
-
-            <meshBasicMaterial
-              map={sunTexture}
-              toneMapped={false}
-            />
-          </mesh>
-
-          <mesh
-            ref={glowRef}
-          >
-            <sphereGeometry
-              args={[
-                3.08,
-                64,
-                64,
-              ]}
-            />
-
-            <meshBasicMaterial
-              color="#ff9d32"
-              transparent
-              opacity={0.12}
-              side={
-                THREE.BackSide
-              }
-              blending={
-                THREE.AdditiveBlending
-              }
-              depthWrite={false}
-            />
-          </mesh>
-
-          <mesh>
-            <sphereGeometry
-              args={[
-                3.45,
-                64,
-                64,
-              ]}
-            />
-
-            <meshBasicMaterial
-              color="#ff7300"
-              transparent
-              opacity={0.035}
-              side={
-                THREE.BackSide
-              }
-              blending={
-                THREE.AdditiveBlending
-              }
-              depthWrite={false}
-            />
-          </mesh>
-        </>
-      )}
+            <PlanetLabel>
+              Sol
+            </PlanetLabel>
+          </Html>
+        )}
+      </group>
     </>
   );
 }
-
 function CameraController({
   selectedPlanet,
   planetRefs,
@@ -2917,10 +2984,16 @@ function Scene({
       />
 
       <Sun
-        planetMode={
-          planetMode
-        }
-      />
+  selectedPlanet={
+    selectedPlanet
+  }
+  onSelect={
+    onSelect
+  }
+  registerPlanet={
+    registerPlanet
+  }
+/>
 
       {planets.map(
         (
@@ -3178,22 +3251,33 @@ export default function SolarSystem() {
         </div>
       )}
 
-      {selectedPlanet && (
-        <PlanetCard
-          planet={
-            selectedPlanet
-          }
-          activeSection={
-            activeSection
-          }
-          onSectionChange={
-            setActiveSection
-          }
-          onClose={
-            handleReturnHome
-          }
-        />
-      )}
+      {selectedPlanet &&
+  selectedPlanet.name ===
+    "Sol" ? (
+    <SunCard
+      onClose={
+        handleReturnHome
+      }
+    />
+  ) : (
+    selectedPlanet && (
+      <PlanetCard
+        planet={
+          selectedPlanet
+        }
+        activeSection={
+          activeSection
+        }
+        onSectionChange={
+          setActiveSection
+        }
+        onClose={
+          handleReturnHome
+        }
+      />
+    )
+  )}
+
     </div>
   );
 }
@@ -3300,6 +3384,244 @@ function PlanetNavigation({
           );
         }
       )}
+    </div>
+  );
+}
+
+function SunCard({
+  onClose,
+}) {
+  return (
+    <div
+      style={{
+        position:
+          "absolute",
+        left: 16,
+        right: 16,
+        bottom: 18,
+        maxWidth: 420,
+        maxHeight:
+          "48vh",
+        overflowY:
+          "auto",
+        margin:
+          "0 auto",
+        background:
+          "rgba(4, 10, 25, 0.94)",
+        backdropFilter:
+          "blur(14px)",
+        border:
+          "1px solid rgba(255,255,255,0.16)",
+        borderRadius: 22,
+        padding: 20,
+        zIndex: 20,
+        boxShadow:
+          "0 20px 60px rgba(0,0,0,0.55)",
+      }}
+    >
+      <button
+        onClick={onClose}
+        style={{
+          position:
+            "absolute",
+          right: 14,
+          top: 14,
+          background:
+            "rgba(255,255,255,0.08)",
+          border:
+            "1px solid rgba(255,255,255,0.14)",
+          borderRadius:
+            999,
+          color: "white",
+          padding:
+            "7px 12px",
+          fontSize: 12,
+          fontWeight: 700,
+          cursor:
+            "pointer",
+        }}
+      >
+        ← SISTEMA SOLAR
+      </button>
+
+      <div
+        style={{
+          fontSize: 11,
+          letterSpacing: 1.5,
+          opacity: 0.55,
+        }}
+      >
+        EXPLORANDO · ESTRELLA
+      </div>
+
+      <h1
+        style={{
+          marginTop: 6,
+          marginBottom: 12,
+          fontSize: 28,
+        }}
+      >
+        Sol
+      </h1>
+
+      <div
+        style={{
+          display:
+            "inline-block",
+          padding:
+            "6px 10px",
+          borderRadius: 999,
+          background:
+            "rgba(251,146,60,0.14)",
+          border:
+            "1px solid rgba(251,146,60,0.32)",
+          color:
+            "#fed7aa",
+          fontSize: 11,
+          fontWeight: 800,
+          marginBottom: 14,
+        }}
+      >
+        ⭐ NUESTRA ESTRELLA
+      </div>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.9,
+          margin:
+            "0 0 14px",
+        }}
+      >
+        El Sol no es un planeta:
+        es una estrella. Es una
+        enorme esfera de plasma
+        que mantiene unido al
+        Sistema Solar gracias a
+        su gravedad.
+      </p>
+
+      <div
+        style={{
+          display:
+            "grid",
+          gridTemplateColumns:
+            "1fr 1fr",
+          gap: 10,
+        }}
+      >
+        <InfoBox
+          label="Diámetro"
+          value="≈ 1,39 millones km"
+        />
+
+        <InfoBox
+          label="Edad"
+          value="≈ 4.600 millones años"
+        />
+
+        <InfoBox
+          label="Superficie visible"
+          value="≈ 5.500 °C"
+        />
+
+        <InfoBox
+          label="Núcleo"
+          value="≈ 15 millones °C"
+        />
+      </div>
+
+      <div
+        style={{
+          marginTop: 16,
+          padding: 14,
+          borderRadius: 14,
+          background:
+            "rgba(251,146,60,0.10)",
+          border:
+            "1px solid rgba(251,146,60,0.24)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            marginBottom: 6,
+          }}
+        >
+          ¿CÓMO PRODUCE ENERGÍA?
+        </div>
+
+        <div
+          style={{
+            fontSize: 14,
+            lineHeight: 1.5,
+            opacity: 0.9,
+          }}
+        >
+          En su núcleo ocurre la
+          fusión nuclear: átomos
+          de hidrógeno se unen y
+          forman helio, liberando
+          una enorme cantidad de
+          energía.
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+          padding: 14,
+          borderRadius: 14,
+          background:
+            "rgba(59,130,246,0.10)",
+          border:
+            "1px solid rgba(96,165,250,0.22)",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            marginBottom: 6,
+          }}
+        >
+          🌌 EL SOL ES UNA ESTRELLA MÁS
+        </div>
+
+        <div
+          style={{
+            fontSize: 14,
+            lineHeight: 1.5,
+            opacity: 0.9,
+          }}
+        >
+          El Sol parece muchísimo
+          mayor que las estrellas
+          del cielo porque está
+          mucho más cerca de
+          nosotros. Muchas de las
+          estrellas que observamos
+          son otros enormes soles
+          situados a distancias
+          increíbles.
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        Las estrellas del fondo de
+        esta visualización son
+        decorativas y no representan
+        sus posiciones reales.
+      </div>
     </div>
   );
 }

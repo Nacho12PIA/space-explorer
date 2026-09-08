@@ -307,9 +307,7 @@ function EarthNightLayer({
           fragmentShader
         }
         transparent
-        depthWrite={
-          false
-        }
+        depthWrite={false}
         blending={
           THREE.AdditiveBlending
         }
@@ -409,9 +407,7 @@ function EarthAtmosphereLayer({
           fragmentShader
         }
         transparent
-        depthWrite={
-          false
-        }
+        depthWrite={false}
         blending={
           THREE.AdditiveBlending
         }
@@ -526,12 +522,6 @@ function MarsAtmosphereLayer({
   );
 }
 
-/*
-  Convierte una latitud
-  y longitud aproximadas
-  en una posición sobre
-  una esfera 3D.
-*/
 function getSpherePosition(
   radius,
   latitude,
@@ -574,13 +564,14 @@ function MarsHotspot({
   longitude,
   label,
   icon,
+  occluder,
 }) {
   const markerRef =
     useRef();
 
   const position =
     getSpherePosition(
-      size * 1.04,
+      size * 1.045,
       latitude,
       longitude
     );
@@ -612,14 +603,11 @@ function MarsHotspot({
       position={position}
     >
       <mesh
-        ref={
-          markerRef
-        }
+        ref={markerRef}
       >
         <sphereGeometry
           args={[
-            size *
-              0.055,
+            size * 0.055,
             24,
             24,
           ]}
@@ -627,17 +615,14 @@ function MarsHotspot({
 
         <meshBasicMaterial
           color="#ffb15c"
-          toneMapped={
-            false
-          }
+          toneMapped={false}
         />
       </mesh>
 
       <mesh>
         <sphereGeometry
           args={[
-            size *
-              0.09,
+            size * 0.09,
             24,
             24,
           ]}
@@ -647,9 +632,7 @@ function MarsHotspot({
           color="#ff7a33"
           transparent
           opacity={0.18}
-          depthWrite={
-            false
-          }
+          depthWrite={false}
           blending={
             THREE.AdditiveBlending
           }
@@ -659,37 +642,52 @@ function MarsHotspot({
       <Html
         position={[
           0,
-          size * 0.18,
+          size * 0.2,
           0,
         ]}
         center
         distanceFactor={5}
+        occlude={
+          occluder?.current
+            ? [
+                occluder,
+              ]
+            : false
+        }
+        zIndexRange={[
+          10,
+          0,
+        ]}
+        style={{
+          pointerEvents:
+            "none",
+        }}
       >
         <div
           style={{
-            pointerEvents:
-              "none",
             display:
               "flex",
             alignItems:
               "center",
-            gap: 4,
+            gap: 5,
             padding:
-              "4px 7px",
+              "5px 8px",
             borderRadius:
               999,
             background:
-              "rgba(22, 8, 3, 0.88)",
+              "rgba(22, 8, 3, 0.92)",
             border:
-              "1px solid rgba(251,146,60,0.38)",
+              "1px solid rgba(251,146,60,0.48)",
             color:
               "#fed7aa",
-            fontSize: 9,
-            fontWeight: 800,
+            fontSize:
+              9,
+            fontWeight:
+              800,
             whiteSpace:
               "nowrap",
             boxShadow:
-              "0 4px 16px rgba(0,0,0,0.35)",
+              "0 4px 16px rgba(0,0,0,0.45)",
           }}
         >
           <span>
@@ -705,6 +703,7 @@ function MarsHotspot({
 
 function MarsSurfaceMarkers({
   size,
+  occluder,
 }) {
   return (
     <>
@@ -714,6 +713,9 @@ function MarsSurfaceMarkers({
         longitude={-133.8}
         label="OLYMPUS MONS"
         icon="▲"
+        occluder={
+          occluder
+        }
       />
 
       <MarsHotspot
@@ -722,6 +724,9 @@ function MarsSurfaceMarkers({
         longitude={-60}
         label="VALLES MARINERIS"
         icon="⌁"
+        occluder={
+          occluder
+        }
       />
 
       <MarsHotspot
@@ -730,6 +735,9 @@ function MarsSurfaceMarkers({
         longitude={20}
         label="CASQUETE POLAR"
         icon="❄"
+        occluder={
+          occluder
+        }
       />
     </>
   );
@@ -824,21 +832,18 @@ function Planet({
         earthRotationGroup.current
       ) {
         earthRotationGroup.current.rotation.y +=
-          delta *
-          0.08;
+          delta * 0.08;
       } else if (
         isMars &&
         marsRotationGroup.current
       ) {
         marsRotationGroup.current.rotation.y +=
-          delta *
-          0.08;
+          delta * 0.08;
       } else if (
         planetMesh.current
       ) {
         planetMesh.current.rotation.y +=
-          delta *
-          0.08;
+          delta * 0.08;
       }
 
       if (
@@ -898,9 +903,7 @@ function Planet({
 
   return (
     <group
-      ref={
-        orbitGroup
-      }
+      ref={orbitGroup}
       rotation={[
         0,
         startingAngle,
@@ -908,9 +911,7 @@ function Planet({
       ]}
     >
       <group
-        ref={
-          planetGroup
-        }
+        ref={planetGroup}
         position={[
           planet.distance,
           0,
@@ -923,9 +924,7 @@ function Planet({
         {isVenus ? (
           <>
             <mesh
-              ref={
-                planetMesh
-              }
+              ref={planetMesh}
               onClick={
                 handlePlanetClick
               }
@@ -942,19 +941,13 @@ function Planet({
                 map={
                   venusSurfaceTexture
                 }
-                roughness={
-                  0.95
-                }
-                metalness={
-                  0
-                }
+                roughness={0.95}
+                metalness={0}
               />
             </mesh>
 
             <mesh
-              scale={
-                1.012
-              }
+              scale={1.012}
               onClick={
                 handlePlanetClick
               }
@@ -971,22 +964,12 @@ function Planet({
                 ref={
                   venusAtmosphereMaterial
                 }
-                map={
-                  texture
-                }
-                roughness={
-                  0.9
-                }
-                metalness={
-                  0
-                }
+                map={texture}
+                roughness={0.9}
+                metalness={0}
                 transparent
-                opacity={
-                  1
-                }
-                depthWrite={
-                  false
-                }
+                opacity={1}
+                depthWrite={false}
               />
             </mesh>
           </>
@@ -1014,15 +997,9 @@ function Planet({
                 />
 
                 <meshStandardMaterial
-                  map={
-                    texture
-                  }
-                  roughness={
-                    0.9
-                  }
-                  metalness={
-                    0
-                  }
+                  map={texture}
+                  roughness={0.9}
+                  metalness={0}
                 />
               </mesh>
 
@@ -1064,9 +1041,7 @@ function Planet({
               }
             >
               <mesh
-                ref={
-                  planetMesh
-                }
+                ref={planetMesh}
                 onClick={
                   handlePlanetClick
                 }
@@ -1080,15 +1055,9 @@ function Planet({
                 />
 
                 <meshStandardMaterial
-                  map={
-                    texture
-                  }
-                  roughness={
-                    0.95
-                  }
-                  metalness={
-                    0
-                  }
+                  map={texture}
+                  roughness={0.95}
+                  metalness={0}
                 />
               </mesh>
 
@@ -1098,6 +1067,9 @@ function Planet({
                   <MarsSurfaceMarkers
                     size={
                       planet.size
+                    }
+                    occluder={
+                      planetMesh
                     }
                   />
                 )}
@@ -1118,9 +1090,7 @@ function Planet({
           </>
         ) : (
           <mesh
-            ref={
-              planetMesh
-            }
+            ref={planetMesh}
             onClick={
               handlePlanetClick
             }
@@ -1134,15 +1104,9 @@ function Planet({
             />
 
             <meshStandardMaterial
-              map={
-                texture
-              }
-              roughness={
-                0.9
-              }
-              metalness={
-                0
-              }
+              map={texture}
+              roughness={0.9}
+              metalness={0}
             />
           </mesh>
         )}
@@ -1175,15 +1139,11 @@ function Planet({
                 saturnRingTexture
               }
               transparent
-              opacity={
-                0.95
-              }
+              opacity={0.95}
               side={
                 THREE.DoubleSide
               }
-              depthWrite={
-                false
-              }
+              depthWrite={false}
             />
           </mesh>
         )}
@@ -1219,14 +1179,10 @@ function Planet({
               0,
             ]}
             center
-            distanceFactor={
-              12
-            }
+            distanceFactor={12}
           >
             <PlanetLabel>
-              {
-                planet.name
-              }
+              {planet.name}
             </PlanetLabel>
           </Html>
         )}
@@ -1252,9 +1208,7 @@ function Planet({
           <meshBasicMaterial
             color="#475569"
             transparent
-            opacity={
-              0.35
-            }
+            opacity={0.35}
           />
         </mesh>
       )}
@@ -1286,8 +1240,7 @@ function Sun({
         sunRef.current
       ) {
         sunRef.current.rotation.y =
-          t *
-          0.025;
+          t * 0.025;
       }
 
       if (
@@ -1296,8 +1249,7 @@ function Sun({
         const pulse =
           1 +
           Math.sin(
-            t *
-              1.5
+            t * 1.5
           ) *
             0.02;
 
@@ -1333,19 +1285,13 @@ function Sun({
             />
 
             <meshBasicMaterial
-              map={
-                sunTexture
-              }
-              toneMapped={
-                false
-              }
+              map={sunTexture}
+              toneMapped={false}
             />
           </mesh>
 
           <mesh
-            ref={
-              glowRef
-            }
+            ref={glowRef}
           >
             <sphereGeometry
               args={[
@@ -1358,18 +1304,14 @@ function Sun({
             <meshBasicMaterial
               color="#ff9d32"
               transparent
-              opacity={
-                0.12
-              }
+              opacity={0.12}
               side={
                 THREE.BackSide
               }
               blending={
                 THREE.AdditiveBlending
               }
-              depthWrite={
-                false
-              }
+              depthWrite={false}
             />
           </mesh>
 
@@ -1385,18 +1327,14 @@ function Sun({
             <meshBasicMaterial
               color="#ff7300"
               transparent
-              opacity={
-                0.035
-              }
+              opacity={0.035}
               side={
                 THREE.BackSide
               }
               blending={
                 THREE.AdditiveBlending
               }
-              depthWrite={
-                false
-              }
+              depthWrite={false}
             />
           </mesh>
         </>
@@ -1446,14 +1384,10 @@ function CameraController({
     );
 
   const currentPlanet =
-    useRef(
-      null
-    );
+    useRef(null);
 
   const isFocusing =
-    useRef(
-      false
-    );
+    useRef(false);
 
   useEffect(() => {
     if (
@@ -1567,14 +1501,12 @@ function CameraController({
         const cameraArrived =
           camera.position.distanceTo(
             targetPosition.current
-          ) <
-          0.08;
+          ) < 0.08;
 
         const targetArrived =
           controlsRef.current.target.distanceTo(
             targetLookAt.current
-          ) <
-          0.08;
+          ) < 0.08;
 
         if (
           cameraArrived &&
@@ -1622,14 +1554,12 @@ function CameraController({
       const cameraIsHome =
         camera.position.distanceTo(
           homePosition.current
-        ) <
-        0.15;
+        ) < 0.15;
 
       const targetIsHome =
         controlsRef.current.target.distanceTo(
           homeTarget.current
-        ) <
-        0.15;
+        ) < 0.15;
 
       if (
         cameraIsHome &&
@@ -1725,15 +1655,9 @@ function Scene({
             key={
               planet.name
             }
-            planet={
-              planet
-            }
-            index={
-              index
-            }
-            onSelect={
-              onSelect
-            }
+            planet={planet}
+            index={index}
+            onSelect={onSelect}
             registerPlanet={
               registerPlanet
             }
@@ -1748,9 +1672,7 @@ function Scene({
       )}
 
       <OrbitControls
-        ref={
-          controlsRef
-        }
+        ref={controlsRef}
         enablePan={
           !returningHome &&
           !selectedPlanet
@@ -1772,9 +1694,7 @@ function Scene({
             : 70
         }
         enableDamping
-        dampingFactor={
-          0.08
-        }
+        dampingFactor={0.08}
       />
 
       <CameraController
@@ -1802,16 +1722,12 @@ export default function SolarSystem() {
   const [
     selectedPlanet,
     setSelectedPlanet,
-  ] = useState(
-    null
-  );
+  ] = useState(null);
 
   const [
     returningHome,
     setReturningHome,
-  ] = useState(
-    false
-  );
+  ] = useState(false);
 
   const [
     activeSection,
@@ -1823,9 +1739,7 @@ export default function SolarSystem() {
   function handleSelectPlanet(
     planet
   ) {
-    setReturningHome(
-      false
-    );
+    setReturningHome(false);
 
     setActiveSection(
       "overview"
@@ -1907,8 +1821,7 @@ export default function SolarSystem() {
               selectedPlanet
                 ? 20
                 : 28,
-            fontWeight:
-              800,
+            fontWeight: 800,
             letterSpacing:
               0.5,
             transition:
@@ -1949,8 +1862,7 @@ export default function SolarSystem() {
                 "10px 16px",
               borderRadius:
                 999,
-              fontSize:
-                13,
+              fontSize: 13,
               textAlign:
                 "center",
               whiteSpace:
@@ -1977,8 +1889,7 @@ export default function SolarSystem() {
               "10px 16px",
             borderRadius:
               999,
-            fontSize:
-              13,
+            fontSize: 13,
             textAlign:
               "center",
             whiteSpace:
@@ -2054,12 +1965,9 @@ function PlanetNavigation({
           "none",
         WebkitOverflowScrolling:
           "touch",
-        marginTop:
-          16,
-        marginBottom:
-          16,
-        paddingBottom:
-          2,
+        marginTop: 16,
+        marginBottom: 16,
+        paddingBottom: 2,
       }}
     >
       {sections.map(
@@ -2095,10 +2003,8 @@ function PlanetNavigation({
                   999,
                 padding:
                   "8px 11px",
-                fontSize:
-                  10,
-                fontWeight:
-                  800,
+                fontSize: 10,
+                fontWeight: 800,
                 letterSpacing:
                   0.55,
                 whiteSpace:
@@ -2113,9 +2019,7 @@ function PlanetNavigation({
                   "all 0.2s ease",
               }}
             >
-              {
-                section.label
-              }
+              {section.label}
             </button>
           );
         }
@@ -2138,8 +2042,7 @@ function PlanetCard({
         left: 16,
         right: 16,
         bottom: 18,
-        maxWidth:
-          420,
+        maxWidth: 420,
         maxHeight:
           "48vh",
         overflowY:
@@ -2152,41 +2055,31 @@ function PlanetCard({
           "blur(14px)",
         border:
           "1px solid rgba(255,255,255,0.16)",
-        borderRadius:
-          22,
-        padding:
-          20,
-        zIndex:
-          20,
+        borderRadius: 22,
+        padding: 20,
+        zIndex: 20,
         boxShadow:
           "0 20px 60px rgba(0,0,0,0.55)",
       }}
     >
       <button
-        onClick={
-          onClose
-        }
+        onClick={onClose}
         style={{
           position:
             "absolute",
-          right:
-            14,
-          top:
-            14,
+          right: 14,
+          top: 14,
           background:
             "rgba(255,255,255,0.08)",
           border:
             "1px solid rgba(255,255,255,0.14)",
           borderRadius:
             999,
-          color:
-            "white",
+          color: "white",
           padding:
             "7px 12px",
-          fontSize:
-            12,
-          fontWeight:
-            700,
+          fontSize: 12,
+          fontWeight: 700,
           cursor:
             "pointer",
         }}
@@ -2196,12 +2089,10 @@ function PlanetCard({
 
       <div
         style={{
-          fontSize:
-            11,
+          fontSize: 11,
           letterSpacing:
             1.5,
-          opacity:
-            0.55,
+          opacity: 0.55,
         }}
       >
         EXPLORANDO
@@ -2209,12 +2100,9 @@ function PlanetCard({
 
       <h1
         style={{
-          marginTop:
-            6,
-          marginBottom:
-            0,
-          fontSize:
-            28,
+          marginTop: 6,
+          marginBottom: 0,
+          fontSize: 28,
         }}
       >
         {planet.name}
@@ -2232,36 +2120,28 @@ function PlanetCard({
       {activeSection ===
         "overview" && (
         <OverviewSection
-          planet={
-            planet
-          }
+          planet={planet}
         />
       )}
 
       {activeSection ===
         "surface" && (
         <SurfaceSection
-          planet={
-            planet
-          }
+          planet={planet}
         />
       )}
 
       {activeSection ===
         "atmosphere" && (
         <AtmosphereSection
-          planet={
-            planet
-          }
+          planet={planet}
         />
       )}
 
       {activeSection ===
         "moons" && (
         <MoonsSection
-          planet={
-            planet
-          }
+          planet={planet}
         />
       )}
     </div>
@@ -2275,17 +2155,12 @@ function OverviewSection({
     <>
       <p
         style={{
-          lineHeight:
-            1.5,
-          opacity:
-            0.9,
-          marginTop:
-            0,
+          lineHeight: 1.5,
+          opacity: 0.9,
+          marginTop: 0,
         }}
       >
-        {
-          planet.description
-        }
+        {planet.description}
       </p>
 
       <div
@@ -2294,10 +2169,8 @@ function OverviewSection({
             "grid",
           gridTemplateColumns:
             "1fr 1fr",
-          gap:
-            10,
-          marginTop:
-            16,
+          gap: 10,
+          marginTop: 16,
         }}
       >
         <InfoBox
@@ -2331,12 +2204,9 @@ function OverviewSection({
 
       <div
         style={{
-          marginTop:
-            16,
-          padding:
-            14,
-          borderRadius:
-            14,
+          marginTop: 16,
+          padding: 14,
+          borderRadius: 14,
           background:
             "rgba(66, 153, 225, 0.12)",
           border:
@@ -2345,12 +2215,9 @@ function OverviewSection({
       >
         <div
           style={{
-            fontSize:
-              12,
-            fontWeight:
-              700,
-            marginBottom:
-              5,
+            fontSize: 12,
+            fontWeight: 700,
+            marginBottom: 5,
           }}
         >
           ¿SABÍAS QUE...?
@@ -2358,17 +2225,12 @@ function OverviewSection({
 
         <div
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.45,
-            opacity:
-              0.9,
+            fontSize: 14,
+            lineHeight: 1.45,
+            opacity: 0.9,
           }}
         >
-          {
-            planet.fact
-          }
+          {planet.fact}
         </div>
       </div>
     </>
@@ -2390,8 +2252,7 @@ function SurfaceSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2401,14 +2262,10 @@ function SurfaceSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           La espesa capa de nubes de Venus impide observar directamente su superficie en luz visible. Por eso las sondas espaciales han utilizado radar para estudiar el terreno que se esconde debajo.
@@ -2416,20 +2273,15 @@ function SurfaceSection({
 
         <div
           style={{
-            marginTop:
-              14,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(245,158,11,0.10)",
             border:
               "1px solid rgba(245,158,11,0.22)",
-            fontSize:
-              13,
-            lineHeight:
-              1.5,
+            fontSize: 13,
+            lineHeight: 1.5,
           }}
         >
           🔎 Mira el planeta: acabamos de retirar visualmente sus nubes para poder explorar lo que hay debajo.
@@ -2450,8 +2302,7 @@ function SurfaceSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2461,14 +2312,10 @@ function SurfaceSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           La mitad de la Tierra orientada hacia el Sol vive el día. En el lado opuesto es de noche.
@@ -2476,20 +2323,15 @@ function SurfaceSection({
 
         <div
           style={{
-            marginTop:
-              14,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(59,130,246,0.10)",
             border:
               "1px solid rgba(96,165,250,0.22)",
-            fontSize:
-              13,
-            lineHeight:
-              1.5,
+            fontSize: 13,
+            lineHeight: 1.5,
           }}
         >
           🌍 Gira la Tierra y observa la frontera entre el día y la noche. En el hemisferio oscuro podrás ver las luces de las ciudades.
@@ -2497,14 +2339,10 @@ function SurfaceSection({
 
         <div
           style={{
-            marginTop:
-              10,
-            fontSize:
-              12,
-            lineHeight:
-              1.45,
-            opacity:
-              0.6,
+            marginTop: 10,
+            fontSize: 12,
+            lineHeight: 1.45,
+            opacity: 0.6,
           }}
         >
           La línea que separa la zona iluminada de la zona oscura se llama terminador.
@@ -2525,8 +2363,7 @@ function SurfaceSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2536,14 +2373,10 @@ function SurfaceSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           Marte posee volcanes enormes, cañones gigantescos y casquetes de hielo. Gira el planeta para localizar los marcadores sobre su superficie.
@@ -2555,10 +2388,8 @@ function SurfaceSection({
               "grid",
             gridTemplateColumns:
               "1fr",
-            gap:
-              9,
-            marginTop:
-              14,
+            gap: 9,
+            marginTop: 14,
           }}
         >
           <MarsFeature
@@ -2582,35 +2413,26 @@ function SurfaceSection({
 
         <div
           style={{
-            marginTop:
-              14,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(249,115,22,0.09)",
             border:
               "1px solid rgba(251,146,60,0.22)",
-            fontSize:
-              13,
-            lineHeight:
-              1.5,
+            fontSize: 13,
+            lineHeight: 1.5,
           }}
         >
-          🔴 Los puntos luminosos giran junto con Marte. Arrastra el planeta para buscar cada lugar.
+          🔴 Los marcadores están anclados a la superficie de Marte. Al rotar el planeta, cada uno viaja con su región y desaparece cuando queda detrás.
         </div>
 
         <div
           style={{
-            marginTop:
-              10,
-            fontSize:
-              11,
-            lineHeight:
-              1.45,
-            opacity:
-              0.55,
+            marginTop: 10,
+            fontSize: 11,
+            lineHeight: 1.45,
+            opacity: 0.55,
           }}
         >
           El tamaño de los marcadores está exagerado para que puedan verse fácilmente.
@@ -2643,8 +2465,7 @@ function AtmosphereSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2654,14 +2475,10 @@ function AtmosphereSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           Venus posee una atmósfera extremadamente densa, formada principalmente por dióxido de carbono y cubierta por gruesas nubes de ácido sulfúrico.
@@ -2669,20 +2486,15 @@ function AtmosphereSection({
 
         <div
           style={{
-            marginTop:
-              14,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(96,165,250,0.10)",
             border:
               "1px solid rgba(96,165,250,0.22)",
-            fontSize:
-              13,
-            lineHeight:
-              1.5,
+            fontSize: 13,
+            lineHeight: 1.5,
           }}
         >
           ☁️ Desde el espacio, esas nubes esconden la superficie. Cambia ahora a{" "}
@@ -2707,8 +2519,7 @@ function AtmosphereSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2718,14 +2529,10 @@ function AtmosphereSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           La Tierra está rodeada por una fina envoltura de gases llamada atmósfera. Nos proporciona el aire que respiramos y ayuda a proteger la superficie del entorno espacial.
@@ -2737,10 +2544,8 @@ function AtmosphereSection({
               "grid",
             gridTemplateColumns:
               "1fr 1fr",
-            gap:
-              9,
-            marginTop:
-              14,
+            gap: 9,
+            marginTop: 14,
           }}
         >
           <AtmosphereGas
@@ -2766,20 +2571,15 @@ function AtmosphereSection({
 
         <div
           style={{
-            marginTop:
-              14,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(56,189,248,0.09)",
             border:
               "1px solid rgba(125,211,252,0.20)",
-            fontSize:
-              13,
-            lineHeight:
-              1.5,
+            fontSize: 13,
+            lineHeight: 1.5,
           }}
         >
           🔵 Mira el borde de la Tierra: hemos exagerado visualmente el grosor de la atmósfera para que puedas distinguirla con claridad.
@@ -2787,14 +2587,10 @@ function AtmosphereSection({
 
         <div
           style={{
-            marginTop:
-              10,
-            fontSize:
-              11,
-            lineHeight:
-              1.45,
-            opacity:
-              0.55,
+            marginTop: 10,
+            fontSize: 11,
+            lineHeight: 1.45,
+            opacity: 0.55,
           }}
         >
           * Los 100 km corresponden aproximadamente a la línea de Kármán, una referencia convencional para señalar el comienzo del espacio. La atmósfera no termina bruscamente a esa altura.
@@ -2924,8 +2720,7 @@ function MoonsSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2935,14 +2730,10 @@ function MoonsSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           Venus es uno de los dos planetas del Sistema Solar que no poseen satélites naturales. El otro es Mercurio.
@@ -2963,8 +2754,7 @@ function MoonsSection({
 
         <h2
           style={{
-            fontSize:
-              19,
+            fontSize: 19,
             margin:
               "12px 0 8px",
           }}
@@ -2974,14 +2764,10 @@ function MoonsSection({
 
         <p
           style={{
-            fontSize:
-              14,
-            lineHeight:
-              1.55,
-            opacity:
-              0.88,
-            margin:
-              0,
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
           }}
         >
           La Luna es el único satélite natural de la Tierra. Mientras nuestro planeta gira alrededor del Sol, la Luna viaja con nosotros orbitando la Tierra.
@@ -2993,10 +2779,8 @@ function MoonsSection({
               "grid",
             gridTemplateColumns:
               "1fr 1fr",
-            gap:
-              9,
-            marginTop:
-              14,
+            gap: 9,
+            marginTop: 14,
           }}
         >
           <InfoBox
@@ -3022,20 +2806,15 @@ function MoonsSection({
 
         <div
           style={{
-            marginTop:
-              14,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(148,163,184,0.10)",
             border:
               "1px solid rgba(203,213,225,0.18)",
-            fontSize:
-              13,
-            lineHeight:
-              1.5,
+            fontSize: 13,
+            lineHeight: 1.5,
           }}
         >
           🌕 Observa la Luna girando alrededor de la Tierra. La animación está acelerada para que puedas apreciar fácilmente su órbita.
@@ -3043,20 +2822,15 @@ function MoonsSection({
 
         <div
           style={{
-            marginTop:
-              10,
-            padding:
-              13,
-            borderRadius:
-              14,
+            marginTop: 10,
+            padding: 13,
+            borderRadius: 14,
             background:
               "rgba(59,130,246,0.08)",
             border:
               "1px solid rgba(96,165,250,0.18)",
-            fontSize:
-              12,
-            lineHeight:
-              1.5,
+            fontSize: 12,
+            lineHeight: 1.5,
           }}
         >
           ¿Sabías que la Luna tarda aproximadamente lo mismo en girar sobre sí misma que en dar una vuelta alrededor de la Tierra? Por eso siempre vemos prácticamente la misma cara desde nuestro planeta.
@@ -3082,10 +2856,8 @@ function MarsFeature({
   return (
     <div
       style={{
-        padding:
-          12,
-        borderRadius:
-          13,
+        padding: 12,
+        borderRadius: 13,
         background:
           "rgba(249,115,22,0.07)",
         border:
@@ -3098,10 +2870,8 @@ function MarsFeature({
             "flex",
           alignItems:
             "center",
-          gap:
-            7,
-          marginBottom:
-            5,
+          gap: 7,
+          marginBottom: 5,
         }}
       >
         <span>
@@ -3110,10 +2880,8 @@ function MarsFeature({
 
         <div
           style={{
-            fontSize:
-              13,
-            fontWeight:
-              800,
+            fontSize: 13,
+            fontWeight: 800,
             color:
               "#fdba74",
           }}
@@ -3124,12 +2892,9 @@ function MarsFeature({
 
       <div
         style={{
-          fontSize:
-            12,
-          lineHeight:
-            1.45,
-          opacity:
-            0.76,
+          fontSize: 12,
+          lineHeight: 1.45,
+          opacity: 0.76,
         }}
       >
         {text}
@@ -3158,12 +2923,9 @@ function StatusBadge({
           "1px solid rgba(96,165,250,0.25)",
         color:
           "#93c5fd",
-        fontSize:
-          10,
-        fontWeight:
-          800,
-        letterSpacing:
-          1,
+        fontSize: 10,
+        fontWeight: 800,
+        letterSpacing: 1,
       }}
     >
       {children}
@@ -3185,16 +2947,13 @@ function ComingSoonSection({
     >
       <div
         style={{
-          fontSize:
-            11,
-          fontWeight:
-            800,
+          fontSize: 11,
+          fontWeight: 800,
           letterSpacing:
             1.4,
           color:
             "#60a5fa",
-          marginBottom:
-            8,
+          marginBottom: 8,
         }}
       >
         {eyebrow}
@@ -3202,14 +2961,10 @@ function ComingSoonSection({
 
       <div
         style={{
-          fontSize:
-            19,
-          lineHeight:
-            1.25,
-          fontWeight:
-            750,
-          marginBottom:
-            10,
+          fontSize: 19,
+          lineHeight: 1.25,
+          fontWeight: 750,
+          marginBottom: 10,
         }}
       >
         {title}
@@ -3217,12 +2972,9 @@ function ComingSoonSection({
 
       <div
         style={{
-          fontSize:
-            14,
-          lineHeight:
-            1.5,
-          opacity:
-            0.72,
+          fontSize: 14,
+          lineHeight: 1.5,
+          opacity: 0.72,
         }}
       >
         {text}
@@ -3238,10 +2990,8 @@ function AtmosphereGas({
   return (
     <div
       style={{
-        padding:
-          12,
-        borderRadius:
-          13,
+        padding: 12,
+        borderRadius: 13,
         background:
           "rgba(56,189,248,0.07)",
         border:
@@ -3250,14 +3000,11 @@ function AtmosphereGas({
     >
       <div
         style={{
-          fontSize:
-            18,
-          fontWeight:
-            800,
+          fontSize: 18,
+          fontWeight: 800,
           color:
             "#7dd3fc",
-          marginBottom:
-            3,
+          marginBottom: 3,
         }}
       >
         {value}
@@ -3265,10 +3012,8 @@ function AtmosphereGas({
 
       <div
         style={{
-          fontSize:
-            11,
-          opacity:
-            0.7,
+          fontSize: 11,
+          opacity: 0.7,
         }}
       >
         {label}
@@ -3284,22 +3029,17 @@ function InfoBox({
   return (
     <div
       style={{
-        padding:
-          12,
-        borderRadius:
-          14,
+        padding: 12,
+        borderRadius: 14,
         background:
           "rgba(255,255,255,0.06)",
       }}
     >
       <div
         style={{
-          fontSize:
-            11,
-          opacity:
-            0.55,
-          marginBottom:
-            4,
+          fontSize: 11,
+          opacity: 0.55,
+          marginBottom: 4,
         }}
       >
         {label}
@@ -3307,10 +3047,8 @@ function InfoBox({
 
       <div
         style={{
-          fontSize:
-            14,
-          fontWeight:
-            700,
+          fontSize: 14,
+          fontWeight: 700,
         }}
       >
         {value}

@@ -366,6 +366,147 @@ function MarsMoons({
     </group>
   );
 }
+function JupiterMoon({
+  size,
+  distance,
+  speed,
+  color,
+  label,
+  moonSize,
+}) {
+  const orbitRef = useRef();
+
+  useFrame((state, delta) => {
+    if (orbitRef.current) {
+      orbitRef.current.rotation.y +=
+        delta * speed;
+    }
+  });
+
+  return (
+    <group>
+      <mesh
+        rotation={[
+          Math.PI / 2,
+          0,
+          0,
+        ]}
+      >
+        <torusGeometry
+          args={[
+            distance,
+            size * 0.004,
+            8,
+            96,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.12}
+          depthWrite={false}
+        />
+      </mesh>
+
+      <group ref={orbitRef}>
+        <mesh
+          position={[
+            distance,
+            0,
+            0,
+          ]}
+        >
+          <sphereGeometry
+            args={[
+              moonSize,
+              24,
+              24,
+            ]}
+          />
+
+          <meshStandardMaterial
+            color={color}
+            roughness={0.9}
+          />
+
+          <Html
+            position={[
+              0,
+              moonSize * 1.8,
+              0,
+            ]}
+            center
+            distanceFactor={8}
+            style={{
+              pointerEvents: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <div
+              style={{
+                color: "white",
+                fontSize: "10px",
+                fontWeight: 700,
+                background:
+                  "rgba(0,0,0,0.55)",
+                padding: "3px 6px",
+                borderRadius: "999px",
+              }}
+            >
+              {label}
+            </div>
+          </Html>
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+function JupiterMoons({
+  size,
+}) {
+  return (
+    <group>
+      <JupiterMoon
+        size={size}
+        distance={size * 1.45}
+        speed={0.75}
+        color="#e8b84f"
+        label="ÍO"
+        moonSize={size * 0.065}
+      />
+
+      <JupiterMoon
+        size={size}
+        distance={size * 1.8}
+        speed={0.52}
+        color="#d9d7c5"
+        label="EUROPA"
+        moonSize={size * 0.055}
+      />
+
+      <JupiterMoon
+        size={size}
+        distance={size * 2.2}
+        speed={0.36}
+        color="#9b8068"
+        label="GANÍMEDES"
+        moonSize={size * 0.085}
+      />
+
+      <JupiterMoon
+        size={size}
+        distance={size * 2.65}
+        speed={0.25}
+        color="#4f4b47"
+        label="CALISTO"
+        moonSize={size * 0.075}
+      />
+    </group>
+  );
+}
+
 function PlanetLabel({
   children,
 }) {
@@ -1943,6 +2084,13 @@ function Planet({
                   }
                 />
               )}
+                    {isSelected &&
+  activeSection ===
+    "moons" && (
+    <JupiterMoons
+      size={planet.size}
+    />
+  )}
           </group>
         ) : (
           <mesh
@@ -4163,6 +4311,64 @@ function MoonsSection({
       </div>
     );
   }
+
+if (planet.name === "Júpiter") {
+  return (
+    <div className="planet-section-content">
+      <p className="planet-section-eyebrow">
+        LUNAS
+      </p>
+
+      <h3>
+        Las lunas galileanas
+      </h3>
+
+      <p>
+        Júpiter tiene muchas lunas,
+        pero cuatro destacan por su
+        tamaño e importancia:
+        Ío, Europa, Ganímedes y Calisto.
+      </p>
+
+      <p>
+        🌋 <strong>Ío:</strong>{" "}
+        uno de los mundos con mayor
+        actividad volcánica conocida.
+      </p>
+
+      <p>
+        🧊 <strong>Europa:</strong>{" "}
+        bajo su superficie helada
+        podría existir un enorme
+        océano de agua líquida.
+      </p>
+
+      <p>
+        🌕 <strong>Ganímedes:</strong>{" "}
+        es la luna más grande del
+        Sistema Solar.
+      </p>
+
+      <p>
+        🌑 <strong>Calisto:</strong>{" "}
+        su superficie está cubierta
+        por antiguos cráteres.
+      </p>
+
+      <div className="planet-fact">
+        🔭 <strong>OBSERVA:</strong>{" "}
+        Galileo estudió estas cuatro
+        lunas en 1610.
+      </div>
+
+      <p>
+        Las distancias, tamaños y
+        velocidades se han adaptado
+        para poder observarlas mejor.
+      </p>
+    </div>
+  );
+}
 
   return (
     <ComingSoonSection

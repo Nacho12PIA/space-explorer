@@ -2343,6 +2343,19 @@ function Planet({
         )}
 
 {planet.name ===
+  "Júpiter" &&
+  isSelected &&
+  activeSection ===
+    "atmosphere" && (
+    <GasAtmosphereLayer
+      size={planet.size}
+      color="#d9b98c"
+      intensity={0.38}
+      scale={1.045}
+    />
+  )}
+
+{planet.name ===
   "Saturno" &&
   isSelected &&
   activeSection ===
@@ -3795,23 +3808,42 @@ function SurfaceSection({
 
 if (planet.name === "Júpiter") {
   return (
-    <div className="planet-section-content">
-      <p className="planet-section-eyebrow">
-        SUPERFICIE
-      </p>
+    <div>
+      <StatusBadge>
+        SIN SUPERFICIE SÓLIDA
+      </StatusBadge>
 
-      <h3>
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
         ¿Dónde aterrizarías?
-      </h3>
+      </h2>
 
-      <p>
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
         En Júpiter no podrías aterrizar:
         es un gigante gaseoso y no tiene
         una superficie sólida como la
         Tierra o Marte.
       </p>
 
-      <p>
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: "10px 0 0",
+        }}
+      >
         Lo que vemos desde el espacio son
         las capas superiores de sus nubes.
         Si descendieras, la presión y la
@@ -3819,7 +3851,19 @@ if (planet.name === "Júpiter") {
         más.
       </p>
 
-      <div className="planet-fact">
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(217,185,140,0.08)",
+          border:
+            "1px solid rgba(217,185,140,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
         ☁️ <strong>DESCUBRIMIENTO:</strong>{" "}
         las bandas que ves en Júpiter
         forman parte de su enorme atmósfera,
@@ -5042,62 +5086,140 @@ function MoonsSection({
 
 if (planet.name === "Júpiter") {
   return (
-    <div className="planet-section-content">
-      <p className="planet-section-eyebrow">
-        LUNAS
-      </p>
+    <div>
+      <StatusBadge>
+        LUNAS GALILEANAS
+      </StatusBadge>
 
-      <h3>
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
         Las lunas galileanas
-      </h3>
+      </h2>
 
-      <p>
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
         Júpiter tiene muchas lunas,
         pero cuatro destacan por su
         tamaño e importancia:
         Ío, Europa, Ganímedes y Calisto.
       </p>
 
-      <p>
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(148,163,184,0.08)",
+          border:
+            "1px solid rgba(148,163,184,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
         🌋 <strong>Ío:</strong>{" "}
         uno de los mundos con mayor
         actividad volcánica conocida.
-      </p>
+      </div>
 
-      <p>
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(125,211,252,0.07)",
+          border:
+            "1px solid rgba(125,211,252,0.16)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
         🧊 <strong>Europa:</strong>{" "}
         bajo su superficie helada
         podría existir un enorme
         océano de agua líquida.
-      </p>
+      </div>
 
-      <p>
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(148,163,184,0.08)",
+          border:
+            "1px solid rgba(148,163,184,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
         🌕 <strong>Ganímedes:</strong>{" "}
         es la luna más grande del
         Sistema Solar.
-      </p>
+      </div>
 
-      <p>
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(125,211,252,0.07)",
+          border:
+            "1px solid rgba(125,211,252,0.16)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
         🌑 <strong>Calisto:</strong>{" "}
         su superficie está cubierta
         por antiguos cráteres.
-      </p>
+      </div>
 
-      <div className="planet-fact">
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(217,185,140,0.08)",
+          border:
+            "1px solid rgba(217,185,140,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
         🔭 <strong>OBSERVA:</strong>{" "}
         Galileo estudió estas cuatro
         lunas en 1610.
       </div>
 
-      <p>
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
         Las distancias, tamaños y
         velocidades se han adaptado
         para poder observarlas mejor.
-      </p>
+      </div>
     </div>
   );
 }
-
 if (planet.name === "Saturno") {
   return (
     <div>

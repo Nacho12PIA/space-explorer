@@ -117,12 +117,50 @@ export default function Home() {
             </section>
           </Link>
 
-          <HomeArea
-            icon="🚀"
-            title="MISIONES"
-            description="Supera retos y demuestra lo que has descubierto."
-            status="PRÓXIMAMENTE"
-          />
+     <Link
+  href="/misiones"
+  style={{
+    color: "white",
+    textDecoration: "none",
+  }}
+>
+  <section
+    style={{
+      minHeight: 220,
+      padding: 24,
+      borderRadius: 22,
+      background:
+        "linear-gradient(145deg, rgba(124,58,237,0.24), rgba(15,23,42,0.88))",
+      border:
+        "1px solid rgba(167,139,250,0.35)",
+    }}
+  >
+    <div style={{ fontSize: 34 }}>
+      🚀
+    </div>
+
+    <h2>MISIONES</h2>
+
+    <p
+      style={{
+        opacity: 0.7,
+        lineHeight: 1.5,
+      }}
+    >
+      Supera retos y demuestra lo que has descubierto.
+    </p>
+
+    <div
+      style={{
+        marginTop: 24,
+        fontWeight: 800,
+        fontSize: 13,
+      }}
+    >
+      INICIAR MISIÓN →
+    </div>
+  </section>
+</Link>
 
           <HomeArea
             icon="🔬"

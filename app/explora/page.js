@@ -14,7 +14,7 @@ export default function ExploraPage() {
         style={{
           position: "absolute",
           top: 16,
-          left: 16,
+          right: 16,
           zIndex: 50,
           color: "white",
           textDecoration: "none",

@@ -1491,7 +1491,7 @@ function JupiterAtmosphereMarkers({
         }
       />
 
-      <JupiterBandMaker
+      <JupiterHotspot
         size={size}
         latitude={15}
         longitude={-25}

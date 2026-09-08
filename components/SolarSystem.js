@@ -1511,6 +1511,17 @@ function JupiterAtmosphereMarkers({
           occluder
         }
       />
+
+          <JupiterHotspot
+        size={size}
+        latitude={32}
+        longitude={-10}
+        label="ZONA CLARA"
+        variant="band"
+        occluder={
+          occluder
+        }
+      />
     </>
   );
 }

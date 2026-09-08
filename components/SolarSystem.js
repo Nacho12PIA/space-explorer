@@ -532,85 +532,29 @@ function SaturnMoons({
     </group>
   );
 }
-
-if (planet.name === "Urano") {
+function UranusMoons({
+  size,
+}) {
   return (
-    <div>
-      <StatusBadge>
-        LUNAS DE URANO
-      </StatusBadge>
+    <group>
+      <JupiterMoon
+        size={size}
+        distance={size * 1.7}
+        speed={0.42}
+        color="#d8dee8"
+        label="TITANIA"
+        moonSize={size * 0.06}
+      />
 
-      <h2
-        style={{
-          fontSize: 19,
-          margin: "12px 0 8px",
-        }}
-      >
-        Titania y Miranda
-      </h2>
-
-      <p
-        style={{
-          fontSize: 14,
-          lineHeight: 1.55,
-          opacity: 0.88,
-          margin: 0,
-        }}
-      >
-        Urano posee numerosas lunas.
-        Dos de las más conocidas son
-        Titania y Miranda.
-      </p>
-
-      <div
-        style={{
-          marginTop: 14,
-          padding: 13,
-          borderRadius: 14,
-          background:
-            "rgba(148,163,184,0.08)",
-          border:
-            "1px solid rgba(148,163,184,0.18)",
-          fontSize: 13,
-          lineHeight: 1.5,
-        }}
-      >
-        🌕 <strong>Titania:</strong>{" "}
-        es la luna más grande de Urano.
-      </div>
-
-      <div
-        style={{
-          marginTop: 10,
-          padding: 13,
-          borderRadius: 14,
-          background:
-            "rgba(125,211,252,0.07)",
-          border:
-            "1px solid rgba(125,211,252,0.16)",
-          fontSize: 13,
-          lineHeight: 1.5,
-        }}
-      >
-        🧊 <strong>Miranda:</strong>{" "}
-        posee una superficie muy variada,
-        con grandes acantilados y terrenos
-        que parecen haber sido remodelados.
-      </div>
-
-      <div
-        style={{
-          marginTop: 10,
-          fontSize: 11,
-          lineHeight: 1.45,
-          opacity: 0.55,
-        }}
-      >
-        Los tamaños, distancias y
-        velocidades están adaptados para
-        facilitar su observación.
-      </div>
-    </div>
+      <JupiterMoon
+        size={size}
+        distance={size * 1.35}
+        speed={0.68}
+        color="#b7c4d6"
+        label="MIRANDA"
+        moonSize={size * 0.035}
+      />
+    </group>
   );
 }
 
@@ -2312,6 +2256,17 @@ function Planet({
       size={planet.size}
     />
   )}
+
+{planet.name ===
+  "Urano" &&
+  isSelected &&
+  activeSection ===
+    "moons" && (
+    <UranusMoons
+      size={planet.size}
+    />
+  )}
+
         {planet.name ===
           "Tierra" &&
           !selectedPlanet && (
@@ -4951,6 +4906,87 @@ if (planet.name === "Saturno") {
         velocidades de las lunas están
         adaptados para facilitar su
         observación.
+      </div>
+    </div>
+  );
+}
+
+if (planet.name === "Urano") {
+  return (
+    <div>
+      <StatusBadge>
+        LUNAS DE URANO
+      </StatusBadge>
+
+      <h2
+        style={{
+          fontSize: 19,
+          margin: "12px 0 8px",
+        }}
+      >
+        Titania y Miranda
+      </h2>
+
+      <p
+        style={{
+          fontSize: 14,
+          lineHeight: 1.55,
+          opacity: 0.88,
+          margin: 0,
+        }}
+      >
+        Urano posee numerosas lunas.
+        Dos de las más conocidas son
+        Titania y Miranda.
+      </p>
+
+      <div
+        style={{
+          marginTop: 14,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(148,163,184,0.08)",
+          border:
+            "1px solid rgba(148,163,184,0.18)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🌕 <strong>Titania:</strong>{" "}
+        es la luna más grande de Urano.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          padding: 13,
+          borderRadius: 14,
+          background:
+            "rgba(125,211,252,0.07)",
+          border:
+            "1px solid rgba(125,211,252,0.16)",
+          fontSize: 13,
+          lineHeight: 1.5,
+        }}
+      >
+        🧊 <strong>Miranda:</strong>{" "}
+        posee una superficie muy variada,
+        con grandes acantilados y terrenos
+        que parecen haber sido remodelados.
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+          fontSize: 11,
+          lineHeight: 1.45,
+          opacity: 0.55,
+        }}
+      >
+        Los tamaños, distancias y
+        velocidades están adaptados para
+        facilitar su observación.
       </div>
     </div>
   );

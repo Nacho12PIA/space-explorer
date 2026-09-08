@@ -967,6 +967,189 @@ function MarsSurfaceMarkers({
   );
 }
 
+function MercuryHotspot({
+  size,
+  latitude,
+  longitude,
+  label,
+  icon,
+  occluder,
+}) {
+  const markerRef =
+    useRef();
+
+  const position =
+    getSpherePosition(
+      size * 1.05,
+      latitude,
+      longitude
+    );
+
+  useFrame(
+    (state) => {
+      if (
+        markerRef.current
+      ) {
+        const time =
+          state.clock.getElapsedTime();
+
+        const pulse =
+          1 +
+          Math.sin(
+            time * 3.2
+          ) *
+            0.14;
+
+        markerRef.current.scale.setScalar(
+          pulse
+        );
+      }
+    }
+  );
+
+  return (
+    <group
+      position={position}
+    >
+      <mesh
+        ref={markerRef}
+      >
+        <sphereGeometry
+          args={[
+            size * 0.05,
+            24,
+            24,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#facc15"
+          toneMapped={false}
+        />
+      </mesh>
+
+      <mesh>
+        <sphereGeometry
+          args={[
+            size * 0.085,
+            24,
+            24,
+          ]}
+        />
+
+        <meshBasicMaterial
+          color="#f59e0b"
+          transparent
+          opacity={0.16}
+          depthWrite={false}
+          blending={
+            THREE.AdditiveBlending
+          }
+        />
+      </mesh>
+
+      <Html
+        position={[
+          0,
+          size * 0.2,
+          0,
+        ]}
+        center
+        distanceFactor={5}
+        occlude={
+          occluder?.current
+            ? [
+                occluder,
+              ]
+            : false
+        }
+        zIndexRange={[
+          10,
+          0,
+        ]}
+        style={{
+          pointerEvents:
+            "none",
+        }}
+      >
+        <div
+          style={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            gap: 5,
+            padding:
+              "5px 8px",
+            borderRadius:
+              999,
+            background:
+              "rgba(20, 16, 8, 0.92)",
+            border:
+              "1px solid rgba(250,204,21,0.42)",
+            color:
+              "#fef3c7",
+            fontSize: 9,
+            fontWeight:
+              800,
+            whiteSpace:
+              "nowrap",
+            boxShadow:
+              "0 4px 16px rgba(0,0,0,0.45)",
+          }}
+        >
+          <span>
+            {icon}
+          </span>
+
+          {label}
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+function MercurySurfaceMarkers({
+  size,
+  occluder,
+}) {
+  return (
+    <>
+      <MercuryHotspot
+        size={size}
+        latitude={30.5}
+        longitude={162.7}
+        label="CALORIS PLANITIA"
+        icon="☄"
+        occluder={
+          occluder
+        }
+      />
+
+      <MercuryHotspot
+        size={size}
+        latitude={-18}
+        longitude={45}
+        label="TERRENO CRATERIZADO"
+        icon="◉"
+        occluder={
+          occluder
+        }
+      />
+
+      <MercuryHotspot
+        size={size}
+        latitude={84}
+        longitude={0}
+        label="HIELO POLAR"
+        icon="❄"
+        occluder={
+          occluder
+        }
+      />
+    </>
+  );
+}
 function Planet({
   planet,
   index,
@@ -990,6 +1173,9 @@ function Planet({
   const marsRotationGroup =
     useRef();
 
+  const mercuryRotationGroup =
+  useRef();
+  
   const venusAtmosphereMaterial =
     useRef();
 
@@ -1039,6 +1225,10 @@ function Planet({
     planet.name ===
     "Marte";
 
+  const isMercury =
+  planet.name ===
+  "Mercurio";
+  
   useFrame(
     (state, delta) => {
       if (
@@ -1052,23 +1242,29 @@ function Planet({
       }
 
       if (
-        isEarth &&
-        earthRotationGroup.current
-      ) {
-        earthRotationGroup.current.rotation.y +=
-          delta * 0.08;
-      } else if (
-        isMars &&
-        marsRotationGroup.current
-      ) {
-        marsRotationGroup.current.rotation.y +=
-          delta * 0.08;
-      } else if (
-        planetMesh.current
-      ) {
-        planetMesh.current.rotation.y +=
-          delta * 0.08;
-      }
+  isEarth &&
+  earthRotationGroup.current
+) {
+  earthRotationGroup.current.rotation.y +=
+    delta * 0.08;
+} else if (
+  isMars &&
+  marsRotationGroup.current
+) {
+  marsRotationGroup.current.rotation.y +=
+    delta * 0.08;
+} else if (
+  isMercury &&
+  mercuryRotationGroup.current
+) {
+  mercuryRotationGroup.current.rotation.y +=
+    delta * 0.08;
+} else if (
+  planetMesh.current
+) {
+  planetMesh.current.rotation.y +=
+    delta * 0.08;
+}
 
       if (
         isVenus &&
@@ -1145,7 +1341,49 @@ function Planet({
           isVisible
         }
       >
-        {isVenus ? (
+        {isMercury ? (
+  <>
+    <group
+      ref={
+        mercuryRotationGroup
+      }
+    >
+      <mesh
+        ref={planetMesh}
+        onClick={
+          handlePlanetClick
+        }
+      >
+        <sphereGeometry
+          args={[
+            planet.size,
+            64,
+            64,
+          ]}
+        />
+
+        <meshStandardMaterial
+          map={texture}
+          roughness={1}
+          metalness={0}
+        />
+      </mesh>
+
+      {isSelected &&
+        activeSection ===
+          "surface" && (
+          <MercurySurfaceMarkers
+            size={
+              planet.size
+            }
+            occluder={
+              planetMesh
+            }
+          />
+        )}
+    </group>
+  </>
+) : isVenus ? (
           <>
             <mesh
               ref={planetMesh}
@@ -2474,6 +2712,95 @@ function OverviewSection({
 function SurfaceSection({
   planet,
 }) {
+    if (
+    planet.name ===
+    "Mercurio"
+  ) {
+    return (
+      <div>
+        <StatusBadge>
+          SUPERFICIE CRATERIZADA
+        </StatusBadge>
+
+        <h2
+          style={{
+            fontSize: 19,
+            margin:
+              "12px 0 8px",
+          }}
+        >
+          Un mundo marcado por impactos
+        </h2>
+
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.55,
+            opacity: 0.88,
+            margin: 0,
+          }}
+        >
+          Mercurio posee una superficie rocosa cubierta por miles de cráteres. Como casi no tiene atmósfera que los erosione, muchas de estas cicatrices pueden permanecer durante miles de millones de años.
+        </p>
+
+        <div
+          style={{
+            display:
+              "grid",
+            gridTemplateColumns:
+              "1fr",
+            gap: 9,
+            marginTop: 14,
+          }}
+        >
+          <MercuryFeature
+            icon="☄️"
+            title="Caloris Planitia"
+            text="Es una gigantesca cuenca formada por el impacto de un asteroide. Tiene aproximadamente 1.550 km de diámetro."
+          />
+
+          <MercuryFeature
+            icon="🌑"
+            title="Un paisaje lleno de cráteres"
+            text="La superficie de Mercurio recuerda a la Luna porque ambos mundos conservan numerosos cráteres de impactos antiguos."
+          />
+
+          <MercuryFeature
+            icon="❄️"
+            title="Hielo cerca de los polos"
+            text="Aunque Mercurio está muy cerca del Sol, algunos cráteres polares permanecen siempre en sombra y pueden conservar hielo de agua."
+          />
+        </div>
+
+        <div
+          style={{
+            marginTop: 14,
+            padding: 13,
+            borderRadius: 14,
+            background:
+              "rgba(245,158,11,0.08)",
+            border:
+              "1px solid rgba(250,204,21,0.20)",
+            fontSize: 13,
+            lineHeight: 1.5,
+          }}
+        >
+          🔭 Gira Mercurio para explorar los distintos marcadores. Cuando una región pasa al otro lado del planeta, su etiqueta desaparece.
+        </div>
+
+        <div
+          style={{
+            marginTop: 10,
+            fontSize: 11,
+            lineHeight: 1.45,
+            opacity: 0.55,
+          }}
+        >
+          Los marcadores y su tamaño están exagerados para facilitar la exploración. El marcador de terreno craterizado representa una región característica y no un único accidente geográfico.
+        </div>
+      </div>
+    );
+  }
   if (
     planet.name ===
     "Venus"
@@ -3252,6 +3579,61 @@ function MoonsSection({
       title={`Descubre las lunas de ${planet.name}`}
       text="Aquí podremos explorar los satélites naturales asociados a este planeta."
     />
+  );
+}
+
+function MercuryFeature({
+  icon,
+  title,
+  text,
+}) {
+  return (
+    <div
+      style={{
+        padding: 12,
+        borderRadius: 13,
+        background:
+          "rgba(245,158,11,0.06)",
+        border:
+          "1px solid rgba(250,204,21,0.15)",
+      }}
+    >
+      <div
+        style={{
+          display:
+            "flex",
+          alignItems:
+            "center",
+          gap: 7,
+          marginBottom: 5,
+        }}
+      >
+        <span>
+          {icon}
+        </span>
+
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 800,
+            color:
+              "#fde68a",
+          }}
+        >
+          {title}
+        </div>
+      </div>
+
+      <div
+        style={{
+          fontSize: 12,
+          lineHeight: 1.45,
+          opacity: 0.76,
+        }}
+      >
+        {text}
+      </div>
+    </div>
   );
 }
 

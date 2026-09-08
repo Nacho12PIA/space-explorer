@@ -113,8 +113,6 @@ function EarthNightLayer({
   nightTexture,
   onClick,
 }) {
-  const materialRef = useRef();
-
   const uniforms = useMemo(
     () => ({
       nightMap: {
@@ -163,23 +161,35 @@ function EarthNightLayer({
       vec3 normal =
         normalize(vWorldNormal);
 
+      /*
+        El Sol está situado en el
+        origen del Sistema Solar.
+      */
       vec3 directionToSun =
         normalize(
           -vWorldPosition
         );
 
-      float sunAmount =
+      float illumination =
         dot(
           normal,
           directionToSun
         );
 
+      /*
+        0 = zona iluminada
+        1 = zona nocturna
+
+        smoothstep crea una
+        transición suave en el
+        terminador.
+      */
       float darkness =
         1.0 -
         smoothstep(
-          -0.12,
+          -0.10,
           0.12,
-          sunAmount
+          illumination
         );
 
       vec3 nightColor =
@@ -188,25 +198,34 @@ function EarthNightLayer({
           vUv
         ).rgb;
 
+      /*
+        Eliminamos casi todo lo
+        oscuro del mapa nocturno
+        y conservamos principalmente
+        las luces urbanas.
+      */
       float brightness =
         max(
+          nightColor.r,
           max(
-            nightColor.r,
-            nightColor.g
-          ),
-          nightColor.b
+            nightColor.g,
+            nightColor.b
+          )
+        );
+
+      float lightsMask =
+        smoothstep(
+          0.055,
+          0.32,
+          brightness
         );
 
       float alpha =
         darkness *
-        smoothstep(
-          0.015,
-          0.35,
-          brightness
-        );
+        lightsMask;
 
       vec3 cityLights =
-        nightColor * 1.45;
+        nightColor * 1.55;
 
       gl_FragColor =
         vec4(
@@ -222,11 +241,14 @@ function EarthNightLayer({
       onClick={onClick}
     >
       <sphereGeometry
-        args={[size, 64, 64]}
+        args={[
+          size,
+          64,
+          64,
+        ]}
       />
 
       <shaderMaterial
-        ref={materialRef}
         uniforms={uniforms}
         vertexShader={
           vertexShader
@@ -255,6 +277,14 @@ function Planet({
   const orbitGroup = useRef();
   const planetGroup = useRef();
   const planetMesh = useRef();
+
+  /*
+    La Tierra utiliza este grupo
+    para que superficie y luces
+    nocturnas roten juntas.
+  */
+  const earthRotationGroup =
+    useRef();
 
   const venusAtmosphereMaterial =
     useRef();
@@ -296,6 +326,12 @@ function Planet({
     planet.name === "Tierra";
 
   useFrame((state, delta) => {
+    /*
+      Órbita de los planetas.
+
+      Cuando entramos en modo
+      planeta se detiene.
+    */
     if (
       orbitGroup.current &&
       !selectedPlanet
@@ -306,11 +342,36 @@ function Planet({
         0.35;
     }
 
-    if (planetMesh.current) {
+    /*
+      Rotación sobre su eje.
+
+      Tierra:
+      gira el grupo completo,
+      incluyendo superficie y
+      luces nocturnas.
+
+      Resto:
+      gira la esfera normal.
+    */
+    if (
+      isEarth &&
+      earthRotationGroup.current
+    ) {
+      earthRotationGroup.current.rotation.y +=
+        delta * 0.08;
+    } else if (
+      planetMesh.current
+    ) {
       planetMesh.current.rotation.y +=
         delta * 0.08;
     }
 
+    /*
+      Venus:
+      al entrar en SUPERFICIE
+      retiramos progresivamente
+      la capa atmosférica.
+    */
     if (
       isVenus &&
       venusAtmosphereMaterial.current
@@ -375,6 +436,7 @@ function Planet({
       >
         {isVenus ? (
           <>
+            {/* Superficie de Venus */}
             <mesh
               ref={planetMesh}
               onClick={
@@ -398,6 +460,7 @@ function Planet({
               />
             </mesh>
 
+            {/* Atmósfera de Venus */}
             <mesh
               scale={1.012}
               onClick={
@@ -426,7 +489,19 @@ function Planet({
             </mesh>
           </>
         ) : isEarth ? (
-          <>
+          /*
+            Superficie y luces están
+            dentro del MISMO grupo.
+
+            Así mantienen exactamente
+            la misma rotación.
+          */
+          <group
+            ref={
+              earthRotationGroup
+            }
+          >
+            {/* Tierra visible */}
             <mesh
               ref={planetMesh}
               onClick={
@@ -448,6 +523,7 @@ function Planet({
               />
             </mesh>
 
+            {/* Luces nocturnas */}
             {isSelected &&
               activeSection ===
                 "surface" && (
@@ -463,7 +539,7 @@ function Planet({
                   }
                 />
               )}
-          </>
+          </group>
         ) : (
           <mesh
             ref={planetMesh}
@@ -1463,7 +1539,7 @@ function OverviewSection({
           background:
             "rgba(66, 153, 225, 0.12)",
           border:
-            "1px solid rgba(66, 153, 225,0.25)",
+            "1px solid rgba(66, 153, 225, 0.25)",
         }}
       >
         <div

@@ -1399,7 +1399,7 @@ function JupiterAtmosphereMarkers({
     <JupiterHotspot
       size={size}
       latitude={-22}
-      longitude={70}
+      longitude={150}
       label="GRAN MANCHA ROJA"
       occluder={
         occluder

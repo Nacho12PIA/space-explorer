@@ -40,23 +40,13 @@ const es = {
   },
   missions: {},
   laboratory: {
-    home: "INICIO",
-    center: "CENTRO DE EXPERIMENTACIÓN",
-    title: "LABORATORIO",
-    intro: "Cambia las condiciones, observa los resultados y descubre por ti mismo cómo funciona el Universo.",
-    experiment: "EXPERIMENTO",
-    enterSimulator: "ENTRAR AL SIMULADOR →",
-    allExperiments: "TODOS LOS EXPERIMENTOS",
-    ruleLabel: "🔬 REGLA DEL LABORATORIO:",
-    rule: "toca, arrastra y experimenta. Aquí aprendes haciendo que el Universo cambie delante de ti.",
-    experiments: {
-      gravity: { title: "SUPERGRAVEDAD", subtitle: "Salta en la Luna, Marte o Júpiter." },
-      orbits: { title: "DOMINA UNA ÓRBITA", subtitle: "Mueve un planeta y cambia su año." },
-      daynight: { title: "FABRICA UN DÍA", subtitle: "Acelera la rotación de un mundo." },
-      blackhole: { title: "AGUJERO NEGRO", subtitle: "¿Qué ocurre si te acercas demasiado?", badge: "MUNDO EXTREMO" },
-      impact: { title: "IMPACTO DE ASTEROIDE", subtitle: "Cambia el tamaño y la velocidad del impacto.", badge: "NUEVO" },
-    },
+    home: "INICIO", center: "CENTRO DE EXPERIMENTACIÓN", title: "LABORATORIO", intro: "Cambia las condiciones, observa los resultados y descubre por ti mismo cómo funciona el Universo.", experiment: "EXPERIMENTO", enterSimulator: "ENTRAR AL SIMULADOR →", allExperiments: "TODOS LOS EXPERIMENTOS", ruleLabel: "🔬 REGLA DEL LABORATORIO:", rule: "toca, arrastra y experimenta. Aquí aprendes haciendo que el Universo cambie delante de ti.",
+    experiments: { gravity: { title: "SUPERGRAVEDAD", subtitle: "Salta en la Luna, Marte o Júpiter." }, orbits: { title: "DOMINA UNA ÓRBITA", subtitle: "Mueve un planeta y cambia su año." }, daynight: { title: "FABRICA UN DÍA", subtitle: "Acelera la rotación de un mundo." }, blackhole: { title: "AGUJERO NEGRO", subtitle: "¿Qué ocurre si te acercas demasiado?", badge: "MUNDO EXTREMO" }, impact: { title: "IMPACTO DE ASTEROIDE", subtitle: "Cambia el tamaño y la velocidad del impacto.", badge: "NUEVO" } },
   },
-  nova: {},
+  nova: {
+    home: "INICIO", label: "TUTOR ESPACIAL", title: "NOVA", subtitle: "Pregunta, investiga y comprende el Universo.", placeholder: "Pregúntale a NOVA sobre el espacio…", send: "ENVIAR", thinking: "NOVA está pensando…", hint: "PISTA", explain: "EXPLÍCAMELO", tryAgain: "INTENTAR DE NUEVO", relatedExplore: "VER EN EXPLORA", relatedMissions: "IR A MISIONES", relatedLaboratory: "PROBAR EN LABORATORIO", suggestedQuestions: "¿QUÉ QUIERES DESCUBRIR?", safetyFallback: "Esa pregunta se sale de mi misión espacial. Puedo ayudarte a explorar astronomía y ciencia.", error: "NOVA no ha podido responder. Inténtalo de nuevo.",
+    suggestions: ["¿Por qué Saturno tiene anillos?", "¿Qué pasaría si me acercara a un agujero negro?", "¿Por qué hay día y noche?", "¿Cómo sabemos de qué están hechas las estrellas?"],
+    tutorPrompt: "Responde en español. Eres NOVA, el tutor espacial educativo de Space Explorer para niños de aproximadamente 6 a 12 años. Explica astronomía y ciencia con lenguaje claro, breve, atractivo y científicamente riguroso. Cuando sea apropiado, guía mediante una pregunta, una pista o un pequeño reto antes de dar directamente la respuesta. Relaciona tus explicaciones con EXPLORA, MISIONES y LABORATORIO cuando ayude a comprender. No inventes hechos. Si algo es incierto, dilo de forma sencilla. Mantén siempre una experiencia segura y apropiada para niños."
+  },
 };
 export default es;

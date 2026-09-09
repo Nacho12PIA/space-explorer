@@ -28,8 +28,21 @@ export default function NovaPage() {
   function sendMessage(rawText) {
     const text=rawText.trim(); if(!text||isThinking)return;
     setMessages((current)=>[...current,{id:`${Date.now()}-user`,role:"user",text}]); setInput(""); setIsThinking(true);
+
     const safety=checkNovaSafety(text,language);
-    const result=safety.safe?findNovaAnswer(text,language,level,contextEntryRef.current):{found:false,recommendation:null,entry:null};
+    let result={found:false,recommendation:null,entry:null};
+
+    if(safety.safe){
+      result=findNovaAnswer(text,language,level,contextEntryRef.current);
+
+      if(!result.found&&contextEntryRef.current){
+        const contextQuestion=contextEntryRef.current.questions?.[language]?.[0]||contextEntryRef.current.questions?.es?.[0]||"";
+        const contextKeywords=(contextEntryRef.current.keywords?.[language]||contextEntryRef.current.keywords?.es||[]).slice(0,4).join(" ");
+        const contextualText=`${text} ${contextQuestion} ${contextKeywords}`.trim();
+        result=findNovaAnswer(contextualText,language,level,contextEntryRef.current);
+      }
+    }
+
     if(safety.safe&&result.found&&result.entry)contextEntryRef.current=result.entry;
     const reply=!safety.safe?safety.text:result.found?result.text:content.knowledgeFallback;
     timerRef.current=setTimeout(()=>{setMessages((current)=>[...current,{id:`${Date.now()}-nova`,role:"nova",text:reply,recommendation:safety.safe&&result.found?result.recommendation:null}]);setIsThinking(false);},500);

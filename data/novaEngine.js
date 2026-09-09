@@ -16,6 +16,20 @@ const personality = {
   },
 };
 
+const cadetReplacements = {
+  es: [
+    ["aproximadamente", "más o menos"], ["principalmente", "sobre todo"], ["extremadamente", "muchísimo"],
+    ["gravitatoria", "de la gravedad"], ["gravitatorio", "de la gravedad"], ["radiación", "energía y luz"],
+    ["atmósfera", "capa de gases"], ["hidrocarburos", "sustancias parecidas al gas y al petróleo"],
+    ["supermasivo", "gigantesco"], ["interestelar", "entre las estrellas"], ["espectro", "luz separada en colores"],
+  ],
+  en: [
+    ["approximately", "about"], ["mainly", "mostly"], ["extremely", "very"], ["gravitational", "caused by gravity"],
+    ["radiation", "energy and light"], ["atmosphere", "layer of gases"], ["hydrocarbons", "oil-like substances"],
+    ["supermassive", "gigantic"], ["interstellar", "between the stars"], ["spectrum", "light split into colours"],
+  ],
+};
+
 function normalizeText(text = "") {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -49,7 +63,32 @@ function findRelated(entry, lang) {
   return related[stableIndex(entry.id, related.length, 17)];
 }
 
-function buildTutorReply(entry, lang) {
+function firstSentence(text) {
+  const match = text.match(/^.*?[.!?](?:\s|$)/);
+  return (match ? match[0] : text).trim();
+}
+
+function simplifyForCadet(text, lang) {
+  let simple = firstSentence(text);
+  cadetReplacements[lang].forEach(([from, to]) => {
+    simple = simple.replace(new RegExp(from, "gi"), to);
+  });
+  return simple;
+}
+
+function adaptAnswer(entry, lang, level) {
+  const answer = entry.answer[lang];
+  if (level === "cadet") return simplifyForCadet(answer, lang);
+  if (level === "astronomer") {
+    const topic = entry.topic;
+    return lang === "es"
+      ? `${answer}\n\nNivel astrónomo: esta idea pertenece a ${topic}. Fíjate en los términos científicos de la explicación: son las pistas que usan los astrónomos para describir el fenómeno con precisión.`
+      : `${answer}\n\nAstronomer level: this idea belongs to ${topic}. Notice the scientific terms in the explanation: they are the clues astronomers use to describe the phenomenon precisely.`;
+  }
+  return answer;
+}
+
+function buildTutorReply(entry, lang, level = "explorer") {
   const voice = personality[lang];
   const opening = voice.openings[stableIndex(entry.id, voice.openings.length)];
   const curiosityLabel = voice.curiosities[stableIndex(entry.id, voice.curiosities.length, 5)];
@@ -58,19 +97,15 @@ function buildTutorReply(entry, lang) {
   const followUp = relatedQuestion
     ? (lang === "es" ? `Siguiente misión: ${relatedQuestion}` : `Next mission: ${relatedQuestion}`)
     : voice.followUps[stableIndex(entry.id, voice.followUps.length, 11)];
+  const answer = adaptAnswer(entry, lang, level);
+  const curiosity = level === "cadet" ? null : entry.curiosity?.[lang] || null;
 
-  const answer = entry.answer[lang];
-  const curiosity = entry.curiosity?.[lang] || null;
-  return [
-    opening,
-    answer,
-    curiosity ? `${curiosityLabel}: ${curiosity}` : null,
-    followUp,
-  ].filter(Boolean).join("\n\n");
+  return [opening, answer, curiosity ? `${curiosityLabel}: ${curiosity}` : null, followUp].filter(Boolean).join("\n\n");
 }
 
-export function findNovaAnswer(question, language = "es") {
+export function findNovaAnswer(question, language = "es", level = "explorer") {
   const lang = language === "en" ? "en" : "es";
+  const safeLevel = ["cadet", "explorer", "astronomer"].includes(level) ? level : "explorer";
   const normalized = normalizeText(question);
   let bestMatch = null;
   let bestScore = 0;
@@ -88,7 +123,7 @@ export function findNovaAnswer(question, language = "es") {
     found: true,
     score: bestScore,
     entry: bestMatch,
-    text: buildTutorReply(bestMatch, lang),
+    text: buildTutorReply(bestMatch, lang, safeLevel),
     relatedQuestion: findRelated(bestMatch, lang)?.questions?.[lang]?.[0] || null,
   };
 }

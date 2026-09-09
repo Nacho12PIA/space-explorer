@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { getNovaContent } from "../../i18n/nova";
+import { findNovaAnswer } from "../../data/novaKnowledge";
 import styles from "./NovaPage.module.css";
 
 export default function NovaPage() {
@@ -36,13 +37,16 @@ export default function NovaPage() {
     setInput("");
     setIsThinking(true);
 
+    const result = findNovaAnswer(text, language);
+    const reply = result.found ? result.text : content.knowledgeFallback;
+
     timerRef.current = setTimeout(() => {
       setMessages((current) => [
         ...current,
-        { id: `${Date.now()}-nova`, role: "nova", text: content.mockReply },
+        { id: `${Date.now()}-nova`, role: "nova", text: reply },
       ]);
       setIsThinking(false);
-    }, 850);
+    }, 500);
   }
 
   function handleSubmit(event) {

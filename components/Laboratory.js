@@ -32,6 +32,11 @@ const slider = { width: "100%", accentColor: "#38bdf8", cursor: "pointer" };
 export default function Laboratory() {
   const [active, setActive] = useState(null);
 
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("experiment");
+    if (experiments.some((item) => item.id === requested)) setActive(requested);
+  }, []);
+
   if (!active) {
     return (
       <section style={{ marginTop: 30 }}>
@@ -150,153 +155,90 @@ function Orbits() {
     </Stage>
     <Metrics items={[["VELOCIDAD",`${speed.toFixed(1)} km/s`],["DURACIÓN DEL AÑO",year<1?`${Math.round(year*365)} días`:`${year.toFixed(2)} años`],["TENDENCIA TÉRMICA",temp>60?"MUY CALIENTE":temp<0?"MUY FRÍA":"TEMPLADA"]]}/>
     <Discovery>{distance<.7?"Has llevado el planeta muy cerca: recibe mucha más energía del Sol y se mueve a gran velocidad.":distance>1.5?"Aquí el Sol calienta mucho menos y el planeta tarda bastante más en completar su año.":"Estás cerca de la zona de la órbita terrestre. Sigue moviendo el planeta y compara."}</Discovery>
-  </ExperimentShell>;
+  </ExperimentShell>
 }
 
-function DayNight(){
-  const [hours,setHours]=useState(24),[angle,setAngle]=useState(0),[paused,setPaused]=useState(false);
-  useEffect(()=>{if(paused)return;const id=setInterval(()=>setAngle(a=>(a+3*(24/hours))%360),40);return()=>clearInterval(id)},[hours,paused]);
-  const x=50+Math.cos(angle*Math.PI/180)*40;
-  const phase=x<25?"NOCHE":x<48?"AMANECER":x<75?"DÍA":"MEDIODÍA";
+function DayNight() {
+  const [hours,setHours]=useState(24), [paused,setPaused]=useState(false);
+  const duration=Math.max(1.4,Math.min(14,hours/5));
   return <ExperimentShell icon="🌗" number="03" title="FABRICA UN DÍA" intro="Acelera o frena el giro del planeta. Sigue la ciudad luminosa mientras entra y sale de la noche.">
-    <Control label={`UN DÍA DURA · ${hours} HORAS`}><input type="range" min="5" max="80" value={hours} onChange={e=>setHours(+e.target.value)} style={slider}/><Scale left="⚡ Giro rápido" right="🐢 Giro lento"/></Control>
-    <Stage height={360} background="linear-gradient(90deg,rgba(251,191,36,.13),rgba(2,6,23,.94) 68%)">
-      <div style={{position:"absolute",left:-65,top:"50%",width:130,height:130,marginTop:-65,borderRadius:"50%",background:"#fbbf24",boxShadow:"0 0 60px #f59e0b,0 0 130px rgba(245,158,11,.4)"}}/>
-      <div style={{position:"absolute",left:"54%",top:"50%",width:205,height:205,transform:"translate(-50%,-50%)",borderRadius:"50%",overflow:"hidden",background:"linear-gradient(90deg,#22d3ee,#2563eb 46%,#111827 53%,#020617)",boxShadow:"-20px 0 50px rgba(56,189,248,.22),20px 0 45px #000"}}>
-        <div style={{position:"absolute",left:`${x}%`,top:"47%",width:14,height:14,borderRadius:"50%",background:"white",boxShadow:"0 0 13px white",transition:"left 40ms linear"}}/>
-        <div style={{position:"absolute",left:"12%",top:"22%",fontSize:28,opacity:.6}}>☁</div><div style={{position:"absolute",left:"30%",top:"65%",fontSize:22,opacity:.5}}>☁</div>
+    <Control label={`UN DÍA DURA · ${hours} HORAS`}><input type="range" min="4" max="80" value={hours} onChange={e=>setHours(+e.target.value)} style={slider}/><Scale left="⚡ Giro rápido" right="🐢 Giro lento"/></Control>
+    <Stage height={390} background="radial-gradient(circle at 14% 50%,rgba(251,191,36,.22),transparent 32%),linear-gradient(90deg,#020617,#111827)">
+      <StarField/><div style={{position:"absolute",left:-48,top:"50%",width:100,height:100,marginTop:-50,borderRadius:"50%",background:"#fde047",boxShadow:"0 0 45px #f59e0b,0 0 110px rgba(245,158,11,.5)"}}/>
+      <div style={{position:"absolute",left:"50%",top:"50%",width:210,height:210,marginLeft:-105,marginTop:-105,borderRadius:"50%",overflow:"hidden",boxShadow:"0 0 30px rgba(59,130,246,.35)",animation:`labSpin ${duration}s linear infinite`,animationPlayState:paused?"paused":"running"}}>
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(90deg,#38bdf8 0 46%,#020617 54% 100%)"}}/><div style={{position:"absolute",left:46,top:65,width:45,height:80,borderRadius:"55% 35% 45% 60%",background:"#22c55e",transform:"rotate(20deg)"}}/><div style={{position:"absolute",right:36,top:52,width:36,height:64,borderRadius:"45%",background:"#166534"}}/><div style={{position:"absolute",left:98,top:28,width:12,height:12,borderRadius:"50%",background:"#fff",boxShadow:"0 0 10px #fff"}}/>
       </div>
-      <div style={{position:"absolute",top:18,right:18,padding:"9px 12px",borderRadius:13,background:"rgba(0,0,0,.5)",fontWeight:950,color:phase==="NOCHE"?"#93c5fd":"#fde68a"}}>📍 {phase}</div>
+      <div style={{position:"absolute",left:"50%",top:24,bottom:24,width:1,background:"rgba(255,255,255,.18)"}}/><div style={{position:"absolute",left:18,bottom:18,fontWeight:900,color:"#fde68a"}}>☀️ DÍA</div><div style={{position:"absolute",right:18,bottom:18,fontWeight:900,color:"#93c5fd"}}>🌙 NOCHE</div>
     </Stage>
-    <button onClick={()=>setPaused(p=>!p)} style={actionButton}>{paused?"▶ REANUDAR PLANETA":"⏸ CONGELAR PLANETA"}</button>
-    <Metrics items={[["ROTACIÓN",`${hours} h`],["COMPARADA CON TIERRA",hours<24?"MÁS RÁPIDA":hours>24?"MÁS LENTA":"IGUAL"],["EN TU CIUDAD",phase]]}/>
+    <button onClick={()=>setPaused(v=>!v)} style={actionButton}>{paused?"▶ REANUDAR PLANETA":"⏸ CONGELAR PLANETA"}</button>
+    <Metrics items={[["ROTACIÓN",`${hours} h`],["COMPARADA CON TIERRA",hours<24?"MÁS RÁPIDA":hours>24?"MÁS LENTA":"IGUAL"],["EN TU CIUDAD","DÍA → NOCHE → DÍA"]]}/>
     <Discovery>El Sol no “se apaga” por la noche. Es el planeta el que gira y lleva tu ciudad hacia la cara que queda de espaldas a su estrella.</Discovery>
   </ExperimentShell>
 }
 
-function BlackHole(){
-  const [distance,setDistance]=useState(100);
-  const danger=100-distance;
-  const proximity=danger/100;
-  const holeSize=100+proximity*72;
-  const shipLeft=10+proximity*39;
-  const shipScale=1+proximity*.45;
-  const shipStretch=distance<35?1+(35-distance)/18:1;
-  const timeFactor=1/Math.sqrt(Math.max(.06,1-danger/106));
-  const zone=distance>70?"ESPACIO NORMAL":distance>45?"GRAVEDAD INTENSA":distance>20?"FUERZAS DE MAREA":distance>8?"JUNTO AL HORIZONTE":"HORIZONTE CRUZADO";
-  const zoneColor=distance>70?"#7dd3fc":distance>45?"#c084fc":distance>20?"#fb923c":"#fb7185";
-
+function BlackHole() {
+  const [distance,setDistance]=useState(78);
+  const proximity=100-distance;
+  const ringScale=1+proximity/220, shipX=12+distance*.63, shipScale=Math.max(.55,1-proximity/190), stretch=1+proximity/90;
+  const stageState=distance>65?"ESPACIO NORMAL":distance>38?"GRAVEDAD INTENSA":distance>16?"FUERZAS DE MAREA":"HORIZONTE";
+  const discovery=distance>65?"A gran distancia, la nave puede mantenerse lejos de la zona más peligrosa.":distance>38?"La trayectoria de la luz empieza a curvarse de forma extrema en la visualización y la nave cae hacia una región cada vez más intensa.":distance>16?"Las fuerzas de marea crecen rápidamente: la gravedad tira con distinta intensidad de unas partes de la nave y de otras.":distance>5?"Estás peligrosamente cerca del horizonte de sucesos. Para un observador lejano, los efectos relativistas se vuelven enormes.":"Has cruzado el horizonte de sucesos en la simulación. Nada que esté dentro puede enviar una señal de vuelta al exterior.";
   return <ExperimentShell icon="🕳️" number="04 · MUNDO EXTREMO" title="ACÉRCATE A UN AGUJERO NEGRO" intro="Pilota una nave hacia el horizonte de sucesos. La escena se deforma cada vez más a medida que entras en una región de gravedad extrema.">
-    <Control label={`DISTANCIA DE SEGURIDAD · ${distance}%`}><input type="range" min="3" max="100" value={distance} onChange={e=>setDistance(+e.target.value)} style={{...slider,accentColor:zoneColor}}/><Scale left="☠ HORIZONTE" right="🚀 LEJOS"/></Control>
-    <Stage height={455} background={`radial-gradient(circle at 68% 50%,rgba(168,85,247,${.10+proximity*.23}) 0%,#090313 38%,#020617 78%)`}>
-      <StarField distorted={danger}/>
-      {[0,1,2,3].map(i=><div key={i} style={{position:"absolute",left:"68%",top:"50%",width:holeSize+110+i*42,height:(holeSize+110+i*42)*.44,marginLeft:-(holeSize+110+i*42)/2,marginTop:-(holeSize+110+i*42)*.22,borderRadius:"50%",border:`${1+i*.3}px solid rgba(${i%2?"249,115,22":"192,132,252"},${.22+proximity*.15})`,transform:`rotate(${-13+i*9}deg)`,animation:`labDisk ${5-i*.65}s linear infinite`,filter:`blur(${i*.35}px)`}}/>)}
-      <div style={{position:"absolute",left:"68%",top:"50%",width:holeSize+120,height:(holeSize+120)*.29,marginLeft:-(holeSize+120)/2,marginTop:-(holeSize+120)*.145,borderRadius:"50%",background:"linear-gradient(90deg,transparent,#7c2d12,#f97316,#fff7ed,#f97316,#7c2d12,transparent)",boxShadow:`0 0 ${30+proximity*35}px #f97316,0 0 ${70+proximity*55}px rgba(168,85,247,.55)`,filter:"blur(2px)",transform:"rotate(-10deg)",animation:"labDiskGlow 2.5s ease-in-out infinite"}}/>
-      <div style={{position:"absolute",left:"68%",top:"50%",width:holeSize+22,height:holeSize+22,marginLeft:-(holeSize+22)/2,marginTop:-(holeSize+22)/2,borderRadius:"50%",border:`${5+proximity*5}px solid rgba(255,255,255,${.25+proximity*.35})`,boxShadow:`0 0 ${25+proximity*35}px white,0 0 ${65+proximity*55}px #a855f7`,animation:"labPhotonRing 1.6s ease-in-out infinite"}}/>
-      <div style={{position:"absolute",left:"68%",top:"50%",width:holeSize,height:holeSize,marginLeft:-holeSize/2,marginTop:-holeSize/2,borderRadius:"50%",background:"radial-gradient(circle,#000 0%,#000 72%,#05000a 100%)",boxShadow:"inset 0 0 30px #000,0 0 12px #000"}}/>
-      {[0,1,2,3,4].map(i=><div key={`ray-${i}`} style={{position:"absolute",left:`${18+i*8}%`,top:`${24+i*11}%`,width:`${28+proximity*30}%`,height:1,background:`linear-gradient(90deg,rgba(125,211,252,.0),rgba(125,211,252,${.1+proximity*.25}),transparent)`,transform:`rotate(${(-12+i*6)*(1+proximity)}deg)`,transformOrigin:"right",filter:`blur(${proximity*1.4}px)`}}/>)}
-      <div style={{position:"absolute",left:`${shipLeft}%`,top:"50%",transform:`translate(-50%,-50%) scale(${shipScale}) scaleX(${shipStretch}) rotate(${proximity*7}deg)`,transition:"all .22s ease-out",fontSize:42,filter:`drop-shadow(-${10+proximity*24}px 0 ${5+proximity*8}px #38bdf8) drop-shadow(0 0 8px white)`,opacity:distance<6?.18:1}}>🚀</div>
-      <div style={{position:"absolute",left:`${Math.max(5,shipLeft-16)}%`,top:"50%",width:`${8+proximity*14}%`,height:3,marginTop:-1,background:"linear-gradient(90deg,transparent,#38bdf8,#fff)",filter:"blur(2px)",opacity:.45+proximity*.45,transition:"all .2s"}}/>
-      <div style={{position:"absolute",left:15,top:15,padding:"9px 12px",borderRadius:12,background:"rgba(0,0,0,.62)",fontSize:11,fontWeight:950,letterSpacing:1,color:zoneColor,border:`1px solid ${zoneColor}55`}}>● {zone}</div>
-      {distance<22&&<div style={{position:"absolute",left:0,right:0,bottom:24,textAlign:"center",fontSize:distance<9?18:13,fontWeight:950,color:"#fb7185",animation:"labPulse .65s infinite"}}>{distance<9?"⚠ HORIZONTE DE SUCESOS: NO HAY REGRESO":"⚠ FUERZAS DE MAREA EXTREMAS"}</div>}
+    <Control label={`DISTANCIA DE SEGURIDAD · ${distance}%`}><input type="range" min="0" max="100" value={distance} onChange={e=>setDistance(+e.target.value)} style={{...slider,accentColor:"#c084fc"}}/><Scale left="☠️ Horizonte" right="🚀 Lejos"/></Control>
+    <Stage height={440} background="radial-gradient(circle at center,#111827 0,#030712 52%,#000 100%)">
+      <div style={{position:"absolute",inset:0,transform:`scaleX(${1+proximity/240})`,filter:`blur(${proximity/80}px)`,transition:"all .25s"}}><StarField/></div>
+      <div style={{position:"absolute",left:"50%",top:"50%",width:245*ringScale,height:96*ringScale,marginLeft:-122*ringScale,marginTop:-48*ringScale,borderRadius:"50%",border:`${10+proximity/12}px solid rgba(192,132,252,.72)`,boxShadow:`0 0 ${28+proximity}px rgba(168,85,247,.72), inset 0 0 ${20+proximity/2}px rgba(251,146,60,.38)`,transform:`rotate(-9deg) scaleY(${.48+proximity/400})`,transition:"all .25s"}}/>
+      <div style={{position:"absolute",left:"50%",top:"50%",width:142,height:142,marginLeft:-71,marginTop:-71,borderRadius:"50%",background:"#000",boxShadow:"0 0 0 2px rgba(255,255,255,.05),0 0 45px #000"}}/>
+      <div style={{position:"absolute",left:`${shipX}%`,top:"46%",fontSize:34,transform:`translate(-50%,-50%) scale(${shipScale}) scaleX(${stretch})`,filter:`drop-shadow(0 0 ${5+proximity/4}px #a78bfa)`,transition:"all .25s"}}>🚀</div>
+      <div style={{position:"absolute",left:14,top:14,padding:"8px 10px",borderRadius:12,background:"rgba(0,0,0,.55)",fontSize:10,fontWeight:900,color:distance<20?"#fda4af":"#ddd6fe"}}>{stageState}</div>
+      <div style={{position:"absolute",left:"50%",bottom:13,transform:"translateX(-50%)",fontSize:10,opacity:.45}}>REPRESENTACIÓN EDUCATIVA · EFECTOS VISUALES EXAGERADOS</div>
     </Stage>
-    <Metrics items={[["FUERZAS DE MAREA",distance>70?"BAJAS":distance>45?"CRECIENDO":distance>20?"EXTREMAS":"CRÍTICAS"],["DILATACIÓN TEMPORAL",`≈ ${timeFactor.toFixed(1)}×`],["ESTADO",zone]]}/>
-    <Discovery>{distance>70?"A gran distancia, la nave puede mantenerse lejos de la zona más peligrosa.":distance>45?"La trayectoria de la luz empieza a curvarse de forma extrema en la visualización y la nave cae hacia una región cada vez más intensa.":distance>20?"Las fuerzas de marea crecen rápidamente: la gravedad tira con distinta intensidad de unas partes de la nave y de otras.":distance>8?"Estás peligrosamente cerca del horizonte de sucesos. Para un observador lejano, los efectos relativistas se vuelven enormes.":"Has cruzado el horizonte de sucesos en la simulación. Nada que esté dentro puede enviar una señal de vuelta al exterior."}</Discovery>
-    <Note>Representación educativa: exageramos visualmente la deformación para que el fenómeno sea comprensible. La forma exacta depende de la masa y rotación del agujero negro y de la trayectoria del observador.</Note>
+    <Metrics items={[["FUERZAS DE MAREA",proximity<30?"BAJAS":proximity<60?"CRECIENDO":proximity<85?"EXTREMAS":"CRÍTICAS"],["DILATACIÓN TEMPORAL",proximity<35?"PEQUEÑA":proximity<70?"FUERTE":"EXTREMA"],["ESTADO",distance<6?"HORIZONTE CRUZADO":distance<20?"JUNTO AL HORIZONTE":"LEJOS"]]}/>
+    <Discovery>{discovery}</Discovery><ScienceNote>Representación educativa: exageramos visualmente la deformación para que el fenómeno sea comprensible. La forma exacta depende de la masa y rotación del agujero negro y de la trayectoria del observador.</ScienceNote>
   </ExperimentShell>
 }
 
-function Impact(){
-  const [diameter,setDiameter]=useState(35),[speed,setSpeed]=useState(20),[impactKey,setImpactKey]=useState(0),[launched,setLaunched]=useState(false);
-  const normalizedSize=(diameter-5)/145;
-  const normalizedSpeed=(speed-11)/39;
-  const energyScore=Math.pow(diameter/35,3)*Math.pow(speed/20,2);
-  const intensity=Math.min(1,Math.log10(1+energyScore)/1.8);
-  const asteroidSize=24+normalizedSize*74;
-  const craterDiameter=Math.round(45+Math.min(355,Math.pow(energyScore,.32)*92));
-  const craterWidth=Math.min(340,56+Math.pow(energyScore,.3)*92);
-  const craterDepth=Math.min(95,18+Math.pow(energyScore,.28)*24);
-  const blastRadius=Math.round(90+Math.min(990,Math.pow(energyScore,.36)*210));
-  const waveScale=Math.min(4.2,1.2+Math.pow(energyScore,.22));
-  const flashSize=Math.min(420,80+Math.pow(energyScore,.28)*120);
-  const level=energyScore<.35?"IMPACTO PEQUEÑO":energyScore<1.3?"IMPACTO LOCAL":energyScore<5?"IMPACTO REGIONAL":"IMPACTO CATASTRÓFICO";
-  const levelColor=energyScore<.35?"#fde68a":energyScore<1.3?"#fb923c":energyScore<5?"#fb7185":"#ef4444";
-
-  useEffect(()=>{setLaunched(false)},[diameter,speed]);
-  const launch=()=>{setLaunched(false);setImpactKey(k=>k+1);requestAnimationFrame(()=>requestAnimationFrame(()=>setLaunched(true)))};
-
+function Impact() {
+  const [diameter,setDiameter]=useState(70),[speed,setSpeed]=useState(20),[impactKey,setImpactKey]=useState(0),[launched,setLaunched]=useState(true);
+  const power=(diameter/70)**3*(speed/20)**2;
+  const crater=Math.round(70+115*Math.pow(power,.27)), wave=Math.round(100+190*Math.pow(power,.31));
+  const result=power<.55?"IMPACTO PEQUEÑO":power<2.4?"IMPACTO LOCAL":power<9?"IMPACTO REGIONAL":"IMPACTO CATASTRÓFICO";
+  const discovery=power<.55?"El cráter es pequeño y la onda expansiva alcanza una zona limitada. Aumenta el diámetro o la velocidad y vuelve a lanzar.":power<2.4?"El impacto ya excava un cráter mucho mayor y la onda expansiva cubre una zona claramente más amplia.":power<9?"La onda de choque recorre una gran superficie y el cráter crece de forma muy visible. La energía aumenta con enorme rapidez.":"Has creado un impacto extremo: el cráter domina la zona de choque y la onda expansiva se extiende muy lejos del punto de impacto.";
+  function launch(){setLaunched(false);requestAnimationFrame(()=>{setImpactKey(k=>k+1);setLaunched(true)})}
   return <ExperimentShell icon="☄️" number="05" title="IMPACTO DE ASTEROIDE" intro="Lanza el asteroide y observa el terreno después del choque. El cráter final y la onda expansiva cambian con el tamaño y la velocidad.">
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:10}}>
-      <Control label={`DIÁMETRO · ${diameter} m`}><input type="range" min="5" max="150" value={diameter} onChange={e=>setDiameter(+e.target.value)} style={{...slider,accentColor:"#fb7185"}}/><Scale left="🚗 5 m" right="🏢 150 m"/></Control>
-      <Control label={`VELOCIDAD · ${speed} km/s`}><input type="range" min="11" max="50" value={speed} onChange={e=>setSpeed(+e.target.value)} style={{...slider,accentColor:"#fb7185"}}/><Scale left="11 km/s" right="50 km/s ⚡"/></Control>
-    </div>
-
-    <Stage height={460} background="linear-gradient(#020617 0%,#0f172a 42%,#1d4ed8 43%,#0f766e 60%,#14532d 61%,#052e16 100%)">
-      <StarField />
-      <div style={{position:"absolute",left:0,right:0,bottom:0,height:180,background:"linear-gradient(#166534,#14532d 42%,#3f3f46 43%,#292524 100%)",zIndex:1}}/>
-      <div style={{position:"absolute",left:"50%",bottom:142,width:520,height:90,marginLeft:-260,borderRadius:"50%",background:"radial-gradient(ellipse,rgba(74,222,128,.42),rgba(22,101,52,.16) 58%,transparent 72%)",zIndex:2}}/>
-
-      <div key={`asteroid-${impactKey}`} style={{position:"absolute",left:launched?"52%":"8%",top:launched?"58%":"7%",width:asteroidSize,height:asteroidSize,borderRadius:"48% 52% 45% 55%",background:"radial-gradient(circle at 35% 30%,#a8a29e,#57534e 45%,#292524 78%)",boxShadow:`-${16+normalizedSpeed*35}px -${10+normalizedSpeed*24}px ${10+normalizedSpeed*22}px rgba(249,115,22,${.45+normalizedSpeed*.5}),0 0 ${8+normalizedSize*16}px rgba(255,255,255,.25)`,transform:`translate(-50%,-50%) rotate(${launched?540:25}deg)`,transition:launched?`left ${1.08-normalizedSpeed*.44}s cubic-bezier(.65,.02,.9,.5), top ${1.08-normalizedSpeed*.44}s cubic-bezier(.65,.02,.9,.5), transform ${1.08-normalizedSpeed*.44}s linear`:"none",opacity:launched?.02:1,zIndex:7}}>
-        <div style={{position:"absolute",left:"18%",top:"20%",width:"20%",height:"16%",borderRadius:"50%",background:"#292524",opacity:.8}}/>
-        <div style={{position:"absolute",right:"15%",bottom:"25%",width:"28%",height:"20%",borderRadius:"50%",background:"#1c1917",opacity:.75}}/>
-      </div>
-      <div style={{position:"absolute",left:launched?"18%":"2%",top:launched?"24%":"3%",width:launched?"34%":"8%",height:7,background:`linear-gradient(90deg,transparent,rgba(249,115,22,${.45+normalizedSpeed*.5}),#fff7ed)`,filter:`blur(${2+normalizedSpeed*4}px)`,transform:"rotate(33deg)",transformOrigin:"right",transition:launched?`all ${.9-normalizedSpeed*.3}s ease-in`:"none",opacity:launched?.9:.25,zIndex:6}}/>
-
-      {launched&&<>
-        <div style={{position:"absolute",left:"52%",top:"58%",width:flashSize,height:flashSize,marginLeft:-flashSize/2,marginTop:-flashSize/2,borderRadius:"50%",background:"radial-gradient(circle,#fff 0%,#fde047 16%,#f97316 38%,rgba(239,68,68,.48) 55%,transparent 72%)",boxShadow:`0 0 ${40+flashSize*.2}px #f97316`,animation:"labImpactFlash 1.1s ease-out forwards",zIndex:9}}/>
-
-        {[0,1,2].map(i=><div key={`wave-${i}`} style={{position:"absolute",left:"52%",top:"62%",width:110+i*28,height:38+i*10,marginLeft:-(55+i*14),marginTop:-(19+i*5),borderRadius:"50%",border:`${4-i}px solid rgba(${i===0?"255,245,200":"255,160,80"},${.95-i*.18})`,boxShadow:`0 0 ${15+i*6}px rgba(255,180,80,.65)`,"--waveScale":waveScale+i*.35,animation:`labGroundWave ${1.3+i*.25}s ease-out ${i*.1}s forwards`,zIndex:8}}/>)}
-
-        <div style={{position:"absolute",left:"52%",top:"65%",width:craterWidth,height:craterDepth*2.1,marginLeft:-craterWidth/2,marginTop:-craterDepth,borderRadius:"50%",background:"radial-gradient(ellipse at 50% 38%,#050505 0%,#1c1917 37%,#451a03 57%,#78350f 69%,#a16207 75%,transparent 78%)",boxShadow:`inset 0 ${craterDepth*.35}px ${craterDepth*.5}px #000,inset 0 -${craterDepth*.22}px ${craterDepth*.35}px rgba(245,158,11,.38),0 0 ${16+intensity*28}px rgba(249,115,22,.42)`,animation:"labCraterFinal .95s ease-out forwards",zIndex:5}}/>
-        <div style={{position:"absolute",left:"52%",top:"65%",width:craterWidth*1.22,height:craterDepth*2.45,marginLeft:-(craterWidth*1.22)/2,marginTop:-(craterDepth*1.22),borderRadius:"50%",border:`${4+intensity*7}px solid rgba(120,53,15,.85)`,boxShadow:`0 0 0 ${4+intensity*6}px rgba(217,119,6,.22)`,animation:"labCraterRim .9s ease-out forwards",zIndex:4}}/>
-
-        {[0,1,2,3].map(i=><div key={`dust-${i}`} style={{position:"absolute",left:`${46+i*4}%`,top:"61%",width:18+intensity*25,height:110+intensity*115,borderRadius:"50%",background:`linear-gradient(rgba(251,146,60,${.55-i*.08}),rgba(120,53,15,.28),transparent)`,filter:`blur(${5+i}px)`,transform:`rotate(${-18+i*12}deg)`,transformOrigin:"bottom",animation:`labDebris ${1.5+i*.18}s ease-out forwards`,zIndex:7}}/>)}
-
-        <div style={{position:"absolute",left:0,right:0,bottom:8,textAlign:"center",zIndex:11}}>
-          <div style={{display:"inline-block",padding:"9px 13px",borderRadius:14,background:"rgba(0,0,0,.66)",border:`1px solid ${levelColor}66`,color:levelColor,fontWeight:950,fontSize:15}}>💥 {level}</div>
-        </div>
-        <div style={{position:"absolute",inset:0,background:`rgba(255,245,220,${.12+intensity*.28})`,animation:"labScreenFlash .75s ease-out forwards",pointerEvents:"none",zIndex:10}}/>
-      </>}
+    <Control label={`DIÁMETRO · ${diameter} m`}><input type="range" min="15" max="250" value={diameter} onChange={e=>{setDiameter(+e.target.value);setLaunched(false)}} style={{...slider,accentColor:"#fb7185"}}/><Scale left="15 m" right="250 m"/></Control>
+    <Control label={`VELOCIDAD · ${speed} km/s`}><input type="range" min="8" max="45" value={speed} onChange={e=>{setSpeed(+e.target.value);setLaunched(false)}} style={{...slider,accentColor:"#fb7185"}}/><Scale left="8 km/s" right="45 km/s"/></Control>
+    <Stage height={450} background="linear-gradient(#081426 0 54%,#31251f 55% 67%,#4a2b1b 68%)">
+      <StarField/><div style={{position:"absolute",left:0,right:0,top:"54%",height:2,background:"#fda4af55"}}/>
+      {launched&&<div key={`meteor-${impactKey}`} style={{position:"absolute",left:"8%",top:"5%",fontSize:Math.min(55,24+diameter/9),filter:"drop-shadow(0 0 12px #fb7185)",animation:"labMeteor 1.15s cubic-bezier(.65,.05,.95,.5) forwards"}}>☄️</div>}
+      {launched&&<div key={`flash-${impactKey}`} style={{position:"absolute",left:"50%",top:"55%",width:25,height:25,marginLeft:-12,marginTop:-12,borderRadius:"50%",background:"#fff7ed",boxShadow:`0 0 ${Math.min(150,35+power*9)}px ${Math.min(80,12+power*4)}px #fb923c`,animation:"labFlash 1.5s ease-out forwards"}}/>}
+      {launched&&<div key={`wave-${impactKey}`} style={{position:"absolute",left:"50%",top:"55%",width:30,height:14,marginLeft:-15,borderRadius:"50%",border:"3px solid #fdba74",boxShadow:"0 0 18px #fb923c",animation:`labShock 1.8s ease-out forwards`,"--waveScale":Math.min(14,wave/32)}}/>}
+      <div style={{position:"absolute",left:"50%",top:"55%",width:Math.min(330,crater),height:Math.min(105,crater*.28),marginLeft:-Math.min(330,crater)/2,borderRadius:"0 0 50% 50%",background:"radial-gradient(ellipse at top,#120806,#29140f 42%,#5b321f)",boxShadow:`inset 0 10px 20px #000,0 -3px 10px #fb923c44`,transform:`scaleY(${launched?1:.25})`,transformOrigin:"top",transition:"transform .35s"}}/>
+      {launched&&Array.from({length:10}).map((_,i)=><span key={`${impactKey}-d-${i}`} style={{position:"absolute",left:"50%",top:"54%",width:5+(i%3)*3,height:5+(i%3)*3,borderRadius:"50%",background:i%2?"#78350f":"#a16207",animation:`labDebris ${.8+(i%4)*.18}s ease-out forwards`,"--dx":`${(i-5)*(18+Math.min(20,power))}px`,"--dy":`${-45-(i%5)*18-Math.min(80,power*5)}px`}}/>)}
+      <div style={{position:"absolute",left:14,bottom:14,padding:"8px 10px",borderRadius:12,background:"rgba(0,0,0,.55)",fontSize:10,fontWeight:900,color:"#fecdd3"}}>{result}</div>
     </Stage>
-
-    <button onClick={launch} style={{...actionButton,background:"linear-gradient(90deg,#be123c,#ea580c)",border:"1px solid #fb718566"}}>☄️ LANZAR ASTEROIDE</button>
-
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:9,marginTop:13}}>
-      <MetricCard title="CRÁTER ESTIMADO" value={`≈ ${craterDiameter} m`} detail="diámetro visual relativo" />
-      <MetricCard title="ONDA EXPANSIVA" value={`≈ ${blastRadius} m`} detail="radio educativo" />
-      <MetricCard title="ENERGÍA RELATIVA" value={`${energyScore.toFixed(1)}×`} detail="respecto al ajuste inicial" />
-      <MetricCard title="RESULTADO" value={level} detail="clasificación educativa" />
-    </div>
-
-    <Discovery>{energyScore<.35?"El cráter es pequeño y la onda expansiva alcanza una zona limitada. Aumenta el diámetro o la velocidad y vuelve a lanzar.":energyScore<1.3?"El impacto ya excava un cráter mucho mayor y la onda expansiva cubre una zona claramente más amplia.":energyScore<5?"La onda de choque recorre una gran superficie y el cráter crece de forma muy visible. La energía aumenta con enorme rapidez.":"Has creado un impacto extremo: el cráter domina la zona de choque y la onda expansiva se extiende muy lejos del punto de impacto."}</Discovery>
-    <Note>Modelo educativo simplificado: el tamaño real del cráter y la onda expansiva dependen también de densidad, ángulo de entrada, terreno, atmósfera y composición del asteroide.</Note>
+    <button onClick={launch} style={{...actionButton,background:"linear-gradient(90deg,rgba(251,113,133,.35),rgba(249,115,22,.25))"}}>☄️ LANZAR ASTEROIDE</button>
+    <Metrics items={[["CRÁTER ESTIMADO",`${crater} m · diámetro visual relativo`],["ONDA EXPANSIVA",`${wave} m · radio educativo`],["ENERGÍA RELATIVA",`${power.toFixed(1)}× respecto al ajuste inicial`],["RESULTADO",`${result} · clasificación educativa`]]}/>
+    <Discovery>{discovery}</Discovery><ScienceNote>Modelo educativo simplificado: el tamaño real del cráter y la onda expansiva dependen también de densidad, ángulo de entrada, terreno, atmósfera y composición del asteroide.</ScienceNote>
   </ExperimentShell>
 }
 
-function MetricCard({title,value,detail}){return <div style={{padding:13,borderRadius:15,background:"rgba(249,115,22,.08)",border:"1px solid rgba(251,146,60,.16)"}}><div style={{fontSize:9,fontWeight:950,letterSpacing:1,opacity:.52}}>{title}</div><div style={{fontSize:17,fontWeight:950,marginTop:5}}>{value}</div><div style={{fontSize:10,opacity:.5,marginTop:4}}>{detail}</div></div>}
-function ExperimentShell({icon,number,title,intro,children}){return <div style={panel}><div style={{padding:"25px 22px 18px",background:"radial-gradient(circle at 90% 0%,rgba(56,189,248,.10),transparent 40%)"}}><div style={{fontSize:42}}>{icon}</div><div style={{marginTop:8,fontSize:10,letterSpacing:2,fontWeight:950,color:"#7dd3fc"}}>EXPERIMENTO {number}</div><h2 style={{fontSize:"clamp(27px,6vw,42px)",margin:"6px 0 8px"}}>{title}</h2><p style={{maxWidth:700,margin:0,lineHeight:1.55,opacity:.74}}>{intro}</p></div><div style={{padding:"0 22px 25px"}}>{children}</div></div>}
-function Control({label,children}){return <div style={{padding:15,borderRadius:17,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.08)"}}><div style={{fontSize:11,fontWeight:950,letterSpacing:1.1,marginBottom:10}}>{label}</div>{children}</div>}
-function Scale({left,right}){return <div style={{display:"flex",justifyContent:"space-between",fontSize:10,opacity:.55,marginTop:5}}><span>{left}</span><span>{right}</span></div>}
-function Stage({height,background,children}){return <div style={{position:"relative",height,marginTop:14,borderRadius:22,overflow:"hidden",background,border:"1px solid rgba(255,255,255,.09)",boxShadow:"inset 0 0 50px rgba(0,0,0,.25)"}}>{children}</div>}
-function Metrics({items}){return <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(135px,1fr))",gap:9,marginTop:13}}>{items.map(([a,b])=><div key={a} style={{padding:13,borderRadius:15,background:"rgba(14,165,233,.08)",border:"1px solid rgba(56,189,248,.13)"}}><div style={{fontSize:9,fontWeight:950,letterSpacing:1,opacity:.52}}>{a}</div><div style={{fontSize:17,fontWeight:950,marginTop:5}}>{b}</div></div>)}</div>}
-function Discovery({children}){return <div style={{marginTop:14,padding:"15px 16px",borderRadius:16,background:"linear-gradient(90deg,rgba(34,197,94,.09),rgba(14,165,233,.06))",border:"1px solid rgba(74,222,128,.16)",fontSize:13,lineHeight:1.55}}><b style={{color:"#86efac"}}>✦ HAS DESCUBIERTO</b><div style={{marginTop:5,opacity:.84}}>{children}</div></div>}
-function Note({children}){return <div style={{marginTop:10,fontSize:11,lineHeight:1.5,opacity:.5}}>ℹ️ {children}</div>}
-function StarField({distorted=0}){return <>{[12,25,39,67,78,88,18,54,93].map((x,i)=><i key={`${x}-${i}`} style={{position:"absolute",left:`${x}%`,top:`${9+(i*17)%78}%`,width:2+distorted/70,height:2+distorted/28,borderRadius:"50%",background:"white",boxShadow:"0 0 5px white",transform:`rotate(${i*31}deg)`,opacity:.45+(i%3)*.18}}/>)}</>}
-
-const backButton={color:"white",background:"transparent",border:0,padding:"10px 0",cursor:"pointer",fontWeight:950,fontSize:11,letterSpacing:1,opacity:.82};
-const actionButton={marginTop:12,width:"100%",minHeight:50,borderRadius:15,border:"1px solid rgba(255,255,255,.15)",background:"rgba(255,255,255,.07)",color:"white",cursor:"pointer",fontWeight:950,letterSpacing:.8};
+function ExperimentShell({icon,number,title,intro,children}) {return <div style={panel}><div style={{padding:"24px 24px 18px",borderBottom:"1px solid rgba(255,255,255,.08)"}}><div style={{fontSize:38}}>{icon}</div><div style={{fontSize:10,opacity:.5,fontWeight:900,letterSpacing:1.7}}>EXPERIMENTO {number}</div><h2 style={{fontSize:"clamp(25px,5vw,38px)",margin:"6px 0 8px"}}>{title}</h2><p style={{opacity:.7,lineHeight:1.55,margin:0}}>{intro}</p></div><div style={{padding:24}}>{children}</div></div>}
+function Control({label,children}) {return <div style={{marginBottom:15,padding:16,borderRadius:17,background:"rgba(255,255,255,.045)",border:"1px solid rgba(255,255,255,.08)"}}><div style={{fontSize:11,fontWeight:900,letterSpacing:1.1,marginBottom:11}}>{label}</div>{children}</div>}
+function Scale({left,right}) {return <div style={{display:"flex",justifyContent:"space-between",fontSize:10,opacity:.48,marginTop:6}}><span>{left}</span><span>{right}</span></div>}
+function Stage({height,background,children}) {return <div style={{position:"relative",height,overflow:"hidden",borderRadius:22,margin:"18px 0",background,border:"1px solid rgba(255,255,255,.1)"}}>{children}</div>}
+function Metrics({items}) {return <div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(items.length,4)},minmax(0,1fr))`,gap:8,marginTop:13}}>{items.map(([label,value])=><div key={label} style={{padding:"13px 8px",textAlign:"center",borderRadius:14,background:"rgba(255,255,255,.05)",border:"1px solid rgba(255,255,255,.07)",minWidth:0}}><div style={{fontSize:9,opacity:.5,fontWeight:900}}>{label}</div><div style={{marginTop:5,fontWeight:950,fontSize:14,overflowWrap:"anywhere"}}>{value}</div></div>)}</div>}
+function Discovery({children}) {return <div style={{marginTop:15,padding:16,borderRadius:16,background:"rgba(168,85,247,.1)",border:"1px solid rgba(192,132,252,.2)",lineHeight:1.55}}><b>🔎 HAS DESCUBIERTO:</b> {children}</div>}
+function ScienceNote({children}) {return <div style={{marginTop:10,padding:"12px 14px",borderRadius:14,background:"rgba(255,255,255,.035)",border:"1px solid rgba(255,255,255,.07)",fontSize:11,lineHeight:1.55,opacity:.62}}><b>NOTA CIENTÍFICA · </b>{children}</div>}
+function StarField(){return <>{Array.from({length:26}).map((_,i)=><i key={i} style={{position:"absolute",left:`${(i*37)%97}%`,top:`${(i*53)%89}%`,width:i%4===0?2:1,height:i%4===0?2:1,borderRadius:"50%",background:"white",opacity:.35+(i%5)*.1}}/>)}</>}
+const backButton={padding:"10px 14px",borderRadius:13,border:"1px solid rgba(255,255,255,.12)",background:"rgba(255,255,255,.05)",color:"white",fontWeight:900,fontSize:11,cursor:"pointer",marginBottom:15};
+const actionButton={width:"100%",padding:14,borderRadius:15,border:"1px solid rgba(255,255,255,.15)",background:"linear-gradient(90deg,rgba(168,85,247,.25),rgba(56,189,248,.18))",color:"white",fontWeight:950,cursor:"pointer"};
 const animations=`
 @keyframes labOrbit{to{transform:rotate(360deg)}}
-@keyframes labPulse{50%{opacity:.3;transform:scale(.98)}}
-@keyframes labHumanJump{0%{transform:translateY(0) scaleY(1)}10%{transform:translateY(7px) scaleY(.88)}18%{transform:translateY(0) scaleY(1.04)}48%{transform:translateY(calc(-1 * var(--jumpHeight))) scaleY(1)}78%{transform:translateY(0) scaleY(1.04)}88%{transform:translateY(7px) scaleY(.9)}100%{transform:translateY(0) scaleY(1)}}
-@keyframes labShadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.55}48%{transform:translateX(-50%) scale(.42);opacity:.18}}
-@keyframes labDisk{to{transform:rotate(347deg)}}
-@keyframes labDiskGlow{50%{filter:blur(3px) brightness(1.35);opacity:.72}}
-@keyframes labPhotonRing{50%{filter:brightness(1.55);opacity:.72;transform:scale(1.035)}}
-@keyframes labImpactFlash{0%{transform:scale(.08);opacity:1}48%{opacity:.98}100%{transform:scale(1.7);opacity:0}}
-@keyframes labGroundWave{0%{transform:scale(.18);opacity:1}70%{opacity:.72}100%{transform:scale(var(--waveScale));opacity:0}}
-@keyframes labCraterFinal{0%{transform:scale(.08);opacity:0}55%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
-@keyframes labCraterRim{0%{transform:scale(.1);opacity:0}65%{transform:scale(1.08);opacity:.95}100%{transform:scale(1);opacity:.82}}
-@keyframes labDebris{0%{transform:translateY(30px) scale(.25);opacity:.15}30%{opacity:.9}100%{transform:translateY(-150px) scale(1.5);opacity:0}}
-@keyframes labScreenFlash{0%{opacity:0}16%{opacity:1}100%{opacity:0}}
+@keyframes labSpin{to{transform:rotate(360deg)}}
+@keyframes labHumanJump{0%,100%{transform:translateY(0) rotate(0)}15%{transform:translateY(calc(var(--jumpHeight)*-.35)) rotate(-2deg)}50%{transform:translateY(calc(var(--jumpHeight)*-1)) rotate(2deg)}85%{transform:translateY(calc(var(--jumpHeight)*-.35)) rotate(-1deg)}}
+@keyframes labShadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.55}50%{transform:translateX(-50%) scale(.5);opacity:.2}}
+@keyframes labMeteor{0%{transform:translate(-80px,-80px) rotate(-25deg);opacity:0}8%{opacity:1}100%{left:50%;top:55%;transform:translate(-50%,-50%) rotate(-25deg);opacity:1}}
+@keyframes labFlash{0%,68%{transform:scale(.15);opacity:0}72%{transform:scale(1);opacity:1}100%{transform:scale(6);opacity:0}}
+@keyframes labShock{0%,68%{transform:scale(.1);opacity:0}72%{opacity:1}100%{transform:scale(var(--waveScale));opacity:0}}
+@keyframes labDebris{0%,68%{transform:translate(0,0);opacity:0}72%{opacity:1}100%{transform:translate(var(--dx),var(--dy));opacity:0}}
 `;

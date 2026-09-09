@@ -23,6 +23,12 @@ export const novaContent = {
     ready: "ENLACE ESPACIAL LISTO",
     consoleMark: "NOVA · TUTOR",
     footerHint: "NOVA te ayudará a investigar, comprender y seguir explorando.",
+    levelLabel: "NIVEL DE EXPLORACIÓN",
+    levels: {
+      cadet: { name: "CADETE", age: "6–8", description: "Explicaciones más cortas y sencillas" },
+      explorer: { name: "EXPLORADOR", age: "8–10", description: "Equilibrio entre claridad y ciencia" },
+      astronomer: { name: "ASTRÓNOMO", age: "10–12", description: "Más detalle y vocabulario científico" },
+    },
     suggestions: [
       "¿Por qué Saturno tiene anillos?",
       "¿Qué es un agujero negro?",
@@ -54,6 +60,12 @@ export const novaContent = {
     ready: "SPACE LINK READY",
     consoleMark: "NOVA · TUTOR",
     footerHint: "NOVA will help you investigate, understand, and keep exploring.",
+    levelLabel: "EXPLORATION LEVEL",
+    levels: {
+      cadet: { name: "CADET", age: "6–8", description: "Shorter and simpler explanations" },
+      explorer: { name: "EXPLORER", age: "8–10", description: "A balance of clarity and science" },
+      astronomer: { name: "ASTRONOMER", age: "10–12", description: "More detail and scientific vocabulary" },
+    },
     suggestions: [
       "Why does Saturn have rings?",
       "What is a black hole?",

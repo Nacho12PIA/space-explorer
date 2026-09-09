@@ -1,4 +1,6 @@
 import "./globals.css";
+import { LanguageProvider } from "../i18n/LanguageContext";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export const metadata = {
   title: "SPACE EXPLORER",
@@ -8,7 +10,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <LanguageProvider>
+          <LanguageSwitcher />
+          {children}
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

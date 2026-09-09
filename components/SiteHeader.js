@@ -7,12 +7,12 @@ export default function SiteHeader() {
         position: "relative",
         zIndex: 1000000,
         width: "100%",
-        minHeight: 58,
+        minHeight: 44,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 16,
-        padding: "10px 16px",
+        gap: 10,
+        padding: "6px 14px",
         background: "rgba(2, 4, 10, 0.94)",
         borderBottom: "1px solid rgba(255,255,255,0.10)",
         backdropFilter: "blur(14px)",
@@ -24,15 +24,15 @@ export default function SiteHeader() {
           minWidth: 0,
           display: "flex",
           alignItems: "center",
-          gap: 14,
+          gap: 10,
         }}
       >
         <span
           style={{
             color: "rgba(255,255,255,0.72)",
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: 900,
-            letterSpacing: 1.3,
+            letterSpacing: 1.2,
             whiteSpace: "nowrap",
           }}
         >
@@ -43,16 +43,16 @@ export default function SiteHeader() {
           aria-hidden="true"
           style={{
             width: 1,
-            height: 22,
+            height: 18,
             background: "rgba(255,255,255,0.12)",
           }}
         />
 
         <div
-          aria-label="Future navigation"
+          aria-hidden="true"
           style={{
-            minWidth: 44,
-            minHeight: 32,
+            minWidth: 16,
+            minHeight: 24,
           }}
         />
       </div>

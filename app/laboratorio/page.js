@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LocalizedLaboratory from "../../components/LocalizedLaboratory";
+import LaboratoryDeepLink from "../../components/LaboratoryDeepLink";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { getLaboratoryText } from "../../data/laboratoryContent";
 
@@ -48,6 +49,7 @@ export default function LaboratorioPage() {
           {text.page.intro}
         </p>
 
+        <LaboratoryDeepLink />
         <LocalizedLaboratory />
       </div>
     </main>

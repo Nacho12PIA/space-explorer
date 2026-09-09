@@ -1,5 +1,6 @@
 export const planets = [
   {
+    id: "mercury",
     name: "Mercurio",
     color: "#a7a7a7",
     size: 0.38,
@@ -13,6 +14,7 @@ export const planets = [
     fact: "Aunque está más cerca del Sol, no es el planeta más caliente.",
   },
   {
+    id: "venus",
     name: "Venus",
     color: "#d8a85c",
     size: 0.95,
@@ -26,6 +28,7 @@ export const planets = [
     fact: "Venus es el planeta más caliente del Sistema Solar.",
   },
   {
+    id: "earth",
     name: "Tierra",
     color: "#287ab8",
     size: 1,
@@ -40,6 +43,7 @@ export const planets = [
     fact: "Aproximadamente el 71% de su superficie está cubierta por agua.",
   },
   {
+    id: "mars",
     name: "Marte",
     color: "#c65335",
     size: 0.53,
@@ -53,6 +57,7 @@ export const planets = [
     fact: "En Marte se encuentra Olympus Mons, un enorme volcán.",
   },
   {
+    id: "jupiter",
     name: "Júpiter",
     color: "#d5aa7b",
     size: 2.4,
@@ -66,6 +71,7 @@ export const planets = [
     fact: "Su Gran Mancha Roja es una gigantesca tormenta.",
   },
   {
+    id: "saturn",
     name: "Saturno",
     color: "#e3c98b",
     size: 2,
@@ -79,6 +85,7 @@ export const planets = [
     fact: "Sus anillos están formados principalmente por hielo y roca.",
   },
   {
+    id: "uranus",
     name: "Urano",
     color: "#8ed8df",
     size: 1.4,
@@ -92,6 +99,7 @@ export const planets = [
     fact: "Urano gira prácticamente tumbado sobre uno de sus lados.",
   },
   {
+    id: "neptune",
     name: "Neptuno",
     color: "#4169d8",
     size: 1.35,

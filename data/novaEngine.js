@@ -43,9 +43,40 @@ function buildTutorReply(entry,lang,level="explorer"){
   const voice=personality[lang];const opening=voice.openings[stableIndex(entry.id,voice.openings.length)];const related=findRelated(entry,lang);const relatedQuestion=related?.questions?.[lang]?.[0]||null;const answer=adaptAnswer(entry,lang,level);const curiosity=level==="explorer"?entry.curiosity?.[lang]||null:null;const curiosityLabel=voice.curiosities[stableIndex(entry.id,voice.curiosities.length,5)];const mission=relatedQuestion?(lang==="es"?`Siguiente misión: ${relatedQuestion}`:`Next mission: ${relatedQuestion}`):null;const levelLead=level==="cadet"?(lang==="es"?"Te lo cuento fácil:":"Here's the simple version:"):level==="astronomer"?(lang==="es"?"Vamos un paso más allá:":"Let's go one step further:"):null;return[opening,levelLead,answer,curiosity?`${curiosityLabel}: ${curiosity}`:null,mission].filter(Boolean).join("\n\n");
 }
 
-export function findNovaAnswer(question,language="es",level="explorer"){
-  const lang=language==="en"?"en":"es";const safeLevel=["cadet","explorer","astronomer"].includes(level)?level:"explorer";const normalized=normalizeText(question);let bestMatch=null,bestScore=0;
-  allNovaKnowledge.forEach((entry)=>{const questionScore=Math.max(...entry.questions[lang].map((candidate)=>similarity(normalized,candidate)));const hits=entry.keywords[lang].filter((keyword)=>normalized.includes(normalizeText(keyword))).length;const keywordScore=entry.keywords[lang].length?hits/entry.keywords[lang].length:0;const score=Math.max(questionScore,keywordScore*.76);if(score>bestScore){bestScore=score;bestMatch=entry;}});
-  if(!bestMatch||bestScore<.5)return{found:false,score:bestScore,entry:null};
-  return{found:true,score:bestScore,entry:bestMatch,text:buildTutorReply(bestMatch,lang,safeLevel),relatedQuestion:findRelated(bestMatch,lang)?.questions?.[lang]?.[0]||null,recommendation:getSpaceExplorerRecommendation(bestMatch,lang)};
+function findBestMatch(question,lang,entries=allNovaKnowledge){
+  const normalized=normalizeText(question);let bestMatch=null,bestScore=0;
+  entries.forEach((entry)=>{const questionScore=Math.max(...entry.questions[lang].map((candidate)=>similarity(normalized,candidate)));const hits=entry.keywords[lang].filter((keyword)=>normalized.includes(normalizeText(keyword))).length;const keywordScore=entry.keywords[lang].length?hits/entry.keywords[lang].length:0;const score=Math.max(questionScore,keywordScore*.76);if(score>bestScore){bestScore=score;bestMatch=entry;}});
+  return{bestMatch,bestScore};
+}
+
+function looksLikeFollowUp(question,lang){
+  const normalized=normalizeText(question);
+  if(!normalized)return false;
+  const words=normalized.split(" ");
+  const markers=lang==="es"?["y si","y que","que pasaria","como seria","por que","y entonces","y eso","y alli","y dentro","y fuera","puede pasar","cuanto tarda","que ocurre","que le pasa","y despues","y antes"]:["what if","and if","then what","what happens","how would","why is that","and then","and there","inside it","outside it","can it","how long","what occurs","what happens to","after that","before that"];
+  return words.length<=9||markers.some((marker)=>normalized.includes(marker));
+}
+
+function contextualCandidates(contextEntry){
+  if(!contextEntry)return[];
+  const topic=normalizeText(contextEntry.topic);
+  const idParts=normalizeText(contextEntry.id).split(" ").filter((part)=>part.length>3);
+  return allNovaKnowledge.filter((entry)=>{
+    if(entry.id===contextEntry.id)return true;
+    if(normalizeText(entry.topic)===topic)return true;
+    const entryId=normalizeText(entry.id);
+    return idParts.some((part)=>entryId.includes(part));
+  });
+}
+
+export function findNovaAnswer(question,language="es",level="explorer",contextEntry=null){
+  const lang=language==="en"?"en":"es";const safeLevel=["cadet","explorer","astronomer"].includes(level)?level:"explorer";
+  let {bestMatch,bestScore}=findBestMatch(question,lang);
+  let usedContext=false;
+  if((!bestMatch||bestScore<.5)&&contextEntry&&looksLikeFollowUp(question,lang)){
+    const contextual=findBestMatch(question,lang,contextualCandidates(contextEntry));
+    if(contextual.bestMatch&&contextual.bestScore>=.18){bestMatch=contextual.bestMatch;bestScore=contextual.bestScore;usedContext=true;}
+  }
+  if(!bestMatch||bestScore<.5&&!usedContext)return{found:false,score:bestScore,entry:null,usedContext:false};
+  return{found:true,score:bestScore,entry:bestMatch,text:buildTutorReply(bestMatch,lang,safeLevel),relatedQuestion:findRelated(bestMatch,lang)?.questions?.[lang]?.[0]||null,recommendation:getSpaceExplorerRecommendation(bestMatch,lang),usedContext};
 }

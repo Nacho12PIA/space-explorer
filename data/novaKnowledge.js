@@ -25,6 +25,32 @@ export const novaKnowledge = [
     },
   },
   {
+    id: "mars-water",
+    topic: "Marte",
+    keywords: {
+      es: ["marte", "agua", "hielo"],
+      en: ["mars", "water", "ice"],
+    },
+    questions: {
+      es: [
+        "¿Tiene agua Marte?",
+        "¿Hay agua en Marte?",
+        "¿Y tiene agua?",
+        "¿Tiene agua?",
+      ],
+      en: [
+        "Does Mars have water?",
+        "Is there water on Mars?",
+        "And does it have water?",
+        "Does it have water?",
+      ],
+    },
+    answer: {
+      es: "Sí. En Marte hay agua sobre todo en forma de hielo, especialmente en los polos y bajo parte de su superficie. Además, sus antiguos cauces y minerales muestran que hace miles de millones de años hubo agua líquida fluyendo por el planeta. Hoy, por la baja presión y el frío, el agua líquida estable es muy difícil de mantener en la superficie.",
+      en: "Yes. Mars has water mainly as ice, especially at the poles and beneath parts of its surface. Ancient channels and minerals also show that liquid water flowed across the planet billions of years ago. Today, the low pressure and cold make stable liquid water very difficult to maintain on the surface.",
+    },
+  },
+  {
     id: "black-hole-approach",
     topic: "black-holes",
     keywords: {

@@ -13,8 +13,18 @@ export default function NovaPage() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [isThinking, setIsThinking] = useState(false);
+  const [level, setLevel] = useState("explorer");
   const conversationEndRef = useRef(null);
   const timerRef = useRef(null);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("space-explorer-nova-level");
+    if (["cadet", "explorer", "astronomer"].includes(saved)) setLevel(saved);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("space-explorer-nova-level", level);
+  }, [level]);
 
   useEffect(() => {
     conversationEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -32,7 +42,7 @@ export default function NovaPage() {
     setInput("");
     setIsThinking(true);
 
-    const result = findNovaAnswer(text, language);
+    const result = findNovaAnswer(text, language, level);
     const reply = result.found ? result.text : content.knowledgeFallback;
 
     timerRef.current = setTimeout(() => {
@@ -74,6 +84,25 @@ export default function NovaPage() {
             <div className={styles.consoleMark}>{content.consoleMark}</div>
           </div>
           <div className={styles.content}>
+            <div className={styles.levelArea}>
+              <div className={styles.levelLabel}>{content.levelLabel}</div>
+              <div className={styles.levelSelector} role="group" aria-label={content.levelLabel}>
+                {Object.entries(content.levels).map(([key, item]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`${styles.levelButton} ${level === key ? styles.levelActive : ""}`}
+                    onClick={() => setLevel(key)}
+                    aria-pressed={level === key}
+                  >
+                    <span className={styles.levelName}>{item.name}</span>
+                    <span className={styles.levelAge}>{item.age}</span>
+                    <span className={styles.levelDescription}>{item.description}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {messages.length === 0 ? (
               <>
                 <div className={styles.promptLabel}>{content.suggestedQuestions}</div>

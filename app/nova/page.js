@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { getNovaContent } from "../../i18n/nova";
 import styles from "./NovaPage.module.css";
@@ -8,7 +9,53 @@ import styles from "./NovaPage.module.css";
 export default function NovaPage() {
   const { language } = useLanguage();
   const content = getNovaContent(language);
-  const isEnglish = language === "en";
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [isThinking, setIsThinking] = useState(false);
+  const conversationEndRef = useRef(null);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    conversationEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [messages, isThinking]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  function sendMessage(rawText) {
+    const text = rawText.trim();
+    if (!text || isThinking) return;
+
+    setMessages((current) => [
+      ...current,
+      { id: `${Date.now()}-user`, role: "user", text },
+    ]);
+    setInput("");
+    setIsThinking(true);
+
+    timerRef.current = setTimeout(() => {
+      setMessages((current) => [
+        ...current,
+        { id: `${Date.now()}-nova`, role: "nova", text: content.mockReply },
+      ]);
+      setIsThinking(false);
+    }, 850);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    sendMessage(input);
+  }
+
+  function handleKeyDown(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage(input);
+    }
+  }
 
   return (
     <main className={styles.page}>
@@ -36,36 +83,85 @@ export default function NovaPage() {
           <div className={styles.consoleHeader}>
             <div className={styles.status}>
               <span className={styles.statusDot} />
-              <span>{isEnglish ? "SPACE LINK READY" : "ENLACE ESPACIAL LISTO"}</span>
+              <span>{content.ready}</span>
             </div>
             <div className={styles.consoleMark}>NOVA · AI</div>
           </div>
 
           <div className={styles.content}>
-            <div className={styles.promptLabel}>{content.suggestedQuestions}</div>
-
-            <div className={styles.suggestions}>
-              {content.suggestions.map((question) => (
-                <div className={styles.suggestion} key={question}>
-                  {question}
+            {messages.length === 0 ? (
+              <>
+                <div className={styles.promptLabel}>{content.suggestedQuestions}</div>
+                <div className={styles.suggestions}>
+                  {content.suggestions.map((question) => (
+                    <button
+                      className={styles.suggestion}
+                      type="button"
+                      key={question}
+                      onClick={() => sendMessage(question)}
+                      disabled={isThinking}
+                    >
+                      {question}
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <div className={styles.conversation} aria-live="polite">
+                {messages.map((message) => (
+                  <div
+                    className={`${styles.messageRow} ${message.role === "user" ? styles.userRow : styles.novaRow}`}
+                    key={message.id}
+                  >
+                    {message.role === "nova" && (
+                      <div className={styles.messageAvatar} aria-hidden="true">✦</div>
+                    )}
+                    <div className={`${styles.message} ${message.role === "user" ? styles.userMessage : styles.novaMessage}`}>
+                      <div className={styles.messageLabel}>
+                        {message.role === "user" ? content.userLabel : content.novaLabel}
+                      </div>
+                      <div>{message.text}</div>
+                    </div>
+                  </div>
+                ))}
 
-            <div className={styles.composer}>
-              <div className={styles.placeholder}>{content.placeholder}</div>
-              <button className={styles.send} type="button" disabled>
+                {isThinking && (
+                  <div className={`${styles.messageRow} ${styles.novaRow}`}>
+                    <div className={styles.messageAvatar} aria-hidden="true">✦</div>
+                    <div className={`${styles.message} ${styles.novaMessage} ${styles.thinking}`}>
+                      <span>{content.thinking}</span>
+                      <span className={styles.dots} aria-hidden="true"><i /><i /><i /></span>
+                    </div>
+                  </div>
+                )}
+                <div ref={conversationEndRef} />
+              </div>
+            )}
+
+            <form className={styles.composer} onSubmit={handleSubmit}>
+              <textarea
+                className={styles.input}
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={content.placeholder}
+                rows={1}
+                maxLength={600}
+                aria-label={content.placeholder}
+                disabled={isThinking}
+              />
+              <button
+                className={styles.send}
+                type="submit"
+                disabled={!input.trim() || isThinking}
+              >
                 {content.send}
               </button>
-            </div>
+            </form>
 
             <div className={styles.footerHint}>
               <span aria-hidden="true">✦</span>
-              <span>
-                {isEnglish
-                  ? "NOVA will help you investigate, understand, and keep exploring."
-                  : "NOVA te ayudará a investigar, comprender y seguir explorando."}
-              </span>
+              <span>{content.footerHint}</span>
             </div>
           </div>
         </section>

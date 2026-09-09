@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
-import MissionPlayer from "../../components/MissionPlayer";
+import LocalizedMissionPlayer from "../../components/LocalizedMissionPlayer";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 export default function MisionesPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
+
   return (
     <main
       style={{
@@ -12,13 +18,7 @@ export default function MisionesPage() {
         padding: "32px 20px",
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 900,
-          margin: "0 auto",
-        }}
-      >
+      <div style={{ width: "100%", maxWidth: 900, margin: "0 auto" }}>
         <Link
           href="/"
           style={{
@@ -31,44 +31,24 @@ export default function MisionesPage() {
             opacity: 0.8,
           }}
         >
-          ← INICIO
+          ← {en ? "HOME" : "INICIO"}
         </Link>
 
-        <div
-          style={{
-            fontSize: 12,
-            letterSpacing: 3,
-            opacity: 0.55,
-            fontWeight: 700,
-          }}
-        >
-          CENTRO DE MISIONES
+        <div style={{ fontSize: 12, letterSpacing: 3, opacity: 0.55, fontWeight: 700 }}>
+          {en ? "MISSION CENTER" : "CENTRO DE MISIONES"}
         </div>
 
-        <h1
-          style={{
-            fontSize:
-              "clamp(34px, 7vw, 64px)",
-            margin: "8px 0 12px",
-          }}
-        >
-          MISIONES
+        <h1 style={{ fontSize: "clamp(34px, 7vw, 64px)", margin: "8px 0 12px" }}>
+          {en ? "MISSIONS" : "MISIONES"}
         </h1>
 
-        <p
-          style={{
-            maxWidth: 620,
-            fontSize: 17,
-            lineHeight: 1.6,
-            opacity: 0.75,
-          }}
-        >
-          Supera retos, demuestra lo que
-          has descubierto y avanza como
-          explorador espacial.
+        <p style={{ maxWidth: 620, fontSize: 17, lineHeight: 1.6, opacity: 0.75 }}>
+          {en
+            ? "Take on challenges, show what you have discovered, and grow as a space explorer."
+            : "Supera retos, demuestra lo que has descubierto y avanza como explorador espacial."}
         </p>
 
-        <MissionPlayer />
+        <LocalizedMissionPlayer />
       </div>
     </main>
   );

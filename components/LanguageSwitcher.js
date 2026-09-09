@@ -13,8 +13,8 @@ export default function LanguageSwitcher() {
         flexShrink: 0,
         display: "flex",
         alignItems: "center",
-        gap: 2,
-        padding: 3,
+        gap: 1,
+        padding: 2,
         borderRadius: 999,
         background: "rgba(15, 23, 42, 0.88)",
         border: "1px solid rgba(255,255,255,0.16)",
@@ -44,16 +44,16 @@ function LanguageButton({ active, onClick, label, ariaLabel }) {
       aria-pressed={active}
       aria-label={ariaLabel}
       style={{
-        minWidth: 38,
-        height: 30,
-        padding: "0 8px",
+        minWidth: 34,
+        height: 26,
+        padding: "0 7px",
         border: active ? "1px solid rgba(125,211,252,0.45)" : "1px solid transparent",
         borderRadius: 999,
         color: "white",
         background: active ? "rgba(37,99,235,0.82)" : "transparent",
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: 900,
-        letterSpacing: 0.7,
+        letterSpacing: 0.6,
         cursor: "pointer",
         opacity: active ? 1 : 0.66,
       }}

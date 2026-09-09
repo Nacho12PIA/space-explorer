@@ -28,19 +28,26 @@ export const novaKnowledge = [
     id: "black-hole-approach",
     topic: "black-holes",
     keywords: {
-      es: ["agujero", "negro", "acercar", "caer", "entrar"],
-      en: ["black", "hole", "close", "fall", "enter"],
+      es: ["agujero", "negro", "acercar", "caer", "entrar", "entrara", "entro", "dentro"],
+      en: ["black", "hole", "close", "fall", "enter", "inside"],
     },
     questions: {
       es: [
         "¿Qué pasaría si me acercara a un agujero negro?",
         "¿Qué pasa si caigo en un agujero negro?",
         "¿Qué ocurre cerca de un agujero negro?",
+        "¿Qué pasaría si entrara en un agujero negro?",
+        "¿Qué pasaría si entrara?",
+        "¿Y qué pasaría si entrara?",
+        "¿Qué pasa si entro dentro?",
       ],
       en: [
         "What would happen if I got close to a black hole?",
         "What happens if I fall into a black hole?",
         "What happens near a black hole?",
+        "What would happen if I entered a black hole?",
+        "What would happen if I went inside?",
+        "And what would happen if I went inside?",
       ],
     },
     answer: {

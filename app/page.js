@@ -1,6 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useLanguage } from "../i18n/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <main
       style={{
@@ -28,7 +33,7 @@ export default function Home() {
               fontWeight: 700,
             }}
           >
-            CENTRO DE CONTROL
+            {t("home.controlCenter", "CENTRO DE CONTROL")}
           </div>
 
           <h1
@@ -50,7 +55,7 @@ export default function Home() {
               margin: 0,
             }}
           >
-            Explora el espacio, descubre cómo funciona el Universo y supera nuevos retos.
+            {t("home.intro", "Explora el espacio, descubre cómo funciona el Universo y supera nuevos retos.")}
           </p>
         </div>
 
@@ -64,9 +69,9 @@ export default function Home() {
           <AreaLink
             href="/explora"
             icon="🪐"
-            title="EXPLORA"
-            description="Viaja por el Sistema Solar y descubre sus planetas, lunas y nuestra estrella."
-            action="INICIAR EXPLORACIÓN →"
+            title={t("home.explore.title", "EXPLORA")}
+            description={t("home.explore.description", "Viaja por el Sistema Solar y descubre sus planetas, lunas y nuestra estrella.")}
+            action={t("home.explore.action", "INICIAR EXPLORACIÓN →")}
             background="linear-gradient(145deg, rgba(37,99,235,0.28), rgba(15,23,42,0.88))"
             border="1px solid rgba(96,165,250,0.35)"
           />
@@ -74,9 +79,9 @@ export default function Home() {
           <AreaLink
             href="/misiones"
             icon="🚀"
-            title="MISIONES"
-            description="Supera retos y demuestra lo que has descubierto."
-            action="INICIAR MISIÓN →"
+            title={t("home.missions.title", "MISIONES")}
+            description={t("home.missions.description", "Supera retos y demuestra lo que has descubierto.")}
+            action={t("home.missions.action", "INICIAR MISIÓN →")}
             background="linear-gradient(145deg, rgba(124,58,237,0.24), rgba(15,23,42,0.88))"
             border="1px solid rgba(167,139,250,0.35)"
           />
@@ -84,18 +89,18 @@ export default function Home() {
           <AreaLink
             href="/laboratorio"
             icon="🔬"
-            title="LABORATORIO"
-            description="Cambia variables y experimenta con las leyes que gobiernan el espacio."
-            action="ENTRAR AL LABORATORIO →"
+            title={t("home.laboratory.title", "LABORATORIO")}
+            description={t("home.laboratory.description", "Cambia variables y experimenta con las leyes que gobiernan el espacio.")}
+            action={t("home.laboratory.action", "ENTRAR AL LABORATORIO →")}
             background="linear-gradient(145deg, rgba(8,145,178,0.24), rgba(15,23,42,0.88))"
             border="1px solid rgba(34,211,238,0.32)"
           />
 
           <HomeArea
             icon="✦"
-            title="NOVA"
-            description="Tu asistente para investigar y comprender el Universo."
-            status="PRÓXIMAMENTE"
+            title={t("home.nova.title", "NOVA")}
+            description={t("home.nova.description", "Tu asistente para investigar y comprender el Universo.")}
+            status={t("home.nova.status", "PRÓXIMAMENTE")}
           />
         </div>
       </div>

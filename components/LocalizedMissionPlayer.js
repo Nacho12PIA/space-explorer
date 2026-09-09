@@ -1,131 +1,61 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import MissionPlayer from "./MissionPlayer";
 import { useLanguage } from "../i18n/LanguageContext";
 
 const exact = {
-  "DESAFÍO": "CHALLENGE",
-  "EXPLORADOR CERTIFICADO": "CERTIFIED EXPLORER",
-  "MISIÓN COMPLETADA": "MISSION COMPLETE",
-  "Resultado:": "Score:",
-  "¡Excelente! Has resuelto todos los desafíos.": "Excellent! You solved every challenge.",
-  "Buen trabajo. La misión está superada, aunque puedes mejorar tu resultado.": "Great work. Mission accomplished! You can still try again to improve your score.",
-  "Todavía quedan datos por dominar. Vuelve a EXPLORA y prueba de nuevo.": "There is still more to discover. Head back to EXPLORE and try again.",
-  "REPETIR": "TRY AGAIN",
-  "← CENTRO DE MISIONES": "← MISSION CENTER",
-  "← VOLVER": "← BACK",
-  "✓ CORRECTO": "✓ CORRECT",
-  "✕ CASI": "✕ ALMOST",
-  "VER RESULTADO →": "SEE RESULT →",
-  "SIGUIENTE →": "NEXT →",
-  "MISIÓN 02 · PLANETA DESCONOCIDO": "MISSION 02 · UNKNOWN PLANET",
-  "¿Qué planeta soy?": "Which planet am I?",
-  "REVELAR OTRA PISTA": "REVEAL ANOTHER CLUE",
-  "SIGUIENTE MUNDO →": "NEXT WORLD →",
-  "MISIÓN 03 · RUTA DE NAVEGACIÓN": "MISSION 03 · NAVIGATION ROUTE",
-  "Pulsa los planetas uno a uno para construir la ruta.": "Tap the planets one by one to build the route.",
-  "Tu ruta aparecerá aquí…": "Your route will appear here…",
-  "↶ DESHACER": "↶ UNDO",
-  "COMPROBAR RUTA": "CHECK ROUTE",
-  "✓ RUTA CORRECTA": "✓ CORRECT ROUTE",
-  "✕ RUTA INCORRECTA": "✕ WRONG ROUTE",
-  "SIGUIENTE RUTA →": "NEXT ROUTE →",
-  "MISIÓN 01 · RESCATE EN EL SISTEMA SOLAR": "MISSION 01 · SOLAR SYSTEM RESCUE",
-  "MISIÓN 04 · MUNDOS EXTREMOS": "MISSION 04 · EXTREME WORLDS",
-  "MISIÓN 05 · MISIÓN ESTELAR": "MISSION 05 · STELLAR MISSION",
-  "MISIÓN 06 · DESAFÍO DEL EXPLORADOR": "MISSION 06 · EXPLORER CHALLENGE",
-  "Rescate en el Sistema Solar": "Solar System Rescue",
-  "Recupera los datos de una sonda perdida.": "Recover the data from a lost space probe.",
-  "5 retos · banco de 100": "5 challenges · bank of 100",
-  "Identifica el planeta": "Identify the Planet",
-  "Descubre mundos desconocidos a partir de pistas.": "Discover unknown worlds from clues.",
-  "5 mundos · pistas": "5 worlds · clues",
-  "Ruta de navegación": "Navigation Route",
-  "Reconstruye rutas correctas por el Sistema Solar.": "Rebuild the correct routes through the Solar System.",
-  "5 de 10 rutas · navegación": "5 of 10 routes · navigation",
-  "Mundos extremos": "Extreme Worlds",
-  "Elige el mejor destino para cada misión científica.": "Choose the best destination for each science mission.",
-  "5 de 12 escenarios · decisión": "5 of 12 scenarios · decision",
-  "Misión estelar": "Stellar Mission",
-  "Investiga el Sol y descubre cómo funcionan las estrellas.": "Investigate the Sun and discover how stars work.",
-  "6 de 15 retos · estrellas": "6 of 15 challenges · stars",
-  "Desafío del explorador": "Explorer Challenge",
-  "Una expedición final que combina todo lo aprendido.": "A final expedition combining everything you have learned.",
-  "5 etapas · prueba final": "5 stages · final challenge",
-  "Mercurio": "Mercury", "Tierra": "Earth", "Marte": "Mars", "Júpiter": "Jupiter", "Saturno": "Saturn", "Urano": "Uranus", "Neptuno": "Neptune",
-  "Una estrella": "A star", "Un planeta": "A planet", "Una luna": "A moon", "Una galaxia": "A galaxy",
-  "Fusión nuclear": "Nuclear fusion", "Combustión": "Combustion", "Electricidad": "Electricity",
-  "Hidrógeno": "Hydrogen", "Oxígeno": "Oxygen", "Hierro": "Iron", "Hielo": "Ice", "Roca": "Rock",
-  "Gravedad": "Gravity", "Distancia": "Distance", "Tiempo": "Time", "Temperatura": "Temperature",
-  "En nebulosas": "In nebulae", "En planetas": "On planets", "En agujeros negros": "In black holes",
-  "Una azulada": "A blue star", "Una rojiza": "A red star", "Todas igual": "They are all the same",
-  "En una enana blanca": "A white dwarf", "Puede explotar como supernova": "It can explode as a supernova",
-  "Próxima Centauri": "Proxima Centauri", "Sirio": "Sirius"
+  "DESAFÍO":"CHALLENGE","EXPLORADOR CERTIFICADO":"CERTIFIED EXPLORER","MISIÓN COMPLETADA":"MISSION COMPLETE","Resultado:":"Score:",
+  "¡Excelente! Has resuelto todos los desafíos.":"Excellent! You solved every challenge.","Buen trabajo. La misión está superada, aunque puedes mejorar tu resultado.":"Great work. Mission accomplished! You can still improve your score.","Todavía quedan datos por dominar. Vuelve a EXPLORA y prueba de nuevo.":"There is still more to discover. Head back to EXPLORE and try again.",
+  "REPETIR":"TRY AGAIN","← CENTRO DE MISIONES":"← MISSION CENTER","← VOLVER":"← BACK","✓ CORRECTO":"✓ CORRECT","✕ CASI":"✕ ALMOST","VER RESULTADO →":"SEE RESULT →","SIGUIENTE →":"NEXT →",
+  "MISIÓN 01 · RESCATE EN EL SISTEMA SOLAR":"MISSION 01 · SOLAR SYSTEM RESCUE","MISIÓN 02 · PLANETA DESCONOCIDO":"MISSION 02 · UNKNOWN PLANET","MISIÓN 03 · RUTA DE NAVEGACIÓN":"MISSION 03 · NAVIGATION ROUTE","MISIÓN 04 · MUNDOS EXTREMOS":"MISSION 04 · EXTREME WORLDS","MISIÓN 05 · MISIÓN ESTELAR":"MISSION 05 · STELLAR MISSION","MISIÓN 06 · DESAFÍO DEL EXPLORADOR":"MISSION 06 · EXPLORER CHALLENGE",
+  "¿Qué planeta soy?":"Which planet am I?","REVELAR OTRA PISTA":"REVEAL ANOTHER CLUE","SIGUIENTE MUNDO →":"NEXT WORLD →","Pulsa los planetas uno a uno para construir la ruta.":"Tap the planets one by one to build the route.","Tu ruta aparecerá aquí…":"Your route will appear here…","↶ DESHACER":"↶ UNDO","COMPROBAR RUTA":"CHECK ROUTE","✓ RUTA CORRECTA":"✓ CORRECT ROUTE","✕ RUTA INCORRECTA":"✕ WRONG ROUTE","SIGUIENTE RUTA →":"NEXT ROUTE →",
+  "Rescate en el Sistema Solar":"Solar System Rescue","Recupera los datos de una sonda perdida.":"Recover the data from a lost space probe.","5 retos · banco de 100":"5 challenges · bank of 100","Identifica el planeta":"Identify the Planet","Descubre mundos desconocidos a partir de pistas.":"Discover unknown worlds from clues.","5 mundos · pistas":"5 worlds · clues","Ruta de navegación":"Navigation Route","Reconstruye rutas correctas por el Sistema Solar.":"Rebuild the correct routes through the Solar System.","5 de 10 rutas · navegación":"5 of 10 routes · navigation","Mundos extremos":"Extreme Worlds","Elige el mejor destino para cada misión científica.":"Choose the best destination for each science mission.","5 de 12 escenarios · decisión":"5 of 12 scenarios · decision","Misión estelar":"Stellar Mission","Investiga el Sol y descubre cómo funcionan las estrellas.":"Investigate the Sun and discover how stars work.","6 de 15 retos · estrellas":"6 of 15 challenges · stars","Desafío del explorador":"Explorer Challenge","Una expedición final que combina todo lo aprendido.":"A final expedition combining everything you have learned.","5 etapas · prueba final":"5 stages · final challenge",
+  "Mercurio":"Mercury","Tierra":"Earth","Marte":"Mars","Júpiter":"Jupiter","Saturno":"Saturn","Urano":"Uranus","Neptuno":"Neptune",
+  "Una estrella":"A star","Un planeta":"A planet","Una luna":"A moon","Una galaxia":"A galaxy","Fusión nuclear":"Nuclear fusion","Combustión":"Combustion","Electricidad":"Electricity","Hidrógeno":"Hydrogen","Oxígeno":"Oxygen","Hierro":"Iron","Plasma":"Plasma","Hielo":"Ice","Roca":"Rock","Roca sólida":"Solid rock","Gravedad":"Gravity","La gravedad":"Gravity","Distancia":"Distance","Tiempo":"Time","Temperatura":"Temperature",
+  "En nebulosas":"In nebulae","En planetas":"On planets","En agujeros negros":"In black holes","Una azulada":"A blue star","Una rojiza":"A red star","Todas igual":"They are all the same","En una enana blanca":"A white dwarf","En un planeta":"A planet","En una luna":"A moon","Puede explotar como supernova":"It can explode as a supernova","Se convierte en una luna":"It becomes a moon","Se apaga cada noche":"It switches off every night","Próxima Centauri":"Proxima Centauri","Sirio":"Sirius",
+  "Soy el planeta más grande del Sistema Solar.":"I am the largest planet in the Solar System.","Mi día dura menos de 10 horas.":"My day lasts less than 10 hours.","Tengo la Gran Mancha Roja.":"I have the Great Red Spot.","Tengo un tamaño parecido al de la Tierra.":"I am about the same size as Earth.","Mi atmósfera es extremadamente densa.":"My atmosphere is extremely dense.","Soy el planeta más caliente.":"I am the hottest planet.","Soy un gigante helado azul verdoso.":"I am a blue-green ice giant.","Mi año dura unos 84 años terrestres.":"My year lasts about 84 Earth years.","Giro prácticamente tumbado.":"I rotate almost on my side.","Mi día se parece al de la Tierra.":"My day is similar to Earth's.","Me llaman el planeta rojo.":"I am known as the Red Planet.","Tengo el volcán Olympus Mons.":"I have the volcano Olympus Mons.","Soy un gigante helado.":"I am an ice giant.","Mi año dura casi 165 años terrestres.":"My year lasts almost 165 Earth years.","Tengo vientos extraordinariamente rápidos.":"I have extraordinarily fast winds.","Soy un gigante gaseoso.":"I am a gas giant.","Mi año dura unos 29 años terrestres.":"My year lasts about 29 Earth years.","Destaco por mis espectaculares anillos.":"I am famous for my spectacular rings.","Soy un planeta rocoso pequeño.":"I am a small rocky planet.","Mi año dura solo 88 días terrestres.":"My year lasts only 88 Earth days.","Soy el planeta más cercano al Sol.":"I am the closest planet to the Sun.","Mi día dura 24 horas.":"My day lasts 24 hours.","Tengo mucha agua líquida superficial.":"I have lots of liquid water on my surface.","Soy el único mundo donde sabemos que existe vida.":"I am the only world where we know life exists.",
+  "Ordena los cuatro planetas interiores desde el Sol.":"Put the four inner planets in order from the Sun.","Ordena los cuatro planetas exteriores desde el Sol.":"Put the four outer planets in order from the Sun.","La sonda parte de Venus y viaja hacia fuera. Ordena sus destinos.":"The probe leaves Venus and travels outward. Put its destinations in order.","Regresamos desde Neptuno hacia el Sol. Ordena estos mundos.":"We are returning from Neptune toward the Sun. Put these worlds in order.","Desde Mercurio viajamos hacia el exterior. Ordena estos destinos.":"We travel outward from Mercury. Put these destinations in order.","Desde Saturno regresamos hacia el Sol. Ordena los planetas.":"We return from Saturn toward the Sun. Put the planets in order.","Una nave sale de la Tierra hacia Neptuno. Ordena estas escalas.":"A spacecraft leaves Earth for Neptune. Put these stops in order.","Una sonda sale de Marte hacia el Sol. Ordena estos destinos.":"A probe leaves Mars for the Sun. Put these destinations in order.","Ordena estos planetas del más cercano al Sol al más lejano.":"Put these planets in order from closest to farthest from the Sun.","Ordena estos planetas del más lejano al Sol al más cercano.":"Put these planets in order from farthest to closest to the Sun.",
+  "Queremos estudiar los vientos más extremos. ¿Dónde enviamos la sonda?":"We want to study the most extreme winds. Where should we send the probe?","Buscamos un efecto invernadero extremo. ¿Qué destino elegimos?":"We are looking for an extreme greenhouse effect. Which destination should we choose?","Queremos estudiar Olympus Mons. ¿Dónde aterrizamos?":"We want to study Olympus Mons. Where should we land?","Queremos observar un planeta que gira casi tumbado.":"We want to observe a planet that rotates almost on its side.","Buscamos la Gran Mancha Roja.":"We are looking for the Great Red Spot.","Necesitamos estudiar el sistema de anillos más espectacular.":"We need to study the most spectacular ring system.","Queremos llegar al planeta más cercano al Sol.":"We want to reach the planet closest to the Sun.","La misión busca el planeta más grande.":"The mission is looking for the largest planet.","Buscamos el mundo cuya superficie está cubierta aproximadamente en un 71% por agua.":"We are looking for the world whose surface is about 71% covered by water.","Buscamos un planeta con un día de casi 243 días terrestres.":"We are looking for a planet whose day lasts almost 243 Earth days.","Queremos observar Tritón, una gran luna con órbita retrógrada.":"We want to observe Triton, a large moon with a retrograde orbit.","Buscamos un planeta con dos pequeñas lunas llamadas Fobos y Deimos.":"We are looking for a planet with two small moons called Phobos and Deimos.",
+  "¿Qué es el Sol?":"What is the Sun?","¿Qué proceso produce la energía del Sol?":"What process produces the Sun's energy?","¿Qué elemento se fusiona principalmente para formar helio?":"Which element mainly fuses to form helium?","¿Qué temperatura aproximada alcanza el núcleo del Sol?":"What approximate temperature does the Sun's core reach?","¿Por qué el Sol parece mayor que las otras estrellas?":"Why does the Sun look larger than the other stars?","¿De qué estado de la materia están formadas principalmente las estrellas?":"What state of matter are stars mainly made of?","¿Dónde nacen las estrellas?":"Where are stars born?","¿Qué fuerza ayuda a concentrar el gas hasta formar una estrella?":"What force helps pull gas together to form a star?","En general, ¿qué indica el color de una estrella?":"In general, what does a star's color tell us?","¿Qué estrella suele tener una superficie más caliente?":"Which star usually has a hotter surface?","¿Son todas las estrellas del mismo tamaño?":"Are all stars the same size?","¿En qué se convertirá finalmente una estrella parecida al Sol?":"What will a Sun-like star eventually become?","¿Qué puede ocurrir al final de la vida de una estrella muy masiva?":"What can happen at the end of a very massive star's life?","¿Qué mide un año luz?":"What does a light-year measure?","¿Cuál es la estrella más cercana al Sol?":"Which star is closest to the Sun?",
+  "El Sol es la estrella de nuestro Sistema Solar.":"The Sun is the star of our Solar System.","La fusión nuclear libera energía en el núcleo solar.":"Nuclear fusion releases energy in the Sun's core.","El hidrógeno se fusiona para formar helio.":"Hydrogen fuses to form helium.","El núcleo solar alcanza unos 15 millones de grados Celsius.":"The Sun's core reaches about 15 million degrees Celsius.","El Sol es la estrella más cercana a la Tierra.":"The Sun is the closest star to Earth.","Las estrellas están formadas principalmente por plasma.":"Stars are made mainly of plasma.","Las estrellas nacen en grandes nubes de gas y polvo llamadas nebulosas.":"Stars are born in huge clouds of gas and dust called nebulae.","La gravedad concentra el material de una nebulosa.":"Gravity pulls the material in a nebula together.","El color aporta información sobre la temperatura superficial de una estrella.":"A star's color gives us information about its surface temperature.","Las estrellas azuladas tienen temperaturas superficiales mayores que las rojizas.":"Blue stars have hotter surfaces than red stars.","Existen estrellas mucho más pequeñas y mucho más grandes que el Sol.":"Some stars are much smaller than the Sun and others are much larger.","Tras su fase de gigante roja, una estrella como el Sol termina dejando una enana blanca.":"After its red giant phase, a star like the Sun ends up as a white dwarf.","Las estrellas suficientemente masivas pueden terminar en una supernova.":"Very massive stars can end their lives in a supernova.","Un año luz es la distancia que recorre la luz en un año.":"A light-year is the distance light travels in one year.","Próxima Centauri está a unos 4,24 años luz del Sol.":"Proxima Centauri is about 4.24 light-years from the Sun."
 };
 
-const phrases = [
-  [/^PISTA (\d+):$/, "CLUE $1:"],
-  [/^MISIÓN (\d+):$/, "MISSION $1:"],
-  [/^La respuesta correcta es (.+)\.$/, "The correct answer is $1."],
-  [/^Ruta correcta:$/, "Correct route:"],
+const replacements = [
+  ["días terrestres","Earth days"],["día terrestre","Earth day"],["años terrestres","Earth years"],["año terrestre","Earth year"],["horas","hours"],
+  ["Mercurio","Mercury"],["Tierra","Earth"],["Marte","Mars"],["Júpiter","Jupiter"],["Saturno","Saturn"],["Urano","Uranus"],["Neptuno","Neptune"],
+  ["Sistema Solar","Solar System"],["Gran Mancha Roja","Great Red Spot"],["Fobos","Phobos"],["Tritón","Triton"]
+];
+
+const templates = [
+  [/^PISTA (\d+):$/, "CLUE $1:"],[/^MISIÓN (\d+):$/, "MISSION $1:"],[/^La respuesta correcta es (.+)\.$/, "The correct answer is $1."],
+  [/^¿Qué planeta tiene un diámetro aproximado de (.+)\?$/, "Which planet has an approximate diameter of $1?"],
+  [/^¿En qué planeta dura el día aproximadamente (.+)\?$/, "On which planet does a day last about $1?"],
+  [/^¿En qué planeta dura el año aproximadamente (.+)\?$/, "On which planet does a year last about $1?"],
+  [/^¿Qué planeta tiene una gravedad aproximada de (.+)\?$/, "Which planet has an approximate gravity of $1?"],
+  [/^(.+) tiene un diámetro aproximado de (.+)\.$/, "$1 has an approximate diameter of $2."],
+  [/^En (.+), un día dura aproximadamente (.+)\.$/, "On $1, a day lasts about $2."],
+  [/^(.+) tarda aproximadamente (.+) en completar una órbita alrededor del Sol\.$/, "$1 takes about $2 to complete one orbit around the Sun."],
+  [/^En (.+), la gravedad es aproximadamente (.+)\.$/, "On $1, gravity is about $2."]
 ];
 
 function translateText(value) {
-  const leading = value.match(/^\s*/)?.[0] || "";
-  const trailing = value.match(/\s*$/)?.[0] || "";
-  const normalized = value.trim().replace(/\s+/g, " ");
-  if (!normalized) return value;
-  if (exact[normalized]) return `${leading}${exact[normalized]}${trailing}`;
-  for (const [pattern, replacement] of phrases) {
-    if (pattern.test(normalized)) return `${leading}${normalized.replace(pattern, replacement)}${trailing}`;
-  }
-  return value;
+  const leading=value.match(/^\s*/)?.[0]||"", trailing=value.match(/\s*$/)?.[0]||"";
+  const normalized=value.trim().replace(/\s+/g," ");
+  if(!normalized) return value;
+  let translated=exact[normalized];
+  if(!translated){ for(const [pattern,replacement] of templates){ if(pattern.test(normalized)){ translated=normalized.replace(pattern,replacement); break; } } }
+  if(!translated) return value;
+  for(const [from,to] of replacements) translated=translated.split(from).join(to);
+  return `${leading}${translated}${trailing}`;
 }
 
-export default function LocalizedMissionPlayer() {
-  const { language } = useLanguage();
-  const rootRef = useRef(null);
-  const isEnglish = language === "en";
-  const mode = useMemo(() => language, [language]);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    let applying = false;
-
-    const applyNode = (node, refresh = false) => {
-      if (node.nodeType !== Node.TEXT_NODE) return;
-      const current = node.nodeValue || "";
-      if (refresh && current !== node.__missionLocalized) node.__missionOriginal = current;
-      const original = node.__missionOriginal ?? current;
-      node.__missionOriginal = original;
-      const next = isEnglish ? translateText(original) : original;
-      node.__missionLocalized = next;
-      if (current !== next) node.nodeValue = next;
-    };
-
-    const applyTree = (target) => {
-      if (target.nodeType === Node.TEXT_NODE) return applyNode(target);
-      const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
-      let node = walker.nextNode();
-      while (node) { applyNode(node); node = walker.nextNode(); }
-    };
-
-    applyTree(root);
-    const observer = new MutationObserver((mutations) => {
-      if (applying) return;
-      applying = true;
-      try {
-        mutations.forEach((mutation) => {
-          if (mutation.type === "characterData") applyNode(mutation.target, true);
-          else mutation.addedNodes.forEach(applyTree);
-        });
-      } finally { applying = false; }
-    });
-    observer.observe(root, { childList: true, subtree: true, characterData: true });
-    return () => observer.disconnect();
-  }, [isEnglish, mode]);
-
-  return <div ref={rootRef} style={{ display: "contents" }}><MissionPlayer /></div>;
+export default function LocalizedMissionPlayer(){
+  const {language}=useLanguage(); const rootRef=useRef(null); const isEnglish=language==="en";
+  useEffect(()=>{ const root=rootRef.current; if(!root)return; let applying=false;
+    const applyNode=(node,refresh=false)=>{ if(node.nodeType!==Node.TEXT_NODE)return; const current=node.nodeValue||""; if(refresh&&current!==node.__missionLocalized)node.__missionOriginal=current; const original=node.__missionOriginal??current; node.__missionOriginal=original; const next=isEnglish?translateText(original):original; node.__missionLocalized=next; if(current!==next)node.nodeValue=next; };
+    const applyTree=(target)=>{ if(target.nodeType===Node.TEXT_NODE){applyNode(target);return;} const walker=document.createTreeWalker(target,NodeFilter.SHOW_TEXT); let node=walker.nextNode(); while(node){applyNode(node);node=walker.nextNode();} };
+    applyTree(root); const observer=new MutationObserver(mutations=>{if(applying)return;applying=true;try{mutations.forEach(m=>{if(m.type==="characterData")applyNode(m.target,true);else m.addedNodes.forEach(applyTree);});}finally{applying=false;}}); observer.observe(root,{childList:true,subtree:true,characterData:true}); return()=>observer.disconnect();
+  },[isEnglish]);
+  return <div ref={rootRef} style={{display:"contents"}}><MissionPlayer/></div>;
 }

@@ -1,6 +1,7 @@
 export const novaContent = {
   es: {
     home: "INICIO",
+    homeAction: "HABLAR CON NOVA →",
     label: "TUTOR ESPACIAL",
     title: "NOVA",
     subtitle: "Pregunta, investiga y comprende el Universo.",
@@ -26,6 +27,7 @@ export const novaContent = {
   },
   en: {
     home: "HOME",
+    homeAction: "TALK TO NOVA →",
     label: "SPACE TUTOR",
     title: "NOVA",
     subtitle: "Ask questions, investigate, and understand the Universe.",

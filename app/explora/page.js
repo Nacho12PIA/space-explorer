@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import SolarSystem from "../../components/SolarSystem";
+import LocalizedSolarSystem from "../../components/LocalizedSolarSystem";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 export default function ExploraPage() {
@@ -61,7 +61,7 @@ export default function ExploraPage() {
         ⭐ {t("explore.learnStars", "APRENDE SOBRE ESTRELLAS")}
       </button>
 
-      <SolarSystem />
+      <LocalizedSolarSystem />
 
       {showStars && (
         <div

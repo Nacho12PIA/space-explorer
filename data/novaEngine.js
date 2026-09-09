@@ -3,6 +3,19 @@ import { expandedEntries } from "./novaKnowledgeExpanded";
 
 export const allNovaKnowledge = [...novaKnowledge, ...expandedEntries];
 
+const personality = {
+  es: {
+    openings: ["Buena pregunta.", "Buena observación.", "Vamos a investigarlo.", "Has encontrado una buena pista."],
+    curiosities: ["Dato de misión", "Pista espacial", "Para recordar"],
+    followUps: ["¿Quieres seguir investigando este tema?", "¿Quieres descubrir algo relacionado?", "¿Te lanzo otra pregunta sobre esto?"],
+  },
+  en: {
+    openings: ["Great question.", "Good observation.", "Let's investigate it.", "You've found a useful clue."],
+    curiosities: ["Mission fact", "Space clue", "Remember this"],
+    followUps: ["Want to keep investigating this topic?", "Want to discover something related?", "Shall I give you another question about this?"],
+  },
+};
+
 function normalizeText(text = "") {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -24,6 +37,38 @@ function similarity(input, candidate) {
   return shared / Math.max(aa.size, bb.size, 1);
 }
 
+function stableIndex(seed, length, offset = 0) {
+  if (!length) return 0;
+  const value = [...seed].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return (value + offset) % length;
+}
+
+function findRelated(entry, lang) {
+  const related = allNovaKnowledge.filter((candidate) => candidate.id !== entry.id && candidate.topic === entry.topic);
+  if (!related.length) return null;
+  return related[stableIndex(entry.id, related.length, 17)];
+}
+
+function buildTutorReply(entry, lang) {
+  const voice = personality[lang];
+  const opening = voice.openings[stableIndex(entry.id, voice.openings.length)];
+  const curiosityLabel = voice.curiosities[stableIndex(entry.id, voice.curiosities.length, 5)];
+  const related = findRelated(entry, lang);
+  const relatedQuestion = related?.questions?.[lang]?.[0] || null;
+  const followUp = relatedQuestion
+    ? (lang === "es" ? `Siguiente misión: ${relatedQuestion}` : `Next mission: ${relatedQuestion}`)
+    : voice.followUps[stableIndex(entry.id, voice.followUps.length, 11)];
+
+  const answer = entry.answer[lang];
+  const curiosity = entry.curiosity?.[lang] || null;
+  return [
+    opening,
+    answer,
+    curiosity ? `${curiosityLabel}: ${curiosity}` : null,
+    followUp,
+  ].filter(Boolean).join("\n\n");
+}
+
 export function findNovaAnswer(question, language = "es") {
   const lang = language === "en" ? "en" : "es";
   const normalized = normalizeText(question);
@@ -39,5 +84,11 @@ export function findNovaAnswer(question, language = "es") {
   });
 
   if (!bestMatch || bestScore < 0.5) return { found: false, score: bestScore, entry: null };
-  return { found: true, score: bestScore, entry: bestMatch, text: bestMatch.answer[lang] };
+  return {
+    found: true,
+    score: bestScore,
+    entry: bestMatch,
+    text: buildTutorReply(bestMatch, lang),
+    relatedQuestion: findRelated(bestMatch, lang)?.questions?.[lang]?.[0] || null,
+  };
 }

@@ -96,11 +96,14 @@ export default function Home() {
             border="1px solid rgba(34,211,238,0.32)"
           />
 
-          <HomeArea
+          <AreaLink
+            href="/nova"
             icon="✦"
             title={t("home.nova.title", "NOVA")}
             description={t("home.nova.description", "Tu asistente para investigar y comprender el Universo.")}
-            status={t("home.nova.status", "PRÓXIMAMENTE")}
+            action={t("home.nova.action", "HABLAR CON NOVA →")}
+            background="linear-gradient(145deg, rgba(217,70,239,0.22), rgba(15,23,42,0.88))"
+            border="1px solid rgba(232,121,249,0.34)"
           />
         </div>
       </div>
@@ -136,36 +139,5 @@ function AreaLink({ href, icon, title, description, action, background, border }
         <div style={{ marginTop: 24, fontWeight: 800, fontSize: 13 }}>{action}</div>
       </section>
     </Link>
-  );
-}
-
-function HomeArea({ icon, title, description, status }) {
-  return (
-    <section
-      style={{
-        minHeight: 220,
-        padding: 24,
-        borderRadius: 22,
-        background: "rgba(15,23,42,0.72)",
-        border: "1px solid rgba(255,255,255,0.10)",
-        opacity: 0.68,
-        boxSizing: "border-box",
-      }}
-    >
-      <div style={{ fontSize: 34 }}>{icon}</div>
-      <h2>{title}</h2>
-      <p style={{ opacity: 0.7, lineHeight: 1.5 }}>{description}</p>
-      <div
-        style={{
-          marginTop: 24,
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: 1.2,
-          opacity: 0.6,
-        }}
-      >
-        {status}
-      </div>
-    </section>
   );
 }

@@ -46,7 +46,7 @@ export function LanguageProvider({ children }) {
 
   const t = (key, fallback = key) => {
     const value = getTranslation(dictionaries[language], key);
-    return typeof value === "string" ? value : fallback;
+    return value === undefined || value === null ? fallback : value;
   };
 
   const value = useMemo(

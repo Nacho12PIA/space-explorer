@@ -24,11 +24,11 @@ const pill = { border: 0, borderRadius: 999, padding: "12px 18px", cursor: "poin
 
 function useMissionText() {
   const { language } = useLanguage();
-  return (value) => translateMissionText(value, language);
+  return { language, m: (value) => translateMissionText(value, language) };
 }
 
 function Progress({ current, total }) {
-  const m = useMissionText();
+  const { m } = useMissionText();
   return (
     <div style={{ margin: "16px 0 26px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 800, opacity: 0.65, marginBottom: 10 }}><span>{m("DESAFÍO")} {current}</span><span>{current} / {total}</span></div>
@@ -38,7 +38,7 @@ function Progress({ current, total }) {
 }
 
 function Result({ score, total, onRetry, onBack, final = false }) {
-  const m = useMissionText();
+  const { m } = useMissionText();
   const ratio = score / total;
   return (
     <section style={{ ...panel, textAlign: "center" }}>
@@ -52,7 +52,7 @@ function Result({ score, total, onRetry, onBack, final = false }) {
 }
 
 function ChoiceMission({ title, factory, onBack, final = false }) {
-  const m = useMissionText();
+  const { m, language } = useMissionText();
   const [round, setRound] = useState(() => factory());
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
@@ -64,6 +64,12 @@ function ChoiceMission({ title, factory, onBack, final = false }) {
   function next() { if (current === round.length - 1) setFinished(true); else { setCurrent((v) => v + 1); setSelected(null); } }
   if (finished) return <Result score={score} total={round.length} onRetry={retry} onBack={onBack} final={final} />;
 
+  const feedback = selected === null
+    ? null
+    : selected === q.answer
+      ? m(q.explanation)
+      : `${language === "en" ? "The correct answer is" : "La respuesta correcta es"} ${m(q.answer)}. ${m(q.explanation)}`;
+
   return (
     <section style={panel}>
       <button onClick={onBack} style={{ ...pill, padding: 0, background: "transparent", color: "white", opacity: 0.7 }}>← {m("VOLVER")}</button>
@@ -71,13 +77,13 @@ function ChoiceMission({ title, factory, onBack, final = false }) {
       <Progress current={current + 1} total={round.length} />
       <h2 style={{ fontSize: "clamp(22px,5vw,30px)", lineHeight: 1.35 }}>{m(q.question)}</h2>
       <div style={{ display: "grid", gap: 12 }}>{q.options.map((option) => { const correct = option === q.answer; const picked = option === selected; return <button key={option} disabled={selected !== null} onClick={() => { setSelected(option); if (correct) setScore((v) => v + 1); }} style={{ padding: "16px 18px", textAlign: "left", borderRadius: 14, color: "white", fontSize: 16, fontWeight: 700, background: selected !== null && correct ? "rgba(34,197,94,0.18)" : picked && !correct ? "rgba(239,68,68,0.18)" : "rgba(255,255,255,0.06)", border: selected !== null && correct ? "1px solid rgba(74,222,128,0.55)" : picked && !correct ? "1px solid rgba(248,113,113,0.55)" : "1px solid rgba(255,255,255,0.12)" }}>{m(option)}</button>; })}</div>
-      {selected !== null && <div style={{ marginTop: 22, padding: 18, borderRadius: 16, background: selected === q.answer ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)" }}><strong>{selected === q.answer ? `✓ ${m("CORRECTO")}` : `✕ ${m("CASI")}`}</strong><p style={{ lineHeight: 1.55, opacity: 0.82 }}>{selected === q.answer ? m(q.explanation) : `${translateMissionText("La respuesta correcta es", useLanguage().language)} ${m(q.answer)}. ${m(q.explanation)}`}</p><button onClick={next} style={pill}>{current === round.length - 1 ? `${m("VER RESULTADO")} →` : `${m("SIGUIENTE")} →`}</button></div>}
+      {selected !== null && <div style={{ marginTop: 22, padding: 18, borderRadius: 16, background: selected === q.answer ? "rgba(34,197,94,0.12)" : "rgba(239,68,68,0.12)" }}><strong>{selected === q.answer ? `✓ ${m("CORRECTO")}` : `✕ ${m("CASI")}`}</strong><p style={{ lineHeight: 1.55, opacity: 0.82 }}>{feedback}</p><button onClick={next} style={pill}>{current === round.length - 1 ? `${m("VER RESULTADO")} →` : `${m("SIGUIENTE")} →`}</button></div>}
     </section>
   );
 }
 
 function IdentifyMission({ onBack }) {
-  const m = useMissionText();
+  const { m } = useMissionText();
   const makeRound = () => prepare(identifyPlanets, 5);
   const [round, setRound] = useState(makeRound);
   const [current, setCurrent] = useState(0);
@@ -93,7 +99,7 @@ function IdentifyMission({ onBack }) {
 }
 
 function RouteMission({ onBack }) {
-  const m = useMissionText();
+  const { m } = useMissionText();
   const makeRound = () => shuffle(routeChallenges).slice(0, 5);
   const [round, setRound] = useState(makeRound);
   const [current, setCurrent] = useState(0);
@@ -126,7 +132,7 @@ function FinalMission({ onBack }) {
 }
 
 function MissionCenter({ onSelect }) {
-  const m = useMissionText();
+  const { m } = useMissionText();
   return <div style={{ marginTop: 34 }}><div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>{missions.map((mission) => <button key={mission.id} onClick={() => onSelect(mission.id)} style={{ minHeight: 210, padding: 22, textAlign: "left", color: "white", cursor: "pointer", borderRadius: 20, border: "1px solid rgba(255,255,255,0.14)", background: "linear-gradient(145deg, rgba(37,99,235,0.16), rgba(15,23,42,0.84))" }}><div style={{ fontSize: 34 }}>{mission.icon}</div><div style={{ marginTop: 14, fontSize: 11, letterSpacing: 1.5, fontWeight: 800, opacity: 0.5 }}>{m("MISIÓN")} {String(mission.id).padStart(2, "0")}</div><h2 style={{ margin: "6px 0 8px", fontSize: 21 }}>{m(mission.title)}</h2><p style={{ margin: 0, lineHeight: 1.5, opacity: 0.7 }}>{m(mission.subtitle)}</p><div style={{ marginTop: 18, fontSize: 12, fontWeight: 800, opacity: 0.5 }}>{m(mission.meta)}</div></button>)}</div></div>;
 }
 

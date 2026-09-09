@@ -41,12 +41,19 @@ const aliases = {
   "🌬️ Saturno posee fuertes corrientes atmosféricas y enormes sistemas de tormentas.": "solarSystem.text.saturnWinds",
 
   "🧊 Aunque lo llamamos": "solarSystem.text.uranusIceGiantLead",
+  "gigante helado": "solarSystem.text.iceGiant",
   "eso no significa que Urano sea una enorme bola de hielo. Bajo su atmósfera existen materiales como agua, metano y amoníaco a enormes presiones y temperaturas.": "solarSystem.text.uranusIceGiantTail",
   "🔵 El metano absorbe parte de la luz roja del Sol, ayudando a que Urano presente su tono azul verdoso característico.": "solarSystem.text.uranusColor",
 
   "🧊 Bajo sus nubes, la presión aumenta enormemente. En el interior existen materiales como agua, metano y amoníaco sometidos a condiciones extremas.": "solarSystem.text.neptuneInterior",
   "La atmósfera de Neptuno está formada principalmente por hidrógeno y helio, además de pequeñas cantidades de metano.": "solarSystem.text.neptuneAtmosphere",
   "💨 Neptuno posee los vientos más rápidos conocidos entre los planetas del Sistema Solar: pueden superar los": "solarSystem.text.neptuneWinds"
+};
+
+const englishOverrides = {
+  "🧊 Aunque lo llamamos": "🧊 Although we call it",
+  "gigante helado": "ice giant",
+  "eso no significa que Urano sea una enorme bola de hielo. Bajo su atmósfera existen materiales como agua, metano y amoníaco a enormes presiones y temperaturas.": "that does not mean Uranus is a huge ball of ice. Beneath its atmosphere are materials such as water, methane, and ammonia under enormous pressures and temperatures."
 };
 
 export default function ExploreTranslationFixes() {
@@ -56,7 +63,8 @@ export default function ExploreTranslationFixes() {
   const translations = useMemo(() => {
     const map = new Map();
     Object.entries(aliases).forEach(([spanish, key]) => {
-      map.set(spanish, t(key, spanish));
+      const override = language === "en" ? englishOverrides[spanish] : null;
+      map.set(spanish, override || t(key, spanish));
     });
     return map;
   }, [language, t]);
@@ -65,18 +73,33 @@ export default function ExploreTranslationFixes() {
     const root = rootRef.current;
     if (!root) return;
 
-    const translateTextNode = (node) => {
+    let applyingTranslation = false;
+
+    const translateTextNode = (node, forceCurrentAsOriginal = false) => {
       if (node.nodeType !== Node.TEXT_NODE) return;
-      const original = node.__spaceExplorerFixOriginal ?? node.nodeValue;
+
+      const current = node.nodeValue ?? "";
+      if (forceCurrentAsOriginal && current !== node.__spaceExplorerFixLastLocalized) {
+        node.__spaceExplorerFixOriginal = current;
+      }
+
+      const original = node.__spaceExplorerFixOriginal ?? current;
       node.__spaceExplorerFixOriginal = original;
       const trimmed = original.trim();
       if (!trimmed) return;
+
       const normalized = trimmed.replace(/\s+/g, " ");
       const translated = translations.get(normalized);
-      if (!translated) return;
+      if (!translated) {
+        node.__spaceExplorerFixLastLocalized = current;
+        return;
+      }
+
       const leading = original.match(/^\s*/)?.[0] ?? "";
       const trailing = original.match(/\s*$/)?.[0] ?? "";
-      node.nodeValue = `${leading}${translated}${trailing}`;
+      const nextValue = `${leading}${translated}${trailing}`;
+      node.__spaceExplorerFixLastLocalized = nextValue;
+      if (current !== nextValue) node.nodeValue = nextValue;
     };
 
     const translateTree = (target) => {
@@ -93,12 +116,24 @@ export default function ExploreTranslationFixes() {
     };
 
     translateTree(root);
+
     const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach(translateTree);
-      });
+      if (applyingTranslation) return;
+      applyingTranslation = true;
+      try {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "characterData") {
+            translateTextNode(mutation.target, true);
+          } else {
+            mutation.addedNodes.forEach(translateTree);
+          }
+        });
+      } finally {
+        applyingTranslation = false;
+      }
     });
-    observer.observe(root, { childList: true, subtree: true });
+
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
     return () => observer.disconnect();
   }, [language, translations]);
 

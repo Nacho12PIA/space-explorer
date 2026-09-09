@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Laboratory from "../../components/Laboratory";
+import LocalizedLaboratory from "../../components/LocalizedLaboratory";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { getLaboratoryText } from "../../data/laboratoryContent";
 
 export default function LaboratorioPage() {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const text = getLaboratoryText(language);
 
   return (
     <main
@@ -31,22 +33,22 @@ export default function LaboratorioPage() {
             opacity: 0.8,
           }}
         >
-          ← {t("laboratory.home", "INICIO")}
+          ← {text.page.home}
         </Link>
 
         <div style={{ fontSize: 12, letterSpacing: 3, opacity: 0.55, fontWeight: 700 }}>
-          {t("laboratory.center", "CENTRO DE EXPERIMENTACIÓN")}
+          {text.page.center}
         </div>
 
         <h1 style={{ fontSize: "clamp(34px, 7vw, 64px)", margin: "8px 0 12px" }}>
-          {t("laboratory.title", "LABORATORIO")}
+          {text.page.title}
         </h1>
 
         <p style={{ maxWidth: 650, fontSize: 17, lineHeight: 1.6, opacity: 0.75, marginBottom: 0 }}>
-          {t("laboratory.intro", "Cambia las condiciones, observa los resultados y descubre por ti mismo cómo funciona el Universo.")}
+          {text.page.intro}
         </p>
 
-        <Laboratory />
+        <LocalizedLaboratory />
       </div>
     </main>
   );

@@ -34,13 +34,6 @@ export default function NovaPage() {
 
     if(safety.safe){
       result=findNovaAnswer(text,language,level,contextEntryRef.current);
-
-      if(!result.found&&contextEntryRef.current){
-        const contextQuestion=contextEntryRef.current.questions?.[language]?.[0]||contextEntryRef.current.questions?.es?.[0]||"";
-        const contextKeywords=(contextEntryRef.current.keywords?.[language]||contextEntryRef.current.keywords?.es||[]).slice(0,4).join(" ");
-        const contextualText=`${text} ${contextQuestion} ${contextKeywords}`.trim();
-        result=findNovaAnswer(contextualText,language,level,contextEntryRef.current);
-      }
     }
 
     if(safety.safe&&result.found&&result.entry)contextEntryRef.current=result.entry;

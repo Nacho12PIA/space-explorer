@@ -41,12 +41,12 @@ export default function ExploraPage() {
       <button
         onClick={() => setShowStars(true)}
         style={{
-          position: "absolute",
+          position: "fixed",
           right: 16,
-          bottom: 18,
-          zIndex: 50,
+          bottom: 72,
+          zIndex: 500,
           color: "white",
-          background: "rgba(38, 25, 73, 0.84)",
+          background: "rgba(38, 25, 73, 0.88)",
           border: "1px solid rgba(196,181,253,0.35)",
           borderRadius: 999,
           padding: "11px 15px",
@@ -54,6 +54,8 @@ export default function ExploraPage() {
           fontWeight: 900,
           cursor: "pointer",
           backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
         }}
       >
         ⭐ {t("explore.learnStars", "APRENDE SOBRE ESTRELLAS")}

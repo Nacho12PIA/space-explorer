@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useLanguage } from "../i18n/LanguageContext";
+import { getNovaContent } from "../i18n/nova";
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const nova = getNovaContent(language);
 
   return (
     <main
@@ -101,7 +103,7 @@ export default function Home() {
             icon="✦"
             title={t("home.nova.title", "NOVA")}
             description={t("home.nova.description", "Tu asistente para investigar y comprender el Universo.")}
-            action={t("home.nova.action", "HABLAR CON NOVA →")}
+            action={nova.homeAction}
             background="linear-gradient(145deg, rgba(217,70,239,0.22), rgba(15,23,42,0.88))"
             border="1px solid rgba(232,121,249,0.34)"
           />

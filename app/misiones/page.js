@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import MissionTranslationCompletion from "../../components/MissionTranslationCompletion";
+import MissionPlayer from "../../components/MissionPlayer";
 import { useLanguage } from "../../i18n/LanguageContext";
 
 export default function MisionesPage() {
@@ -15,7 +15,7 @@ export default function MisionesPage() {
         <div style={{fontSize:12,letterSpacing:3,opacity:0.55,fontWeight:700}}>{en ? "MISSION CENTER" : "CENTRO DE MISIONES"}</div>
         <h1 style={{fontSize:"clamp(34px, 7vw, 64px)",margin:"8px 0 12px"}}>{en ? "MISSIONS" : "MISIONES"}</h1>
         <p style={{maxWidth:620,fontSize:17,lineHeight:1.6,opacity:0.75}}>{en ? "Take on challenges, show what you have discovered, and grow as a space explorer." : "Supera retos, demuestra lo que has descubierto y avanza como explorador espacial."}</p>
-        <MissionTranslationCompletion />
+        <MissionPlayer />
       </div>
     </main>
   );

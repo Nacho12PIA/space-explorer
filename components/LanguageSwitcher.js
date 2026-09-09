@@ -11,9 +11,8 @@ export default function LanguageSwitcher() {
       aria-label="Language / Idioma"
       style={{
         position: "fixed",
-        top: 14,
-        left: "50%",
-        transform: "translateX(-50%)",
+        top: 16,
+        right: 112,
         zIndex: 30000000,
         display: "flex",
         alignItems: "center",

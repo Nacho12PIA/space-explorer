@@ -75,7 +75,7 @@ export function findNovaAnswer(question,language="es",level="explorer",contextEn
   let usedContext=false;
   if((!bestMatch||bestScore<.5)&&contextEntry&&looksLikeFollowUp(question,lang)){
     const contextual=findBestMatch(question,lang,contextualCandidates(contextEntry));
-    if(contextual.bestMatch&&contextual.bestScore>=.18){bestMatch=contextual.bestMatch;bestScore=contextual.bestScore;usedContext=true;}
+    if(contextual.bestMatch&&contextual.bestScore>=.12){bestMatch=contextual.bestMatch;bestScore=contextual.bestScore;usedContext=true;}
   }
   if(!bestMatch||bestScore<.5&&!usedContext)return{found:false,score:bestScore,entry:null,usedContext:false};
   return{found:true,score:bestScore,entry:bestMatch,text:buildTutorReply(bestMatch,lang,safeLevel),relatedQuestion:findRelated(bestMatch,lang)?.questions?.[lang]?.[0]||null,recommendation:getSpaceExplorerRecommendation(bestMatch,lang),usedContext};

@@ -23,6 +23,7 @@ export const novaContent = {
     ready: "ENLACE ESPACIAL LISTO",
     consoleMark: "NOVA · TUTOR",
     footerHint: "NOVA te ayudará a investigar, comprender y seguir explorando.",
+    privacyHint: "No compartas tu nombre completo, dirección, teléfono, correo, colegio ni dónde vives. NOVA no necesita esos datos para ayudarte.",
     levelLabel: "NIVEL DE EXPLORACIÓN",
     levels: {
       cadet: { name: "CADETE", age: "6–8", description: "Explicaciones más cortas y sencillas" },
@@ -60,6 +61,7 @@ export const novaContent = {
     ready: "SPACE LINK READY",
     consoleMark: "NOVA · TUTOR",
     footerHint: "NOVA will help you investigate, understand, and keep exploring.",
+    privacyHint: "Don't share your full name, address, phone number, email, school, or where you live. NOVA doesn't need that information to help you.",
     levelLabel: "EXPLORATION LEVEL",
     levels: {
       cadet: { name: "CADET", age: "6–8", description: "Shorter and simpler explanations" },

@@ -1,11 +1,6 @@
 const es = {
   common: {
-    language: {
-      spanish: "Español",
-      english: "English",
-      switchToSpanish: "Cambiar a español",
-      switchToEnglish: "Cambiar a inglés",
-    },
+    language: { spanish: "Español", english: "English", switchToSpanish: "Cambiar a español", switchToEnglish: "Cambiar a inglés" },
   },
   home: {
     controlCenter: "CENTRO DE CONTROL",
@@ -16,13 +11,8 @@ const es = {
     nova: { title: "NOVA", description: "Tu asistente para investigar y comprender el Universo.", status: "PRÓXIMAMENTE" },
   },
   explore: {
-    home: "INICIO",
-    learnStars: "APRENDE SOBRE ESTRELLAS",
-    astronomyLabel: "EXPLORA · ASTRONOMÍA",
-    starsTitle: "El Sol y las estrellas",
-    starsIntro: "Nuestro Sol es una estrella. Entenderlo nos ayuda a comprender millones de estrellas que vemos en el Universo.",
-    close: "Cerrar",
-    rememberLabel: "RECUERDA:",
+    home: "INICIO", learnStars: "APRENDE SOBRE ESTRELLAS", astronomyLabel: "EXPLORA · ASTRONOMÍA", starsTitle: "El Sol y las estrellas",
+    starsIntro: "Nuestro Sol es una estrella. Entenderlo nos ayuda a comprender millones de estrellas que vemos en el Universo.", close: "Cerrar", rememberLabel: "RECUERDA:",
     rememberText: "las estrellas no son puntos pequeños ni bolas de fuego. Parecen puntos porque están increíblemente lejos y están formadas principalmente por plasma.",
     starFacts: [
       { title: "¿Qué es una estrella?", text: "Una estrella es una enorme esfera de plasma mantenida unida por su gravedad. Brilla porque en su núcleo se produce fusión nuclear." },
@@ -34,14 +24,11 @@ const es = {
     ],
   },
   solarSystem: {
-    tagline: "Explora. Descubre. Aprende.",
-    controls: "Arrastra para girar · Pellizca para hacer zoom",
-    returning: "Volviendo al Sistema Solar…",
+    tagline: "Explora. Descubre. Aprende.", controls: "Arrastra para girar · Pellizca para hacer zoom", returning: "Volviendo al Sistema Solar…",
     navigation: { overview: "VISTA GENERAL", surface: "SUPERFICIE", atmosphere: "ATMÓSFERA", moons: "LUNAS" },
   },
   planets: {
-    sun: { name: "Sol" },
-    mercury: { name: "Mercurio", description: "El planeta más cercano al Sol.", fact: "Aunque está más cerca del Sol, no es el planeta más caliente." },
+    sun: { name: "Sol" }, mercury: { name: "Mercurio", description: "El planeta más cercano al Sol.", fact: "Aunque está más cerca del Sol, no es el planeta más caliente." },
     venus: { name: "Venus", description: "Un mundo cubierto por una atmósfera muy densa.", fact: "Venus es el planeta más caliente del Sistema Solar." },
     earth: { name: "Tierra", description: "Nuestro hogar y el único mundo donde sabemos que existe vida.", fact: "Aproximadamente el 71% de su superficie está cubierta por agua." },
     mars: { name: "Marte", description: "El famoso planeta rojo.", fact: "En Marte se encuentra Olympus Mons, un enorme volcán." },
@@ -49,12 +36,27 @@ const es = {
     saturn: { name: "Saturno", description: "Un gigante gaseoso rodeado por espectaculares anillos.", fact: "Sus anillos están formados principalmente por hielo y roca." },
     uranus: { name: "Urano", description: "Un gigante helado de color azul verdoso.", fact: "Urano gira prácticamente tumbado sobre uno de sus lados." },
     neptune: { name: "Neptuno", description: "El planeta más lejano del Sol.", fact: "En su atmósfera se producen algunos de los vientos más rápidos del Sistema Solar." },
-    moon: "Luna",
-    moons: { phobos: "FOBOS", deimos: "DEIMOS", io: "ÍO", europa: "EUROPA", ganymede: "GANÍMEDES", callisto: "CALISTO", titan: "TITÁN", enceladus: "ENCÉLADO", titania: "TITANIA", miranda: "MIRANDA", triton: "TRITÓN" },
+    moon: "Luna", moons: { phobos: "FOBOS", deimos: "DEIMOS", io: "ÍO", europa: "EUROPA", ganymede: "GANÍMEDES", callisto: "CALISTO", titan: "TITÁN", enceladus: "ENCÉLADO", titania: "TITANIA", miranda: "MIRANDA", triton: "TRITÓN" },
   },
   missions: {},
-  laboratory: {},
+  laboratory: {
+    home: "INICIO",
+    center: "CENTRO DE EXPERIMENTACIÓN",
+    title: "LABORATORIO",
+    intro: "Cambia las condiciones, observa los resultados y descubre por ti mismo cómo funciona el Universo.",
+    experiment: "EXPERIMENTO",
+    enterSimulator: "ENTRAR AL SIMULADOR →",
+    allExperiments: "TODOS LOS EXPERIMENTOS",
+    ruleLabel: "🔬 REGLA DEL LABORATORIO:",
+    rule: "toca, arrastra y experimenta. Aquí aprendes haciendo que el Universo cambie delante de ti.",
+    experiments: {
+      gravity: { title: "SUPERGRAVEDAD", subtitle: "Salta en la Luna, Marte o Júpiter." },
+      orbits: { title: "DOMINA UNA ÓRBITA", subtitle: "Mueve un planeta y cambia su año." },
+      daynight: { title: "FABRICA UN DÍA", subtitle: "Acelera la rotación de un mundo." },
+      blackhole: { title: "AGUJERO NEGRO", subtitle: "¿Qué ocurre si te acercas demasiado?", badge: "MUNDO EXTREMO" },
+      impact: { title: "IMPACTO DE ASTEROIDE", subtitle: "Cambia el tamaño y la velocidad del impacto.", badge: "NUEVO" },
+    },
+  },
   nova: {},
 };
-
 export default es;

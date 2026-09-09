@@ -17,6 +17,11 @@ export const novaContent = {
     suggestedQuestions: "¿QUÉ QUIERES DESCUBRIR?",
     safetyFallback: "Esa pregunta se sale de mi misión espacial. Puedo ayudarte a explorar astronomía y ciencia.",
     error: "NOVA no ha podido responder. Inténtalo de nuevo.",
+    userLabel: "TÚ",
+    novaLabel: "NOVA",
+    ready: "ENLACE ESPACIAL LISTO",
+    footerHint: "NOVA te ayudará a investigar, comprender y seguir explorando.",
+    mockReply: "¡Buena pregunta! Ya puedo escuchar tus mensajes y mantener una conversación contigo. En el siguiente paso conectaré mi cerebro de IA para darte respuestas reales sobre el Universo.",
     suggestions: [
       "¿Por qué Saturno tiene anillos?",
       "¿Qué pasaría si me acercara a un agujero negro?",
@@ -43,6 +48,11 @@ export const novaContent = {
     suggestedQuestions: "WHAT DO YOU WANT TO DISCOVER?",
     safetyFallback: "That question is outside my space mission. I can help you explore astronomy and science.",
     error: "NOVA couldn't answer that. Please try again.",
+    userLabel: "YOU",
+    novaLabel: "NOVA",
+    ready: "SPACE LINK READY",
+    footerHint: "NOVA will help you investigate, understand, and keep exploring.",
+    mockReply: "Great question! I can already listen to your messages and keep a conversation going. In the next step, I'll connect my AI brain so I can give you real answers about the Universe.",
     suggestions: [
       "Why does Saturn have rings?",
       "What would happen if I got close to a black hole?",

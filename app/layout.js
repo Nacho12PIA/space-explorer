@@ -1,6 +1,7 @@
 import "./globals.css";
 import { LanguageProvider } from "../i18n/LanguageContext";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 
 export const metadata = {
   title: "SPACE EXPLORER",
@@ -12,8 +13,17 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body>
         <LanguageProvider>
-          <LanguageSwitcher />
-          {children}
+          <div
+            style={{
+              minHeight: "100vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <SiteHeader />
+            <div style={{ flex: 1, minWidth: 0 }}>{children}</div>
+            <SiteFooter />
+          </div>
         </LanguageProvider>
       </body>
     </html>

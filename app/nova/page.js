@@ -71,7 +71,7 @@ export default function NovaPage() {
         <section className={styles.console} aria-label={content.title}>
           <div className={styles.consoleHeader}>
             <div className={styles.status}><span className={styles.statusDot} /><span>{content.ready}</span></div>
-            <div className={styles.consoleMark}>NOVA · AI</div>
+            <div className={styles.consoleMark}>{content.consoleMark}</div>
           </div>
           <div className={styles.content}>
             {messages.length === 0 ? (
@@ -90,7 +90,7 @@ export default function NovaPage() {
                     {message.role === "nova" && <div className={styles.messageAvatar} aria-hidden="true">✦</div>}
                     <div className={`${styles.message} ${message.role === "user" ? styles.userMessage : styles.novaMessage}`}>
                       <div className={styles.messageLabel}>{message.role === "user" ? content.userLabel : content.novaLabel}</div>
-                      <div>{message.text}</div>
+                      <div style={{ whiteSpace: "pre-line" }}>{message.text}</div>
                     </div>
                   </div>
                 ))}

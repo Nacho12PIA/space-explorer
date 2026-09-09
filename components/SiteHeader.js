@@ -4,8 +4,7 @@ export default function SiteHeader() {
   return (
     <header
       style={{
-        position: "sticky",
-        top: 0,
+        position: "relative",
         zIndex: 1000000,
         width: "100%",
         minHeight: 58,

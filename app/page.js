@@ -4,9 +4,7 @@ export default function Home() {
   return (
     <main
       style={{
-        height: "100vh",
-        overflowY: "auto",
-        WebkitOverflowScrolling: "touch",
+        minHeight: "100%",
         boxSizing: "border-box",
         background:
           "radial-gradient(circle at top, #13213f 0%, #060b18 45%, #02040a 100%)",

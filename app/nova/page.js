@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { getNovaContent } from "../../i18n/nova";
 import { findNovaAnswer } from "../../data/novaEngine";
+import { checkNovaSafety } from "../../data/novaSafety";
 import styles from "./NovaPage.module.css";
 
 export default function NovaPage() {
@@ -25,8 +26,10 @@ export default function NovaPage() {
   function sendMessage(rawText) {
     const text=rawText.trim(); if(!text||isThinking)return;
     setMessages((current)=>[...current,{id:`${Date.now()}-user`,role:"user",text}]); setInput(""); setIsThinking(true);
-    const result=findNovaAnswer(text,language,level); const reply=result.found?result.text:content.knowledgeFallback;
-    timerRef.current=setTimeout(()=>{setMessages((current)=>[...current,{id:`${Date.now()}-nova`,role:"nova",text:reply,recommendation:result.found?result.recommendation:null}]);setIsThinking(false);},500);
+    const safety=checkNovaSafety(text,language);
+    const result=safety.safe?findNovaAnswer(text,language,level):{found:false,recommendation:null};
+    const reply=!safety.safe?safety.text:result.found?result.text:content.knowledgeFallback;
+    timerRef.current=setTimeout(()=>{setMessages((current)=>[...current,{id:`${Date.now()}-nova`,role:"nova",text:reply,recommendation:safety.safe&&result.found?result.recommendation:null}]);setIsThinking(false);},500);
   }
 
   function handleSubmit(event){event.preventDefault();sendMessage(input);}
@@ -43,7 +46,7 @@ export default function NovaPage() {
           {messages.length===0 ? <><div className={styles.promptLabel}>{content.suggestedQuestions}</div><div className={styles.suggestions}>{content.suggestions.map((question)=><button className={styles.suggestion} type="button" key={question} onClick={()=>sendMessage(question)} disabled={isThinking}>{question}</button>)}</div></> :
           <div className={styles.conversation} aria-live="polite">{messages.map((message)=><div className={`${styles.messageRow} ${message.role==="user"?styles.userRow:styles.novaRow}`} key={message.id}>{message.role==="nova"&&<div className={styles.messageAvatar} aria-hidden="true">✦</div>}<div className={`${styles.message} ${message.role==="user"?styles.userMessage:styles.novaMessage}`}><div className={styles.messageLabel}>{message.role==="user"?content.userLabel:content.novaLabel}</div><div style={{whiteSpace:"pre-line"}}>{message.text}</div>{message.role==="nova"&&message.recommendation&&<Link href={message.recommendation.href} className={`${styles.contextLink} ${styles[`context_${message.recommendation.area}`]||""}`}><span aria-hidden="true">{message.recommendation.icon}</span><span>{message.recommendation.label}</span><span aria-hidden="true">→</span></Link>}</div></div>)}{isThinking&&<div className={`${styles.messageRow} ${styles.novaRow}`}><div className={styles.messageAvatar} aria-hidden="true">✦</div><div className={`${styles.message} ${styles.novaMessage} ${styles.thinking}`}><span>{content.thinking}</span><span className={styles.dots} aria-hidden="true"><i/><i/><i/></span></div></div>}<div ref={conversationEndRef}/></div>}
           <form className={styles.composer} onSubmit={handleSubmit}><textarea className={styles.input} value={input} onChange={(event)=>setInput(event.target.value)} onKeyDown={handleKeyDown} placeholder={content.placeholder} rows={1} maxLength={600} aria-label={content.placeholder} disabled={isThinking}/><button className={styles.send} type="submit" disabled={!input.trim()||isThinking}>{content.send}</button></form>
-          <div className={styles.footerHint}><span aria-hidden="true">✦</span><span>{content.footerHint}</span></div>
+          <div className={styles.footerHint}><span aria-hidden="true">🛡️</span><span>{content.privacyHint}</span></div>
         </div>
       </section>
     </div></main>

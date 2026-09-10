@@ -4,15 +4,35 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ExploreTranslationFixes from "../../components/ExploreTranslationFixes";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useProgress } from "../../i18n/ProgressContext";
+
+const planetDiscoveryIds = {
+  mercurio: "mercury",
+  mercury: "mercury",
+  venus: "venus",
+  tierra: "earth",
+  earth: "earth",
+  marte: "mars",
+  mars: "mars",
+  jupiter: "jupiter",
+  "júpiter": "jupiter",
+  saturno: "saturn",
+  saturn: "saturn",
+  urano: "uranus",
+  uranus: "uranus",
+  neptuno: "neptune",
+  neptune: "neptune",
+};
 
 export default function ExploraPage() {
   const [showStars, setShowStars] = useState(false);
   const [showStarButton, setShowStarButton] = useState(true);
   const { t } = useLanguage();
+  const { recordProgress } = useProgress();
   const starFacts = t("explore.starFacts", []);
 
   useEffect(() => {
-    const updateStarButton = () => {
+    const updateExploraState = () => {
       const bodyText = document.body.innerText || "";
       const detailOpen =
         bodyText.includes("VISTA GENERAL") ||
@@ -20,13 +40,23 @@ export default function ExploraPage() {
         bodyText.includes("EXPLORANDO · ESTRELLA") ||
         bodyText.includes("EXPLORING · STAR");
       setShowStarButton(!detailOpen);
+
+      const headings = Array.from(document.querySelectorAll("h1"));
+      for (const heading of headings) {
+        const key = (heading.textContent || "").trim().toLowerCase();
+        const planetId = planetDiscoveryIds[key];
+        if (planetId) {
+          recordProgress("discoveries", planetId);
+          break;
+        }
+      }
     };
 
-    updateStarButton();
-    const observer = new MutationObserver(updateStarButton);
+    updateExploraState();
+    const observer = new MutationObserver(updateExploraState);
     observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     return () => observer.disconnect();
-  }, []);
+  }, [recordProgress]);
 
   return (
     <main style={{ position: "relative", minHeight: "100vh" }}>

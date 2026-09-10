@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useProgress } from "../../i18n/ProgressContext";
 import { getNovaContent } from "../../i18n/nova";
 import { findNovaAnswer } from "../../data/novaEngine";
 import { checkNovaSafety } from "../../data/novaSafety";
@@ -10,6 +11,7 @@ import styles from "./NovaPage.module.css";
 
 export default function NovaPage() {
   const { language } = useLanguage();
+  const { recordProgress } = useProgress();
   const content = getNovaContent(language);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
@@ -36,7 +38,10 @@ export default function NovaPage() {
       result=findNovaAnswer(text,language,level,contextEntryRef.current);
     }
 
-    if(safety.safe&&result.found&&result.entry)contextEntryRef.current=result.entry;
+    if(safety.safe&&result.found&&result.entry){
+      contextEntryRef.current=result.entry;
+      recordProgress("nova", result.entry.id || text.toLowerCase());
+    }
     const reply=!safety.safe?safety.text:result.found?result.text:content.knowledgeFallback;
     timerRef.current=setTimeout(()=>{setMessages((current)=>[...current,{id:`${Date.now()}-nova`,role:"nova",text:reply,recommendation:safety.safe&&result.found?result.recommendation:null}]);setIsThinking(false);},500);
   }

@@ -1,12 +1,49 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import MissionPlayer from "../../components/MissionPlayer";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useProgress } from "../../i18n/ProgressContext";
 
 export default function MisionesPage() {
   const { language } = useLanguage();
+  const { recordProgress } = useProgress();
+  const recordRef = useRef(recordProgress);
+  const resultVisibleRef = useRef(false);
   const en = language === "en";
+
+  recordRef.current = recordProgress;
+
+  useEffect(() => {
+    const completionLabels = new Set([
+      "MISIÓN COMPLETADA",
+      "MISSION COMPLETED",
+      "EXPLORADOR CERTIFICADO",
+      "CERTIFIED EXPLORER",
+    ]);
+
+    const checkMissionCompletion = () => {
+      const completed = Array.from(document.querySelectorAll("h2")).some((heading) =>
+        completionLabels.has((heading.textContent || "").trim().toUpperCase())
+      );
+
+      if (completed && !resultVisibleRef.current) {
+        resultVisibleRef.current = true;
+        recordRef.current(
+          "missions",
+          `mission-session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+        );
+      } else if (!completed) {
+        resultVisibleRef.current = false;
+      }
+    };
+
+    checkMissionCompletion();
+    const observer = new MutationObserver(checkMissionCompletion);
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <main style={{minHeight:"100vh",background:"radial-gradient(circle at top, #13213f 0%, #060b18 45%, #02040a 100%)",color:"white",padding:"32px 20px"}}>

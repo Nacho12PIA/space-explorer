@@ -4,11 +4,33 @@ import Link from "next/link";
 import LocalizedLaboratory from "../../components/LocalizedLaboratory";
 import LaboratoryDeepLink from "../../components/LaboratoryDeepLink";
 import { useLanguage } from "../../i18n/LanguageContext";
+import { useProgress } from "../../i18n/ProgressContext";
 import { getLaboratoryText } from "../../data/laboratoryContent";
+
+const experimentDiscoveryIds = [
+  { id: "gravity", titles: ["SUPERGRAVEDAD", "SUPERGRAVITY"] },
+  { id: "orbits", titles: ["DOMINA UNA ÓRBITA", "MASTER AN ORBIT"] },
+  { id: "daynight", titles: ["FABRICA UN DÍA", "MAKE A DAY"] },
+  { id: "blackhole", titles: ["AGUJERO NEGRO", "BLACK HOLE"] },
+  { id: "impact", titles: ["IMPACTO DE ASTEROIDE", "ASTEROID IMPACT"] },
+];
 
 export default function LaboratorioPage() {
   const { language } = useLanguage();
+  const { recordProgress } = useProgress();
   const text = getLaboratoryText(language);
+
+  const handleLaboratoryClick = (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+
+    const buttonText = (button.textContent || "").toUpperCase();
+    const experiment = experimentDiscoveryIds.find(({ titles }) =>
+      titles.some((title) => buttonText.includes(title))
+    );
+
+    if (experiment) recordProgress("experiments", experiment.id);
+  };
 
   return (
     <main
@@ -50,7 +72,9 @@ export default function LaboratorioPage() {
         </p>
 
         <LaboratoryDeepLink />
-        <LocalizedLaboratory />
+        <div onClick={handleLaboratoryClick}>
+          <LocalizedLaboratory />
+        </div>
       </div>
     </main>
   );

@@ -18,6 +18,7 @@ const copy = {
     nova: "CONSULTAS A NOVA",
     pending: "Tu progreso ya se guarda en este dispositivo. Ahora iremos conectando EXPLORA, MISIONES, LABORATORIO y NOVA para que cada logro aparezca aquí automáticamente.",
     explore: "SEGUIR EXPLORANDO →",
+    home: "← VOLVER AL INICIO",
   },
   en: {
     eyebrow: "PROGRESS CENTRE",
@@ -32,6 +33,7 @@ const copy = {
     nova: "NOVA QUESTIONS",
     pending: "Your progress is now saved on this device. Next we will connect EXPLORE, MISSIONS, LABORATORY and NOVA so every achievement appears here automatically.",
     explore: "KEEP EXPLORING →",
+    home: "← BACK TO HOME",
   },
 };
 
@@ -66,7 +68,10 @@ export default function ProgressPage() {
         </div>
 
         <p style={{ margin: "22px 0", padding: "16px 18px", borderRadius: 16, background: "rgba(255,255,255,.055)", lineHeight: 1.55, opacity: .72 }}>{t.pending}</p>
-        <Link href="/explora" style={{ display: "inline-block", color: "white", textDecoration: "none", fontWeight: 900, fontSize: 13, padding: "13px 17px", borderRadius: 14, background: "rgba(37,99,235,.75)", border: "1px solid rgba(96,165,250,.45)" }}>{t.explore}</Link>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          <Link href="/explora" style={{ display: "inline-block", color: "white", textDecoration: "none", fontWeight: 900, fontSize: 13, padding: "13px 17px", borderRadius: 14, background: "rgba(37,99,235,.75)", border: "1px solid rgba(96,165,250,.45)" }}>{t.explore}</Link>
+          <Link href="/" style={{ display: "inline-block", color: "white", textDecoration: "none", fontWeight: 900, fontSize: 13, padding: "13px 17px", borderRadius: 14, background: "rgba(255,255,255,.07)", border: "1px solid rgba(255,255,255,.16)" }}>{t.home}</Link>
+        </div>
       </div>
     </main>
   );

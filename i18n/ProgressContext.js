@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 const STORAGE_KEY = "space-explorer-progress-v1";
 
@@ -57,7 +57,7 @@ export function ProgressProvider({ children }) {
     }
   }, [progress, ready]);
 
-  const recordProgress = (type, id) => {
+  const recordProgress = useCallback((type, id) => {
     if (!Object.prototype.hasOwnProperty.call(TARGETS, type) || !id) return;
     const safeId = String(id);
 
@@ -65,7 +65,7 @@ export function ProgressProvider({ children }) {
       if (current[type].includes(safeId)) return current;
       return { ...current, [type]: [...current[type], safeId] };
     });
-  };
+  }, []);
 
   const stats = useMemo(() => {
     const counts = {
@@ -89,7 +89,7 @@ export function ProgressProvider({ children }) {
 
   const value = useMemo(
     () => ({ progress, stats, ready, recordProgress, targets: TARGETS }),
-    [progress, stats, ready]
+    [progress, stats, ready, recordProgress]
   );
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;

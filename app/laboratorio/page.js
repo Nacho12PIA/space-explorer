@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import LocalizedLaboratory from "../../components/LocalizedLaboratory";
 import LaboratoryDeepLink from "../../components/LaboratoryDeepLink";
+import EnhancedGravity from "../../components/EnhancedGravity";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useProgress } from "../../i18n/ProgressContext";
 import { getLaboratoryText } from "../../data/laboratoryContent";
@@ -18,6 +20,7 @@ const experimentDiscoveryIds = [
 export default function LaboratorioPage() {
   const { language } = useLanguage();
   const { recordProgress } = useProgress();
+  const [enhancedGravity, setEnhancedGravity] = useState(false);
   const text = getLaboratoryText(language);
 
   const handleLaboratoryClick = (event) => {
@@ -29,7 +32,14 @@ export default function LaboratorioPage() {
       titles.some((title) => buttonText.includes(title))
     );
 
-    if (experiment) recordProgress("experiments", experiment.id);
+    if (!experiment) return;
+    recordProgress("experiments", experiment.id);
+
+    if (experiment.id === "gravity") {
+      event.preventDefault();
+      event.stopPropagation();
+      setEnhancedGravity(true);
+    }
   };
 
   return (
@@ -44,7 +54,7 @@ export default function LaboratorioPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 920, margin: "0 auto" }}>
-        <Link
+        {!enhancedGravity && <Link
           href="/"
           style={{
             display: "inline-block",
@@ -57,24 +67,31 @@ export default function LaboratorioPage() {
           }}
         >
           ← {text.page.home}
-        </Link>
+        </Link>}
 
-        <div style={{ fontSize: 12, letterSpacing: 3, opacity: 0.55, fontWeight: 700 }}>
-          {text.page.center}
-        </div>
+        {!enhancedGravity && <>
+          <div style={{ fontSize: 12, letterSpacing: 3, opacity: 0.55, fontWeight: 700 }}>
+            {text.page.center}
+          </div>
 
-        <h1 style={{ fontSize: "clamp(34px, 7vw, 64px)", margin: "8px 0 12px" }}>
-          {text.page.title}
-        </h1>
+          <h1 style={{ fontSize: "clamp(34px, 7vw, 64px)", margin: "8px 0 12px" }}>
+            {text.page.title}
+          </h1>
 
-        <p style={{ maxWidth: 650, fontSize: 17, lineHeight: 1.6, opacity: 0.75, marginBottom: 0 }}>
-          {text.page.intro}
-        </p>
+          <p style={{ maxWidth: 650, fontSize: 17, lineHeight: 1.6, opacity: 0.75, marginBottom: 0 }}>
+            {text.page.intro}
+          </p>
 
-        <LaboratoryDeepLink />
-        <div onClick={handleLaboratoryClick}>
-          <LocalizedLaboratory />
-        </div>
+          <LaboratoryDeepLink />
+        </>}
+
+        {enhancedGravity ? (
+          <EnhancedGravity onBack={() => setEnhancedGravity(false)} />
+        ) : (
+          <div onClickCapture={handleLaboratoryClick}>
+            <LocalizedLaboratory />
+          </div>
+        )}
       </div>
     </main>
   );

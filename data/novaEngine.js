@@ -1,6 +1,7 @@
 import { novaKnowledge } from "./novaKnowledge";
 import { expandedEntries } from "./novaKnowledgeExpanded";
 
+// Deployment refresh marker: keeps the latest validated NOVA fixes bundled together.
 export const allNovaKnowledge = [...novaKnowledge, ...expandedEntries];
 
 const personality = {

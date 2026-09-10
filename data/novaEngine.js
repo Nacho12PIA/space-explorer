@@ -1,7 +1,6 @@
 import { novaKnowledge } from "./novaKnowledge";
 import { expandedEntries } from "./novaKnowledgeExpanded";
 
-// Deployment refresh marker: keeps the latest validated NOVA fixes bundled together.
 export const allNovaKnowledge = [...novaKnowledge, ...expandedEntries];
 
 const personality = {
@@ -44,12 +43,19 @@ function buildTutorReply(entry,lang,level="explorer"){
   const voice=personality[lang];const opening=voice.openings[stableIndex(entry.id,voice.openings.length)];const related=findRelated(entry,lang);const relatedQuestion=related?.questions?.[lang]?.[0]||null;const answer=adaptAnswer(entry,lang,level);const curiosity=level==="explorer"?entry.curiosity?.[lang]||null:null;const curiosityLabel=voice.curiosities[stableIndex(entry.id,voice.curiosities.length,5)];const mission=relatedQuestion?(lang==="es"?`Siguiente misión: ${relatedQuestion}`:`Next mission: ${relatedQuestion}`):null;const levelLead=level==="cadet"?(lang==="es"?"Te lo cuento fácil:":"Here's the simple version:"):level==="astronomer"?(lang==="es"?"Vamos un paso más allá:":"Let's go one step further:"):null;return[opening,levelLead,answer,curiosity?`${curiosityLabel}: ${curiosity}`:null,mission].filter(Boolean).join("\n\n");
 }
 
+function keywordMatches(normalizedQuestion,keyword){
+  const normalizedKeyword=normalizeText(keyword);
+  if(!normalizedKeyword)return false;
+  if(normalizedKeyword.includes(" "))return normalizedQuestion.includes(normalizedKeyword);
+  return tokens(normalizedQuestion).has(normalizedKeyword);
+}
+
 function findBestMatch(question,lang,entries=allNovaKnowledge){
   const normalized=normalizeText(question);let bestMatch=null,bestScore=0;
   entries.forEach((entry)=>{
     const questionScore=Math.max(...entry.questions[lang].map((candidate)=>similarity(normalized,candidate)));
-    const hits=entry.keywords[lang].filter((keyword)=>normalized.includes(normalizeText(keyword))).length;
-    // A single topic word (for example "Saturno") is not enough evidence that NOVA knows the user's intent.
+    const hits=entry.keywords[lang].filter((keyword)=>keywordMatches(normalized,keyword)).length;
+    // One topic word is not enough, and keyword matches must be complete words rather than substrings.
     const keywordScore=hits>=2&&entry.keywords[lang].length?hits/entry.keywords[lang].length:0;
     const score=Math.max(questionScore,keywordScore*.76);
     if(score>bestScore){bestScore=score;bestMatch=entry;}
@@ -81,13 +87,11 @@ export function findNovaAnswer(question,language="es",level="explorer",contextEn
   const lang=language==="en"?"en":"es";const safeLevel=["cadet","explorer","astronomer"].includes(level)?level:"explorer";
   let bestMatch=null,bestScore=0,usedContext=false;
 
-  // For a genuine short follow-up, try the current topic first. It must still match a known intent strongly.
   if(contextEntry&&looksLikeFollowUp(question,lang)){
     const contextual=findBestMatch(question,lang,contextualCandidates(contextEntry));
     if(contextual.bestMatch&&contextual.bestScore>=.5){bestMatch=contextual.bestMatch;bestScore=contextual.bestScore;usedContext=true;}
   }
 
-  // If context did not produce a reliable answer, treat the message as a fresh question.
   if(!bestMatch){
     const global=findBestMatch(question,lang);
     bestMatch=global.bestMatch;bestScore=global.bestScore;

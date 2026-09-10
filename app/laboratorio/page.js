@@ -5,7 +5,7 @@ import { useState } from "react";
 import LocalizedLaboratory from "../../components/LocalizedLaboratory";
 import LaboratoryDeepLink from "../../components/LaboratoryDeepLink";
 import GravityPlayground from "../../components/GravityPlayground";
-import OrbitPlayground from "../../components/OrbitPlayground";
+import OrbitPlayground from "../../components/OrbitPlayground";\nimport DayNightPlayground from "../../components/DayNightPlayground";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useProgress } from "../../i18n/ProgressContext";
 import { getLaboratoryText } from "../../data/laboratoryContent";
@@ -31,7 +31,7 @@ export default function LaboratorioPage() {
     const experiment = experimentDiscoveryIds.find(({ titles }) => titles.some((title) => buttonText.includes(title)));
     if (!experiment) return;
     recordProgress("experiments", experiment.id);
-    if (experiment.id === "gravity" || experiment.id === "orbits") {
+    if (experiment.id === "gravity" || experiment.id === "orbits" || experiment.id === "daynight") {
       event.preventDefault();
       event.stopPropagation();
       setActiveEnhanced(experiment.id);
@@ -42,7 +42,9 @@ export default function LaboratorioPage() {
     ? <GravityPlayground onBack={() => setActiveEnhanced(null)} />
     : activeEnhanced === "orbits"
       ? <OrbitPlayground onBack={() => setActiveEnhanced(null)} />
-      : null;
+      : activeEnhanced === "daynight"
+        ? <DayNightPlayground onBack={() => setActiveEnhanced(null)} />
+        : null;
 
   return (
     <main style={{minHeight:"100vh",background:"radial-gradient(circle at top, #123047 0%, #060b18 45%, #02040a 100%)",color:"white",padding:"32px 20px 56px",boxSizing:"border-box"}}>

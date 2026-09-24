@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import ExploreTranslationFixes from "../../components/ExploreTranslationFixes";
+import ExplorationJourney from "../../components/explore/ExplorationJourney";
 import { useLanguage } from "../../i18n/LanguageContext";
 import { useProgress } from "../../i18n/ProgressContext";
 
@@ -87,7 +88,9 @@ export default function ExploraPage() {
         </button>
       )}
 
-      <ExploreTranslationFixes />
+      <ExplorationJourney>
+        <ExploreTranslationFixes />
+      </ExplorationJourney>
 
       {showStars && (
         <div

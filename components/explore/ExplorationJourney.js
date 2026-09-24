@@ -58,7 +58,7 @@ export default function ExplorationJourney({ children }) {
     <div style={{ position: "relative", width: "100%", minHeight: "100vh" }}>
       {children}
 
-      <div style={{ position: "fixed", left: 16, bottom: 70, zIndex: 1200 }}>
+      <div style={{ position: "fixed", left: 16, bottom: 18, zIndex: 1200 }}>
         <button
           type="button"
           onClick={() => setShowMap((value) => !value)}

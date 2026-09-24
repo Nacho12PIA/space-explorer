@@ -63,22 +63,27 @@ export default function ExplorationJourney({ children }) {
           type="button"
           onClick={() => setShowMap((value) => !value)}
           aria-expanded={showMap}
+          aria-label={text.scale}
+          title={text.scale}
           style={{
             border: "1px solid rgba(125,211,252,0.32)",
             borderRadius: 999,
-            padding: "10px 14px",
+            width: 46,
+            height: 46,
+            padding: 0,
+            display: "grid",
+            placeItems: "center",
             color: "white",
             background: "rgba(4,10,25,0.82)",
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
-            fontSize: 11,
+            fontSize: 21,
             fontWeight: 900,
-            letterSpacing: 0.7,
             cursor: "pointer",
             boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
           }}
         >
-          🌌 {text.scale}
+          🌌
         </button>
 
         {showMap && (
@@ -136,11 +141,15 @@ export default function ExplorationJourney({ children }) {
       <div
         style={{
           position: "fixed",
-          right: 16,
-          bottom: 18,
+          left: 70,
+          bottom: 22,
           zIndex: 1100,
           padding: "9px 13px",
           borderRadius: 999,
+          maxWidth: "calc(100vw - 86px)",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
           color: "rgba(255,255,255,0.72)",
           background: "rgba(4,10,25,0.70)",
           border: "1px solid rgba(255,255,255,0.10)",

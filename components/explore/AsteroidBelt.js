@@ -175,11 +175,11 @@ export default function AsteroidBelt() {
         </div>
       </div>
 
-      <div style={{ position: "absolute", left: 18, right: 18, bottom: 76, zIndex: 10, display: "flex", gap: 8, alignItems: "flex-end", justifyContent: "space-between", pointerEvents: "none" }}>
-        <div style={{ maxWidth: 440, padding: "10px 12px", borderRadius: 15, background: "rgba(4,10,25,0.74)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(10px)", fontSize: 11, lineHeight: 1.45, opacity: 0.86 }}>
+      <div style={{ position: "absolute", left: 18, right: 18, bottom: 132, zIndex: 10, display: "flex", gap: 8, alignItems: "flex-end", justifyContent: "space-between", pointerEvents: "none" }}>
+        <div style={{ maxWidth: 440, padding: "9px 11px", borderRadius: 15, background: "rgba(4,10,25,0.74)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(10px)", fontSize: 10, lineHeight: 1.4, opacity: 0.86 }}>
           ⚖️ {text.sparse}
         </div>
-        <button onClick={() => setShowLesson(true)} style={{ pointerEvents: "auto", flexShrink: 0, border: "1px solid rgba(125,211,252,0.28)", borderRadius: 999, padding: "10px 12px", color: "white", background: "rgba(4,10,25,0.82)", fontWeight: 900, cursor: "pointer" }}>?</button>
+        <button onClick={() => setShowLesson(true)} style={{ pointerEvents: "auto", flexShrink: 0, border: "1px solid rgba(125,211,252,0.28)", borderRadius: 999, width: 40, height: 40, padding: 0, color: "white", background: "rgba(4,10,25,0.82)", fontWeight: 900, cursor: "pointer" }}>?</button>
       </div>
 
       {selected && (

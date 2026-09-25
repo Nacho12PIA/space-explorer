@@ -6,8 +6,8 @@ import { useRef, useState } from "react";
 import * as THREE from "three";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-const PLUTO_MAP = "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia11/pia11707/PIA11707.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920";
-const CHARON_MAP = "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia19/pia19866/PIA19866.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920";
+const PLUTO_MAP = "/textures/2k_pluto.jpg";
+const CHARON_MAP = "/textures/2k_charon.jpg";
 
 const planets = [
   { name:"Mercurio", en:"Mercury", r:2.2, size:.13, speed:.24, tex:"/textures/2k_mercury.jpg" },

@@ -16,10 +16,10 @@ jobs:
           ref: main
       - name: Download and prepare NASA New Horizons maps
         run: |
-          python -m pip install --quiet pillow
+          python -m pip install --quiet pillow numpy
           mkdir -p public/textures /tmp/pluto
-          curl -L --fail --retry 3 "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia11/pia11707/PIA11707.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920" -o /tmp/pluto/pluto.jpg
-          curl -L --fail --retry 3 "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia19/pia19866/PIA19866.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920" -o /tmp/pluto/charon.jpg
+          curl -L --fail --retry 3 "https://d2pn8kiwq2w21t.cloudfront.net/original_images/jpegPIA11707.jpg" -o /tmp/pluto/pluto.jpg
+          curl -L --fail --retry 3 "https://d2pn8kiwq2w21t.cloudfront.net/original_images/jpegPIA19866.jpg" -o /tmp/pluto/charon.jpg
           python - <<'PY'
           from PIL import Image
           import numpy as np

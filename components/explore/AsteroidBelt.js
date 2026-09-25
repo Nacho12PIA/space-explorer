@@ -116,8 +116,13 @@ function MajorBody({ body, onSelect }) {
   return (
     <group ref={ref}>
       <mesh onClick={(e) => { e.stopPropagation(); onSelect(body); }}>
-        <icosahedronGeometry args={[body.radius, 2]} />
-        <meshStandardMaterial color={body.color} roughness={0.92} />
+        <icosahedronGeometry args={[body.radius, body.id === "ceres" ? 4 : 1]} />
+        <meshStandardMaterial
+          color={body.color}
+          roughness={0.96}
+          metalness={0.02}
+          flatShading={body.id !== "ceres"}
+        />
       </mesh>
       <mesh scale={1.45} onClick={(e) => { e.stopPropagation(); onSelect(body); }}>
         <sphereGeometry args={[body.radius, 16, 16]} />
@@ -133,16 +138,19 @@ function BeltScene({ onSelect }) {
       <ambientLight intensity={0.55} />
       <pointLight position={[0, 3, 0]} intensity={55} distance={45} color="#fff2c2" />
       <Stars radius={75} depth={35} count={1800} factor={2} fade speed={0.25} />
-      <mesh><sphereGeometry args={[1.15, 32, 32]} /><meshBasicMaterial color="#fbbf24" /></mesh>
+      <mesh>
+        <sphereGeometry args={[1.15, 48, 48]} />
+        <meshStandardMaterial color="#f6c945" emissive="#f59e0b" emissiveIntensity={1.35} roughness={0.72} />
+      </mesh>
       <OrbitLine radius={4.8} />
       <OrbitLine radius={12.7} />
       <mesh position={[4.8, 0, 0]}>
-        <sphereGeometry args={[0.34, 20, 20]} />
-        <meshStandardMaterial color="#c65f45" roughness={0.9} />
+        <icosahedronGeometry args={[0.34, 3]} />
+        <meshStandardMaterial color="#b94f3a" roughness={0.98} flatShading />
       </mesh>
       <mesh position={[-12.7, 0, 0]}>
-        <sphereGeometry args={[0.82, 24, 24]} />
-        <meshStandardMaterial color="#d7b58a" roughness={0.8} />
+        <sphereGeometry args={[0.82, 48, 48]} />
+        <meshStandardMaterial color="#c9a270" roughness={0.86} />
       </mesh>
       <BeltParticles />
       {bodies.map((body) => <MajorBody key={body.id} body={body} onSelect={onSelect} />)}

@@ -39,6 +39,58 @@ const copy = {
   },
 };
 
+function makeBodyTexture(kind) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+
+  const base = kind === "pluto" ? "#a98269" : "#77736f";
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const seed = kind === "pluto" ? 37 : 71;
+  for (let i = 0; i < 520; i++) {
+    const x = (i * 193 + seed * 17) % canvas.width;
+    const y = (i * 89 + seed * 29) % canvas.height;
+    const r = 3 + ((i * 13) % 34);
+    const light = 42 + ((i * 7) % 24);
+    ctx.fillStyle = kind === "pluto"
+      ? `hsla(${18 + (i % 14)}, 25%, ${light}%, 0.20)`
+      : `hsla(25, 5%, ${light}%, 0.18)`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r * 1.7, r, (i % 9) * 0.17, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (kind === "pluto") {
+    ctx.fillStyle = "rgba(220,205,183,.78)";
+    ctx.beginPath();
+    ctx.ellipse(515, 210, 105, 68, -0.18, 0, Math.PI * 2);
+    ctx.ellipse(610, 215, 85, 62, 0.22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(83,54,45,.32)";
+    ctx.fillRect(0, 320, 1024, 72);
+  } else {
+    ctx.fillStyle = "rgba(83,55,50,.48)";
+    ctx.fillRect(0, 38, 1024, 74);
+    ctx.strokeStyle = "rgba(38,35,34,.38)";
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.moveTo(110, 240);
+    ctx.lineTo(370, 285);
+    ctx.lineTo(620, 248);
+    ctx.lineTo(890, 300);
+    ctx.stroke();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function Orbit({ radius, color = "#64748b", opacity = 0.22, rotation = [Math.PI / 2, 0, 0], scale = [1, 1, 1] }) {
   return (
     <mesh rotation={rotation} scale={scale}>
@@ -52,6 +104,8 @@ function PlutoSystem({ onSelect, text }) {
   const orbitRef = useRef();
   const plutoRef = useRef();
   const charonRef = useRef();
+  const plutoTexture = useMemo(() => makeBodyTexture("pluto"), []);
+  const charonTexture = useMemo(() => makeBodyTexture("charon"), []);
 
   useFrame((_, delta) => {
     if (orbitRef.current) orbitRef.current.rotation.y += delta * 0.045;
@@ -65,11 +119,11 @@ function PlutoSystem({ onSelect, text }) {
         <group rotation={[0, 0, 0.08]}>
           <mesh ref={plutoRef} position={[-0.24, 0, 0]} onClick={(e) => { e.stopPropagation(); onSelect(); }}>
             <sphereGeometry args={[0.62, 48, 48]} />
-            <meshStandardMaterial color="#b58d72" roughness={0.94} metalness={0} />
+            <meshStandardMaterial map={plutoTexture} roughness={0.94} metalness={0} />
           </mesh>
           <mesh ref={charonRef} position={[1.25, 0, 0]}>
             <sphereGeometry args={[0.31, 36, 36]} />
-            <meshStandardMaterial color="#807b78" roughness={0.98} metalness={0} />
+            <meshStandardMaterial map={charonTexture} roughness={0.98} metalness={0} />
           </mesh>
           <Orbit radius={0.76} opacity={0.16} />
         </group>
@@ -117,6 +171,33 @@ function Scene({ onSelect, text }) {
   );
 }
 
+function SelectedWorldsPreview() {
+  const group = useRef();
+  const plutoTexture = useMemo(() => makeBodyTexture("pluto"), []);
+  const charonTexture = useMemo(() => makeBodyTexture("charon"), []);
+
+  useFrame((_, delta) => {
+    if (group.current) group.current.rotation.y += delta * 0.16;
+  });
+
+  return (
+    <>
+      <ambientLight intensity={0.85} />
+      <directionalLight position={[4, 3, 5]} intensity={2.4} />
+      <group ref={group} rotation={[0.08, -0.4, 0.05]}>
+        <mesh position={[-0.48, 0, 0]}>
+          <sphereGeometry args={[1.18, 64, 64]} />
+          <meshStandardMaterial map={plutoTexture} roughness={0.94} />
+        </mesh>
+        <mesh position={[1.12, 0.18, 0.2]}>
+          <sphereGeometry args={[0.52, 48, 48]} />
+          <meshStandardMaterial map={charonTexture} roughness={0.98} />
+        </mesh>
+      </group>
+    </>
+  );
+}
+
 export default function OuterSolarSystem() {
   const { language } = useLanguage();
   const text = copy[language] || copy.es;
@@ -145,6 +226,11 @@ export default function OuterSolarSystem() {
       {selected && (
         <div onClick={() => setSelected(false)} style={{ position: "fixed", inset: 0, zIndex: 7000, display: "grid", placeItems: "end center", padding: 16, background: "rgba(1,3,10,.62)", backdropFilter: "blur(5px)" }}>
           <article onClick={(e) => e.stopPropagation()} style={{ width: "min(520px,100%)", padding: 20, borderRadius: 24, background: "rgba(7,14,32,.98)", border: "1px solid rgba(125,211,252,.20)", boxShadow: "0 24px 80px rgba(0,0,0,.5)" }}>
+            <div style={{ height: 190, margin: "-6px 0 4px", borderRadius: 18, overflow: "hidden", background: "radial-gradient(circle, rgba(48,63,92,.24), transparent 68%)" }}>
+              <Canvas camera={{ position: [0, 0.2, 5.1], fov: 38 }}>
+                <SelectedWorldsPreview />
+              </Canvas>
+            </div>
             <div style={{ fontSize: 10, letterSpacing: 1.8, fontWeight: 900, color: "#c4b5fd" }}>{text.plutoTitle.toUpperCase()}</div>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
               <h2 style={{ margin: "6px 0 10px", fontSize: 31 }}>Plutón + Caronte</h2>

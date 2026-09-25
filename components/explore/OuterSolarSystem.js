@@ -10,14 +10,14 @@ const PLUTO_MAP = "https://assets.science.nasa.gov/dynamicimage/assets/science/p
 const CHARON_MAP = "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia19/pia19866/PIA19866.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920";
 
 const planets = [
-  { name:"Mercurio", en:"Mercury", r:2.2, size:.13, tex:"/textures/2k_mercury.jpg" },
-  { name:"Venus", en:"Venus", r:3.0, size:.20, tex:"/textures/2k_venus_atmosphere.jpg" },
-  { name:"Tierra", en:"Earth", r:3.8, size:.21, tex:"/textures/2k_earth_daymap.jpg" },
-  { name:"Marte", en:"Mars", r:4.6, size:.16, tex:"/textures/2k_mars.jpg" },
-  { name:"Júpiter", en:"Jupiter", r:6.0, size:.48, tex:"/textures/2k_jupiter.jpg" },
-  { name:"Saturno", en:"Saturn", r:7.3, size:.41, tex:"/textures/2k_saturn.jpg" },
-  { name:"Urano", en:"Uranus", r:8.5, size:.30, tex:"/textures/2k_uranus.jpg" },
-  { name:"Neptuno", en:"Neptune", r:9.7, size:.30, tex:"/textures/2k_neptune.jpg" },
+  { name:"Mercurio", en:"Mercury", r:2.2, size:.13, speed:.24, tex:"/textures/2k_mercury.jpg" },
+  { name:"Venus", en:"Venus", r:3.0, size:.20, speed:.19, tex:"/textures/2k_venus_atmosphere.jpg" },
+  { name:"Tierra", en:"Earth", r:3.8, size:.21, speed:.15, tex:"/textures/2k_earth_daymap.jpg" },
+  { name:"Marte", en:"Mars", r:4.6, size:.16, speed:.12, tex:"/textures/2k_mars.jpg" },
+  { name:"Júpiter", en:"Jupiter", r:6.0, size:.48, speed:.075, tex:"/textures/2k_jupiter.jpg" },
+  { name:"Saturno", en:"Saturn", r:7.3, size:.41, speed:.055, tex:"/textures/2k_saturn.jpg" },
+  { name:"Urano", en:"Uranus", r:8.5, size:.30, speed:.04, tex:"/textures/2k_uranus.jpg" },
+  { name:"Neptuno", en:"Neptune", r:9.7, size:.30, speed:.032, tex:"/textures/2k_neptune.jpg" },
 ];
 
 const copy={
@@ -54,36 +54,50 @@ function Orbit({r,opacity=.13,tilt=0}){
 }
 
 function Planet({p,index,language}){
- const tex=useLoader(THREE.TextureLoader,p.tex); const ref=useRef();
- useFrame((_,d)=>{if(ref.current)ref.current.rotation.y+=d*(.05+index*.004)});
+ const tex=useLoader(THREE.TextureLoader,p.tex);
+ const orbitRef=useRef(); const bodyRef=useRef();
  const a=.5+index*.73;
- return <group position={[Math.cos(a)*p.r,0,Math.sin(a)*p.r]}>
-  <mesh ref={ref}><sphereGeometry args={[p.size,32,32]}/><meshStandardMaterial map={tex} roughness={.86}/></mesh>
-  {p.name==="Saturno"&&<mesh rotation={[Math.PI/2,0,.22]}><ringGeometry args={[.55,.82,48]}/><meshBasicMaterial color="#bba77d" transparent opacity={.58} side={THREE.DoubleSide}/></mesh>}
-  {p.name==="Neptuno"&&<Html position={[0,.55,0]} center distanceFactor={15} style={{pointerEvents:"none"}}><span style={{fontSize:8,fontWeight:900,color:"white",opacity:.65,whiteSpace:"nowrap"}}>{language==="en"?p.en:p.name}</span></Html>}
+ useFrame((_,d)=>{
+  if(orbitRef.current) orbitRef.current.rotation.y+=d*p.speed;
+  if(bodyRef.current) bodyRef.current.rotation.y+=d*(.18+index*.012);
+ });
+ return <group ref={orbitRef} rotation={[0,a,0]}>
+  <group position={[p.r,0,0]}>
+   <mesh ref={bodyRef}><sphereGeometry args={[p.size,32,32]}/><meshStandardMaterial map={tex} roughness={.86}/></mesh>
+   {p.name==="Saturno"&&<mesh rotation={[Math.PI/2,0,.22]}><ringGeometry args={[.55,.82,48]}/><meshBasicMaterial color="#bba77d" transparent opacity={.58} side={THREE.DoubleSide}/></mesh>}
+   {p.name==="Neptuno"&&<Html position={[0,.55,0]} center distanceFactor={15} style={{pointerEvents:"none"}}><span style={{fontSize:8,fontWeight:900,color:"white",opacity:.65,whiteSpace:"nowrap"}}>{language==="en"?p.en:p.name}</span></Html>}
+  </group>
  </group>;
 }
 
 function Pluto({onSelect,text}){
- const tex=useLoader(THREE.TextureLoader,PLUTO_MAP); const ref=useRef();
- useFrame((_,d)=>{if(ref.current)ref.current.rotation.y+=d*.045});
- return <group rotation={[0.18,0,.2]}>
+ const tex=useLoader(THREE.TextureLoader,PLUTO_MAP);
+ const orbitRef=useRef(); const bodyRef=useRef();
+ useFrame((_,d)=>{
+  if(orbitRef.current) orbitRef.current.rotation.y+=d*.022;
+  if(bodyRef.current) bodyRef.current.rotation.y+=d*.08;
+ });
+ return <group rotation={[0,0,.2]}>
   <Orbit r={13.3} opacity={.24} tilt={.12}/>
-  <group position={[-12.2,.8,4.1]}>
-   <mesh ref={ref} onClick={e=>{e.stopPropagation();onSelect()}}>
-    <sphereGeometry args={[.52,48,48]}/><meshStandardMaterial map={tex} roughness={.92}/>
-   </mesh>
-   <Html position={[0,.9,0]} center distanceFactor={13} style={{pointerEvents:"none"}}><span style={{padding:"3px 7px",borderRadius:999,background:"rgba(4,10,25,.75)",fontSize:8,fontWeight:900,color:"white",whiteSpace:"nowrap"}}>{text.pluto}</span></Html>
+  <group ref={orbitRef} rotation={[.12,2.82,0]}>
+   <group position={[13.3,0,0]}>
+    <mesh ref={bodyRef} onClick={e=>{e.stopPropagation();onSelect()}}>
+     <sphereGeometry args={[.52,48,48]}/><meshStandardMaterial map={tex} roughness={.92}/>
+    </mesh>
+    <Html position={[0,.9,0]} center distanceFactor={13} style={{pointerEvents:"none"}}><span style={{padding:"3px 7px",borderRadius:999,background:"rgba(4,10,25,.75)",fontSize:8,fontWeight:900,color:"white",whiteSpace:"nowrap"}}>{text.pluto}</span></Html>
+   </group>
   </group>
  </group>;
 }
 
 function OverviewScene({onSelect,text,language}){
  const sun=useLoader(THREE.TextureLoader,"/textures/2k_sun.jpg");
+ const sunRef=useRef();
+ useFrame((_,d)=>{if(sunRef.current) sunRef.current.rotation.y+=d*.04});
  return <>
   <ambientLight intensity={.55}/><pointLight position={[0,3,0]} intensity={38} distance={50}/>
   <Stars radius={100} depth={55} count={4200} factor={3} fade speed={.2}/>
-  <mesh><sphereGeometry args={[.65,40,40]}/><meshBasicMaterial map={sun}/></mesh>
+  <mesh ref={sunRef}><sphereGeometry args={[.65,40,40]}/><meshBasicMaterial map={sun}/></mesh>
   {planets.map((p,i)=><group key={p.name}><Orbit r={p.r}/><Planet p={p} index={i} language={language}/></group>)}
   <Pluto onSelect={onSelect} text={text}/>
   <OrbitControls enablePan={false} minDistance={12} maxDistance={34} enableDamping dampingFactor={.08}/>

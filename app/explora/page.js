@@ -28,6 +28,7 @@ const planetDiscoveryIds = {
 export default function ExploraPage() {
   const [showStars, setShowStars] = useState(false);
   const [showStarButton, setShowStarButton] = useState(true);
+  const [explorationScale, setExplorationScale] = useState("solarSystem");
   const { t } = useLanguage();
   const { recordProgress } = useProgress();
   const starFacts = t("explore.starFacts", []);
@@ -73,7 +74,7 @@ export default function ExploraPage() {
         ← {t("explore.home", "INICIO")}
       </Link>
 
-      {showStarButton && (
+      {showStarButton && explorationScale === "solarSystem" && (
         <button
           onClick={() => setShowStars(true)}
           style={{
@@ -88,7 +89,7 @@ export default function ExploraPage() {
         </button>
       )}
 
-      <ExplorationJourney>
+      <ExplorationJourney onScaleChange={setExplorationScale}>
         <ExploreTranslationFixes />
       </ExplorationJourney>
 

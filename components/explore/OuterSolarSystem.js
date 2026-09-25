@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { Html, OrbitControls, Stars } from "@react-three/drei";
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -50,6 +50,8 @@ function Orbit({ radius, color = "#64748b", opacity = 0.22, rotation = [Math.PI 
 
 function PlutoSystem({ onSelect, text }) {
   const orbitRef = useRef();
+  const plutoTexture = useLoader(THREE.TextureLoader, "/textures/2k_pluto.jpg");
+  const charonTexture = useLoader(THREE.TextureLoader, "/textures/2k_charon.jpg");
   const plutoRef = useRef();
   const charonRef = useRef();
 
@@ -65,11 +67,11 @@ function PlutoSystem({ onSelect, text }) {
         <group rotation={[0, 0, 0.08]}>
           <mesh ref={plutoRef} position={[-0.24, 0, 0]} onClick={(e) => { e.stopPropagation(); onSelect(); }}>
             <sphereGeometry args={[0.62, 48, 48]} />
-            <meshStandardMaterial color="#c7a98c" roughness={0.92} />
+            <meshStandardMaterial map={plutoTexture} roughness={0.94} metalness={0} />
           </mesh>
           <mesh ref={charonRef} position={[1.25, 0, 0]}>
             <sphereGeometry args={[0.31, 36, 36]} />
-            <meshStandardMaterial color="#8f8b88" roughness={0.98} />
+            <meshStandardMaterial map={charonTexture} roughness={0.98} metalness={0} />
           </mesh>
           <Orbit radius={0.76} opacity={0.16} />
         </group>
@@ -83,6 +85,8 @@ function PlutoSystem({ onSelect, text }) {
 
 function Scene({ onSelect, text }) {
   const neptune = useRef();
+  const neptuneTexture = useLoader(THREE.TextureLoader, "/textures/2k_neptune.jpg");
+  const sunTexture = useLoader(THREE.TextureLoader, "/textures/2k_sun.jpg");
   useFrame((_, delta) => { if (neptune.current) neptune.current.rotation.y += delta * 0.1; });
 
   return (
@@ -93,14 +97,14 @@ function Scene({ onSelect, text }) {
 
       <mesh>
         <sphereGeometry args={[0.72, 40, 40]} />
-        <meshBasicMaterial color="#f6c945" />
+        <meshBasicMaterial map={sunTexture} color="#fff1b8" />
       </mesh>
 
       <Orbit radius={9.6} opacity={0.18} />
       <group position={[9.6, 0, 0]}>
         <mesh ref={neptune}>
           <sphereGeometry args={[0.72, 48, 48]} />
-          <meshStandardMaterial color="#315fca" roughness={0.78} />
+          <meshStandardMaterial map={neptuneTexture} roughness={0.8} metalness={0} />
         </mesh>
         <Html position={[0, 1.05, 0]} center distanceFactor={12} style={{ pointerEvents: "none" }}>
           <div style={{ color: "white", fontSize: 9, fontWeight: 900, opacity: 0.7 }}>{text.neptune}</div>

@@ -2930,6 +2930,223 @@ function CameraController({
   return null;
 }
 
+function AsteroidBelt({
+  visible = true,
+}) {
+  const beltRef =
+    useRef();
+
+  const geometry =
+    useMemo(() => {
+      const count = 900;
+      const geo =
+        new THREE.IcosahedronGeometry(
+          0.055,
+          0
+        );
+
+      const instanced =
+        new THREE.InstancedBufferGeometry();
+
+      instanced.index =
+        geo.index;
+
+      instanced.attributes.position =
+        geo.attributes.position;
+
+      instanced.attributes.normal =
+        geo.attributes.normal;
+
+      const offsets =
+        new Float32Array(
+          count * 3
+        );
+
+      const scales =
+        new Float32Array(
+          count
+        );
+
+      const rotations =
+        new Float32Array(
+          count
+        );
+
+      for (
+        let i = 0;
+        i < count;
+        i++
+      ) {
+        const angle =
+          Math.random() *
+          Math.PI *
+          2;
+
+        // Marte está a 11 unidades y Júpiter a 15.
+        // El cinturón se representa visualmente entre ambas órbitas.
+        const radius =
+          12.05 +
+          Math.random() *
+          1.9;
+
+        offsets[
+          i * 3
+        ] =
+          Math.cos(
+            angle
+          ) *
+          radius;
+
+        offsets[
+          i * 3 + 1
+        ] =
+          (Math.random() -
+            0.5) *
+          0.34;
+
+        offsets[
+          i * 3 + 2
+        ] =
+          Math.sin(
+            angle
+          ) *
+          radius;
+
+        scales[i] =
+          0.35 +
+          Math.random() *
+          1.25;
+
+        rotations[i] =
+          Math.random() *
+          Math.PI;
+      }
+
+      instanced.setAttribute(
+        "offset",
+        new THREE.InstancedBufferAttribute(
+          offsets,
+          3
+        )
+      );
+
+      instanced.setAttribute(
+        "aScale",
+        new THREE.InstancedBufferAttribute(
+          scales,
+          1
+        )
+      );
+
+      instanced.setAttribute(
+        "aRotation",
+        new THREE.InstancedBufferAttribute(
+          rotations,
+          1
+        )
+      );
+
+      instanced.instanceCount =
+        count;
+
+      geo.dispose();
+
+      return instanced;
+    }, []);
+
+  const material =
+    useMemo(
+      () =>
+        new THREE.ShaderMaterial({
+          transparent: true,
+          depthWrite: true,
+          uniforms: {
+            color: {
+              value:
+                new THREE.Color(
+                  "#8d8378"
+                ),
+            },
+          },
+          vertexShader: `
+            attribute vec3 offset;
+            attribute float aScale;
+            attribute float aRotation;
+
+            varying float vShade;
+
+            void main() {
+              float c = cos(aRotation);
+              float s = sin(aRotation);
+
+              vec3 p = position * aScale;
+              p.xz = mat2(c, -s, s, c) * p.xz;
+              p += offset;
+
+              vShade = 0.62 + aScale * 0.22;
+
+              gl_Position =
+                projectionMatrix *
+                modelViewMatrix *
+                vec4(p, 1.0);
+            }
+          `,
+          fragmentShader: `
+            uniform vec3 color;
+            varying float vShade;
+
+            void main() {
+              gl_FragColor =
+                vec4(
+                  color * vShade,
+                  0.9
+                );
+            }
+          `,
+        }),
+      []
+    );
+
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      material.dispose();
+    },
+    [
+      geometry,
+      material,
+    ]
+  );
+
+  useFrame(
+    (state, delta) => {
+      if (
+        beltRef.current &&
+        visible
+      ) {
+        beltRef.current.rotation.y +=
+          delta * 0.006;
+      }
+    }
+  );
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <group
+      ref={beltRef}
+    >
+      <mesh
+        geometry={geometry}
+        material={material}
+        frustumCulled={false}
+      />
+    </group>
+  );
+}
+
 function Scene({
   selectedPlanet,
   onSelect,
@@ -3018,6 +3235,12 @@ function Scene({
           />
         )
       )}
+
+      <AsteroidBelt
+        visible={
+          !selectedPlanet
+        }
+      />
 
       <OrbitControls
         ref={controlsRef}

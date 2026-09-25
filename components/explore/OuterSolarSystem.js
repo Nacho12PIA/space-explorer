@@ -6,8 +6,8 @@ import { useRef, useState } from "react";
 import * as THREE from "three";
 import { useLanguage } from "../../i18n/LanguageContext";
 
-const PLUTO_MAP = "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia11/pia11707/PIA11707.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920";
-const CHARON_MAP = "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia19/pia19866/PIA19866.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920";
+const PLUTO_MAP = "https://svs.gsfc.nasa.gov/vis/a000000/a004600/a004668/Pluto_NewHorizons_GlobalMap_2015-07-14_2k.jpg";
+const CHARON_MAP = "https://svs.gsfc.nasa.gov/vis/a000000/a004600/a004668/Charon_NewHorizons_GlobalMap_2015-07-14_2k.jpg";
 
 const planets = [
   { name:"Mercurio", en:"Mercury", r:2.2, size:.13, tex:"/textures/2k_mercury.jpg" },
@@ -90,14 +90,59 @@ function OverviewScene({onSelect,text,language}){
  </>;
 }
 
-function PlutoHero({showCharon}){
+function PlutoAtmosphere(){
+ return <mesh scale={1.055}>
+  <sphereGeometry args={[2.35,96,96]}/>
+  <shaderMaterial
+   transparent depthWrite={false} side={THREE.FrontSide}
+   blending={THREE.AdditiveBlending}
+   vertexShader={`
+    varying vec3 vNormal; varying vec3 vViewDirection;
+    void main(){
+      vec4 mv=modelViewMatrix*vec4(position,1.0);
+      vNormal=normalize(normalMatrix*normal);
+      vViewDirection=normalize(-mv.xyz);
+      gl_Position=projectionMatrix*mv;
+    }`}
+   fragmentShader={`
+    varying vec3 vNormal; varying vec3 vViewDirection;
+    void main(){
+      float facing=max(dot(normalize(vNormal),normalize(vViewDirection)),0.0);
+      float rim=pow(1.0-facing,2.8);
+      vec3 haze=vec3(0.35,0.58,0.82);
+      gl_FragColor=vec4(haze*(0.55+rim),rim*0.34);
+    }`}
+  />
+ </mesh>;
+}
+
+function PlutoHero({showCharon,showAtmosphere}){
  const pluto=useLoader(THREE.TextureLoader,PLUTO_MAP);
  const charon=useLoader(THREE.TextureLoader,CHARON_MAP);
+ const plutoRef=useRef();
+ const moonOrbit=useRef();
+ const moonRef=useRef();
+
+ useFrame((_,delta)=>{
+  if(plutoRef.current) plutoRef.current.rotation.y+=delta*.07;
+  if(moonOrbit.current&&showCharon) moonOrbit.current.rotation.y+=delta*.22;
+  if(moonRef.current) moonRef.current.rotation.y+=delta*.06;
+ });
+
  return <>
   <ambientLight intensity={.42}/><directionalLight position={[4,2,5]} intensity={2.7}/>
   <Stars radius={80} depth={40} count={1800} factor={2} fade/>
-  <mesh rotation={[0,0,-.12]}><sphereGeometry args={[2.35,96,96]}/><meshStandardMaterial map={pluto} roughness={.94}/></mesh>
-  {showCharon&&<mesh position={[3.25,.45,-.4]}><sphereGeometry args={[.78,64,64]}/><meshStandardMaterial map={charon} roughness={.97}/></mesh>}
+  <group ref={plutoRef} rotation={[0,0,-.12]}>
+   <mesh><sphereGeometry args={[2.35,96,96]}/><meshStandardMaterial map={pluto} roughness={.94}/></mesh>
+   {showAtmosphere&&<PlutoAtmosphere/>}
+  </group>
+  {showCharon&&<group ref={moonOrbit}>
+   <mesh rotation={[Math.PI/2,0,0]}><torusGeometry args={[3.45,.018,8,160]}/><meshBasicMaterial color="#94a3b8" transparent opacity={.48}/></mesh>
+   <group position={[3.45,.15,0]}>
+    <mesh ref={moonRef}><sphereGeometry args={[.78,64,64]}/><meshStandardMaterial map={charon} roughness={.97}/></mesh>
+    <Html position={[0,1.05,0]} center distanceFactor={7} style={{pointerEvents:"none"}}><span style={{padding:"5px 9px",borderRadius:999,background:"rgba(4,10,25,.82)",border:"1px solid rgba(255,255,255,.16)",color:"white",fontSize:10}}>Caronte</span></Html>
+   </group>
+  </group>}
   <OrbitControls enablePan={false} minDistance={5.2} maxDistance={10} enableDamping dampingFactor={.08}/>
  </>;
 }
@@ -118,7 +163,7 @@ export default function OuterSolarSystem(){
   </>}
   {selected&&<div style={{position:"fixed",inset:0,zIndex:9000,background:"#01030a",overflowY:"auto"}}>
    <div style={{height:"clamp(330px,48vh,520px)",position:"sticky",top:0}}>
-    <Canvas camera={{position:[0,0,7],fov:43}}><PlutoHero showCharon={tab===3}/></Canvas>
+    <Canvas camera={{position:[0,0,7],fov:43}}><PlutoHero showCharon={tab===3} showAtmosphere={tab===2}/></Canvas>
    </div>
    <section style={{position:"relative",zIndex:2,width:"min(760px,calc(100% - 28px))",margin:"-24px auto 28px",padding:"22px clamp(18px,4vw,32px) 30px",borderRadius:28,background:"rgba(5,12,29,.96)",border:"1px solid rgba(125,211,252,.24)",boxShadow:"0 -20px 70px rgba(0,0,0,.36)"}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12}}>

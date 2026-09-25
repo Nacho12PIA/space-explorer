@@ -34,6 +34,11 @@ const copy = {
     hygiea: "Hygiea es uno de los mayores objetos del cinturón principal y pertenece a una gran familia de asteroides.",
     classification: "¿POR QUÉ NO SON TODOS IGUALES?",
     classificationText: "«Asteroide» describe muchos cuerpos pequeños que orbitan el Sol. Ceres, además, cumple los criterios para ser clasificado como planeta enano.",
+    route: "MARTE  →  CINTURÓN DE ASTEROIDES  →  JÚPITER",
+    mars: "MARTE",
+    jupiter: "JÚPITER",
+    belt: "CINTURÓN",
+    routeHint: "Has salido de la órbita de Marte. Antes de llegar a Júpiter, atraviesas la región del cinturón principal.",
   },
   en: {
     eyebrow: "BETWEEN MARS AND JUPITER",
@@ -55,6 +60,11 @@ const copy = {
     hygiea: "Hygiea is one of the largest objects in the main belt and belongs to a large asteroid family.",
     classification: "WHY AREN'T THEY ALL THE SAME?",
     classificationText: "“Asteroid” describes many small bodies orbiting the Sun. Ceres also meets the criteria to be classified as a dwarf planet.",
+    route: "MARS  →  ASTEROID BELT  →  JUPITER",
+    mars: "MARS",
+    jupiter: "JUPITER",
+    belt: "BELT",
+    routeHint: "You have travelled beyond Mars. Before reaching Jupiter, you cross the region of the main asteroid belt.",
   },
 };
 
@@ -126,6 +136,14 @@ function BeltScene({ onSelect }) {
       <mesh><sphereGeometry args={[1.15, 32, 32]} /><meshBasicMaterial color="#fbbf24" /></mesh>
       <OrbitLine radius={4.8} />
       <OrbitLine radius={12.7} />
+      <mesh position={[4.8, 0, 0]}>
+        <sphereGeometry args={[0.34, 20, 20]} />
+        <meshStandardMaterial color="#c65f45" roughness={0.9} />
+      </mesh>
+      <mesh position={[-12.7, 0, 0]}>
+        <sphereGeometry args={[0.82, 24, 24]} />
+        <meshStandardMaterial color="#d7b58a" roughness={0.8} />
+      </mesh>
       <BeltParticles />
       {bodies.map((body) => <MajorBody key={body.id} body={body} onSelect={onSelect} />)}
       <OrbitControls enablePan={false} minDistance={13} maxDistance={32} autoRotate autoRotateSpeed={0.18} />
@@ -150,6 +168,10 @@ export default function AsteroidBelt() {
           <div style={{ fontSize: 10, letterSpacing: 2.2, fontWeight: 900, opacity: 0.52 }}>{text.eyebrow}</div>
           <h1 style={{ margin: "5px 0 5px", fontSize: "clamp(27px, 7vw, 46px)" }}>{text.title}</h1>
           <p style={{ margin: 0, maxWidth: 500, fontSize: "clamp(12px, 3vw, 15px)", lineHeight: 1.45, opacity: 0.72 }}>{text.intro}</p>
+          <div style={{ marginTop: 10, display: "inline-flex", padding: "7px 10px", borderRadius: 999, background: "rgba(4,10,25,0.72)", border: "1px solid rgba(255,255,255,0.10)", fontSize: 9, fontWeight: 900, letterSpacing: 0.6, opacity: 0.82 }}>
+            {text.route}
+          </div>
+          <p style={{ margin: "8px 0 0", maxWidth: 470, fontSize: 10, lineHeight: 1.4, opacity: 0.52 }}>{text.routeHint}</p>
         </div>
       </div>
 

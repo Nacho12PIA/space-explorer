@@ -2,11 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
-import AsteroidBelt from "./AsteroidBelt";
 
 export const EXPLORATION_SCALES = [
   "solarSystem",
-  "asteroidBelt",
   "outerSolarSystem",
   "kuiperBelt",
   "heliosphere",
@@ -18,7 +16,6 @@ const copy = {
   es: {
     scale: "ESCALA DE EXPLORACIÓN",
     solarSystem: "Sistema Solar",
-    asteroidBelt: "Cinturón de asteroides",
     outerSolarSystem: "Sistema Solar exterior",
     kuiperBelt: "Cinturón de Kuiper",
     heliosphere: "Heliosfera",
@@ -34,7 +31,6 @@ const copy = {
   en: {
     scale: "EXPLORATION SCALE",
     solarSystem: "Solar System",
-    asteroidBelt: "Asteroid Belt",
     outerSolarSystem: "Outer Solar System",
     kuiperBelt: "Kuiper Belt",
     heliosphere: "Heliosphere",
@@ -117,8 +113,6 @@ export default function ExplorationJourney({ children }) {
       >
         {currentScale === "solarSystem" ? (
           children
-        ) : currentScale === "asteroidBelt" ? (
-          <AsteroidBelt />
         ) : (
           <ScalePlaceholder label={text[currentScale]} text={text} />
         )}

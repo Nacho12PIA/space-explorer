@@ -1,0 +1,58 @@
+name: Import Pluto textures
+on:
+  push:
+    paths:
+      - ".github/workflows/import-pluto-textures.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import-textures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download and prepare NASA New Horizons maps
+        run: |
+          python -m pip install --quiet pillow
+          mkdir -p public/textures /tmp/pluto
+          curl -L --fail --retry 3 "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia11/pia11707/PIA11707.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920" -o /tmp/pluto/pluto.jpg
+          curl -L --fail --retry 3 "https://assets.science.nasa.gov/dynamicimage/assets/science/psd/photojournal/pia/pia19/pia19866/PIA19866.jpg?crop=faces%2Cfocalpoint&fit=clip&h=960&w=1920" -o /tmp/pluto/charon.jpg
+          python - <<'PY'
+          from PIL import Image
+          import numpy as np
+
+          def prepare(src, dst):
+              im=Image.open(src).convert("RGB")
+              a=np.array(im)
+              h,w=a.shape[:2]
+              # New Horizons did not image the far southern polar terrain in sunlight.
+              # Replace only the unobserved pure-black holes with a soft continuation
+              # of the nearest observed latitude, keeping all measured terrain intact.
+              lum=a.mean(axis=2)
+              black=lum<7
+              out=a.copy()
+              for x in range(w):
+                  valid=np.where(~black[:,x])[0]
+                  if len(valid)==0: continue
+                  last=int(valid[-1])
+                  if last<h-1:
+                      base=out[max(0,last-10):last+1,x].mean(axis=0)
+                      for y in range(last+1,h):
+                          t=(y-last)/(h-last)
+                          out[y,x]=np.clip(base*(1-.28*t),0,255)
+              result=Image.fromarray(out).resize((2048,1024),Image.Resampling.LANCZOS)
+              result.save(dst,"JPEG",quality=88,optimize=True,progressive=True)
+
+          prepare("/tmp/pluto/pluto.jpg","public/textures/2k_pluto.jpg")
+          prepare("/tmp/pluto/charon.jpg","public/textures/2k_charon.jpg")
+          PY
+      - name: Commit local textures
+        run: |
+          git config user.name "space-explorer-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/textures/2k_pluto.jpg public/textures/2k_charon.jpg
+          git commit -m "EXPLORA: add local NASA Pluto and Charon textures"
+          git push origin main

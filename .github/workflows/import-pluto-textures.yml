@@ -21,30 +21,45 @@ jobs:
           curl -L --fail --retry 3 "https://d2pn8kiwq2w21t.cloudfront.net/original_images/jpegPIA11707.jpg" -o /tmp/pluto/pluto.jpg
           curl -L --fail --retry 3 "https://d2pn8kiwq2w21t.cloudfront.net/original_images/jpegPIA19866.jpg" -o /tmp/pluto/charon.jpg
           python - <<'PY'
-          from PIL import Image
+          from PIL import Image, ImageFilter
           import numpy as np
 
           def prepare(src, dst):
               im=Image.open(src).convert("RGB")
-              a=np.array(im)
+              a=np.array(im).astype(np.float32)
               h,w=a.shape[:2]
-              # New Horizons did not image the far southern polar terrain in sunlight.
-              # Replace only the unobserved pure-black holes with a soft continuation
-              # of the nearest observed latitude, keeping all measured terrain intact.
               lum=a.mean(axis=2)
-              black=lum<7
-              out=a.copy()
-              for x in range(w):
-                  valid=np.where(~black[:,x])[0]
-                  if len(valid)==0: continue
-                  last=int(valid[-1])
-                  if last<h-1:
-                      base=out[max(0,last-10):last+1,x].mean(axis=0)
-                      for y in range(last+1,h):
-                          t=(y-last)/(h-last)
-                          out[y,x]=np.clip(base*(1-.28*t),0,255)
+              missing=lum<7
+
+              # Keep every observed New Horizons pixel unchanged. The unobserved
+              # southern cap is rendered as a deliberately neutral, detail-free
+              # cap instead of inventing terrain or stretching edge pixels.
+              observed=~missing
+              ys,xs=np.where(observed)
+              south_band=observed & (np.indices((h,w))[0] > int(h*.48))
+              samples=a[south_band]
+              if len(samples):
+                  cap=np.median(samples,axis=0)
+              else:
+                  cap=np.array([78.,55.,48.])
+
+              yy=np.linspace(0,1,h)[:,None]
+              cap_img=np.zeros_like(a)
+              cap_img[:]=cap
+              # Gentle latitude shading gives the sphere a clean pole without
+              # fake geological features.
+              shade=(1.0-0.22*np.clip((yy-.55)/.45,0,1))[...,None]
+              cap_img*=shade
+
+              # Feather the boundary around missing data to avoid a hard seam.
+              mask=Image.fromarray((missing*255).astype(np.uint8))
+              mask=mask.filter(ImageFilter.GaussianBlur(radius=max(5,h//100)))
+              alpha=np.asarray(mask,dtype=np.float32)[...,None]/255.0
+              out=a*(1-alpha)+cap_img*alpha
+              out=np.clip(out,0,255).astype(np.uint8)
+
               result=Image.fromarray(out).resize((2048,1024),Image.Resampling.LANCZOS)
-              result.save(dst,"JPEG",quality=88,optimize=True,progressive=True)
+              result.save(dst,"JPEG",quality=90,optimize=True,progressive=True)
 
           prepare("/tmp/pluto/pluto.jpg","public/textures/2k_pluto.jpg")
           prepare("/tmp/pluto/charon.jpg","public/textures/2k_charon.jpg")

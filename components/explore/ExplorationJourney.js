@@ -71,7 +71,7 @@ function ScalePlaceholder({ label, text }) {
   );
 }
 
-export default function ExplorationJourney({ children }) {
+export default function ExplorationJourney({ children, onScaleChange }) {
   const { language } = useLanguage();
   const text = copy[language] || copy.es;
   const [showMap, setShowMap] = useState(false);
@@ -94,6 +94,7 @@ export default function ExplorationJourney({ children }) {
     setTransition({ direction, target: index });
     window.setTimeout(() => {
       setCurrentIndex(index);
+      onScaleChange?.(EXPLORATION_SCALES[index]);
       window.setTimeout(() => setTransition(null), 420);
     }, 420);
   }

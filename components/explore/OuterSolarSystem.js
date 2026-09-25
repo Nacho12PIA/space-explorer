@@ -50,8 +50,6 @@ function Orbit({ radius, color = "#64748b", opacity = 0.22, rotation = [Math.PI 
 
 function PlutoSystem({ onSelect, text }) {
   const orbitRef = useRef();
-  const plutoTexture = useLoader(THREE.TextureLoader, "/textures/2k_pluto.jpg");
-  const charonTexture = useLoader(THREE.TextureLoader, "/textures/2k_charon.jpg");
   const plutoRef = useRef();
   const charonRef = useRef();
 
@@ -67,11 +65,11 @@ function PlutoSystem({ onSelect, text }) {
         <group rotation={[0, 0, 0.08]}>
           <mesh ref={plutoRef} position={[-0.24, 0, 0]} onClick={(e) => { e.stopPropagation(); onSelect(); }}>
             <sphereGeometry args={[0.62, 48, 48]} />
-            <meshStandardMaterial map={plutoTexture} roughness={0.94} metalness={0} />
+            <meshStandardMaterial color="#b58d72" roughness={0.94} metalness={0} />
           </mesh>
           <mesh ref={charonRef} position={[1.25, 0, 0]}>
             <sphereGeometry args={[0.31, 36, 36]} />
-            <meshStandardMaterial map={charonTexture} roughness={0.98} metalness={0} />
+            <meshStandardMaterial color="#807b78" roughness={0.98} metalness={0} />
           </mesh>
           <Orbit radius={0.76} opacity={0.16} />
         </group>

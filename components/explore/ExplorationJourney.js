@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLanguage } from "../../i18n/LanguageContext";
+import OuterSolarSystem from "./OuterSolarSystem";
 
 export const EXPLORATION_SCALES = [
   "solarSystem",
@@ -113,6 +114,8 @@ export default function ExplorationJourney({ children }) {
       >
         {currentScale === "solarSystem" ? (
           children
+        ) : currentScale === "outerSolarSystem" ? (
+          <OuterSolarSystem />
         ) : (
           <ScalePlaceholder label={text[currentScale]} text={text} />
         )}
